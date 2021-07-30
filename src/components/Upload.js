@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import { log, script } from '../utils'
 import JSZip from 'jszip'
@@ -5,106 +6,127 @@ import Anonymizer from 'dicomedit'
 
 function Upload() {
 
+    const [files, setFiles] = useState([])
+    const [progress, setProgress] = useState(0)
+    const [totalFiles, setTotalFiles] = useState(0)
+
     const onFileUpload = async (event) => {
 
-        // const zip = new JSZip()
-        // let files = []
+        const uploaded = event.target.files
 
+        // If a zipped folder is uploaded
+        if (uploaded[0].type.includes('zip')) {
 
-        // zip.loadAsync(event.target.files[0])
-        //     .then(zip => {
-        //         zip.forEach((relativePath, file) => {
-        //             if (relativePath.includes('dcm')) {
-        //                 zip.file(file.name).async('arraybuffer')
-        //                     .then(file => {
-        //                         files.push(file)
-        //                     })
-        //             }
-        //         })
-        //     })
-        //     .then((files) => {
-        //         for (let i = 0; i < files.length; i++) {
+            const zip = new JSZip()
+            let totalCounter = 0
+            let progressCounter = 0
 
-        //             let reader = new FileReader();
-        //             let file = files[i]
+            zip.loadAsync(event.target.files[0])
+                .then(zip => {
+                    zip.forEach((relativePath, file) => {
+                        if (relativePath.includes('dcm')) {
+                            totalCounter++
+                            const fileName = file.name
+                            zip.file(file.name).async('arraybuffer')
+                                .then(file => {
+                                    const anonymizer = new Anonymizer(script);
+                                    anonymizer.loadDcm(file)
+                                    anonymizer.applyRules();
+                                    const output = anonymizer.outputDict
+                                    progressCounter++
+                                    setProgress(progressCounter)
+                                    setFiles(files => [...files, { fileName, output }])
+                                    log(fileName, anonymizer.outputDict)
+                                    // arrayBuffer = anonymizer.write()
+                                })
+                        }
+                    })
+                    setTotalFiles(totalCounter)
+                })
 
-        //             reader.onload = async function () {
-        //                 log('3', reader, reader.result)
-        //                 let arrayBuffer = new Uint8Array(reader.result);
+        }
+        else {
 
-        //                 const anonymizer = new Anonymizer(script);
-        //                 anonymizer.loadDcm(arrayBuffer)
-        //                 await anonymizer.applyRules();
+            // one/many not-zipped dcm files are uploaded
+            for (let i = 0; i < uploaded.length; i++) {
 
-        //                 log(file.name, anonymizer.outputDict)
-        //                 // arrayBuffer = anonymizer.write()
-        //             }
+                setTotalFiles(uploaded.length)
+                let progressCounter = 0
+                let reader = new FileReader();
+                let file = uploaded[i]
+                let fileName = file.name
 
-        //             reader.onerror = function (error) {
-        //                 log(error)
-        //             }
+                reader.onload = async function () {
 
-        //             try {
+                    let arrayBuffer = new Uint8Array(reader.result);
 
-        //                 reader.readAsArrayBuffer(file);
+                    const anonymizer = new Anonymizer(script);
+                    anonymizer.loadDcm(arrayBuffer)
+                    await anonymizer.applyRules();
+                    const output = anonymizer.outputDict
+                    progressCounter++
+                    setProgress(progressCounter)
+                    setFiles(files => [...files, { fileName, output }])
+                    log(file.name, anonymizer.outputDict)
+                    // arrayBuffer = anonymizer.write()
+                }
 
-        //             } catch (error) {
-        //                 log(error)
-        //             }
-        //         }
+                reader.onerror = function (error) {
+                    log(error)
+                }
 
-        //     })
-
-
-
-        //logic when one/many not-zipped dcm files are selected in upload
-        for (let i = 0; i < event.target.files.length; i++) {
-
-            let reader = new FileReader();
-            let file = event.target.files[i]
-
-            reader.onload = async function () {
-
-                let arrayBuffer = new Uint8Array(reader.result);
-
-                const anonymizer = new Anonymizer(script);
-                anonymizer.loadDcm(arrayBuffer)
-                await anonymizer.applyRules();
-
-                log(file.name, anonymizer.outputDict)
-                // arrayBuffer = anonymizer.write()
+                try {
+                    reader.readAsArrayBuffer(file);
+                } catch (error) {
+                    log(error)
+                }
             }
 
-            reader.onerror = function (error) {
-                log(error)
-            }
-
-            try {
-                reader.readAsArrayBuffer(file);
-            } catch (error) {
-                log(error)
-            }
         }
 
     }
 
     return (
-        <label htmlFor='upload-file'>
-            <input
-                hidden
-                id='upload-file'
-                data-testid='upload-file'
-                name='upload-file'
-                type='file'
-                multiple={true}
-                onChange={(event) => onFileUpload(event)}
-            />
+        <>
+
+            <div>
+                <p>Script Being Used</p>
+                <p>{script}</p>
+            </div>
+
+            <label htmlFor='upload-file'>
+                <input
+                    hidden
+                    id='upload-file'
+                    data-testid='upload-file'
+                    name='upload-file'
+                    type='file'
+                    multiple={true}
+                    onChange={(event) => onFileUpload(event)}
+                />
+                <br />
+                <Button color='secondary' variant='contained' component='span'>
+                    Upload
+                </Button>
+            </label>
+
             <br />
-            <Button color='secondary' variant='contained' component='span'>
-                Upload
-            </Button>
+
+            <p>{totalFiles} files selected</p>
+            <p>{progress} uploaded and anonymized</p>
+
             <br />
-        </label>
+
+            {/* {files.length === totalFiles && files.map((file, index) => {
+                if (index < 100) {
+                    return (
+                        <span key={file.fileName}> (({index + 1})) : {file.fileName} loaded and anonymized</span>
+                    )
+                }
+            })} */}
+
+
+        </>
     );
 }
 
