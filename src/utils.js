@@ -1,9 +1,8 @@
 export const log = (...content) => {
-    console.log(...content)
+  console.log(...content)
 }
 
-export const script =
-    `
+export const script = `
     version "6.3"
     alterPixels["rectangle", "l=100, t=100, r=200, b=200", "solid", "v=100"]
     (0008,0080) := "Washington University School of Medicine"
