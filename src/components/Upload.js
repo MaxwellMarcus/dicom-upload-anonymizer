@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import Button from '@material-ui/core/Button'
 import { log, script } from '../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
@@ -43,16 +42,15 @@ function Upload() {
       })
     } else {
       // one/many not-zipped dcm files are uploaded
+      let progressCounter = 0
       for (let i = 0; i < uploaded.length; i++) {
         setTotalFiles(uploaded.length)
-        let progressCounter = 0
         let reader = new FileReader()
         let file = uploaded[i]
         let fileName = file.name
 
         reader.onload = async function () {
           let arrayBuffer = new Uint8Array(reader.result)
-
           const anonymizer = new Anonymizer(script)
           anonymizer.loadDcm(arrayBuffer)
           await anonymizer.applyRules()
@@ -65,13 +63,13 @@ function Upload() {
         }
 
         reader.onerror = function (error) {
-          log(error)
+          log('error ' + JSON.stringify(error))
         }
 
         try {
           reader.readAsArrayBuffer(file)
         } catch (error) {
-          log(error)
+          log('error ' + JSON.stringify(error))
         }
       }
     }
@@ -86,7 +84,6 @@ function Upload() {
 
       <label htmlFor='upload-file'>
         <input
-          hidden
           id='upload-file'
           data-testid='upload-file'
           name='upload-file'
@@ -95,9 +92,7 @@ function Upload() {
           onChange={(event) => onFileUpload(event)}
         />
         <br />
-        <Button color='secondary' variant='contained' component='span'>
-          Upload
-        </Button>
+
       </label>
 
       <br />
