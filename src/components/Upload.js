@@ -63,13 +63,13 @@ function Upload() {
         }
 
         reader.onerror = function (error) {
-          log('error ' + JSON.stringify(error))
+          log('onerror error ', error)
         }
 
         try {
           reader.readAsArrayBuffer(file)
         } catch (error) {
-          log('error ' + JSON.stringify(error))
+          log('catch error ', error)
         }
       }
     }
@@ -92,7 +92,6 @@ function Upload() {
           onChange={(event) => onFileUpload(event)}
         />
         <br />
-
       </label>
 
       <br />
@@ -101,14 +100,6 @@ function Upload() {
       <p>{progress} uploaded and anonymized</p>
 
       <br />
-
-      {/* {files.length === totalFiles && files.map((file, index) => {
-                if (index < 100) {
-                    return (
-                        <span key={file.fileName}> (({index + 1})) : {file.fileName} loaded and anonymized</span>
-                    )
-                }
-            })} */}
     </>
   )
 }
