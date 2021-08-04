@@ -46,30 +46,31 @@ function Upload() {
       for (let i = 0; i < uploaded.length; i++) {
         setTotalFiles(uploaded.length)
         let reader = new FileReader()
+        const anonymizer = new Anonymizer(script)
         let file = uploaded[i]
         let fileName = file.name
 
         reader.onload = async function () {
-          let arrayBuffer = new Uint8Array(reader.result)
-          const anonymizer = new Anonymizer(script)
-          anonymizer.loadDcm(arrayBuffer)
+          anonymizer.loadDcm(reader.result)
           await anonymizer.applyRules()
           const output = anonymizer.outputDict
           progressCounter++
           setProgress(progressCounter)
           setFiles((files) => [...files, { fileName, output }])
-          log(file.name, anonymizer.outputDict)
+          console.log(file.name, anonymizer.outputDict)
+          // const response = await UploadService(file)
+          // console.log('response ', response)
           // arrayBuffer = anonymizer.write()
         }
 
         reader.onerror = function (error) {
-          log('onerror error ', error)
+          console.log('onerror error ', error)
         }
 
         try {
           reader.readAsArrayBuffer(file)
         } catch (error) {
-          log('catch error ', error)
+          console.log('catch error ', error)
         }
       }
     }
