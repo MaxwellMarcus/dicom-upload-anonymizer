@@ -1,15 +1,19 @@
 import { useState } from 'react'
-import { log, script } from '../utils'
+import { script } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
+import Dropzone from 'react-dropzone'
+import './Upload.module.css'
+import Grid from '@material-ui/core/Grid';
+
 
 function Upload() {
   const [files, setFiles] = useState([])
   const [progress, setProgress] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
 
-  const onFileUpload = async (event) => {
-    const uploaded = event.target.files
+  const onFileUpload = async (uploaded) => {
+
 
     // If a zipped folder is uploaded
     if (uploaded[0].type.includes('zip')) {
@@ -17,7 +21,7 @@ function Upload() {
       let totalCounter = 0
       let progressCounter = 0
 
-      zip.loadAsync(event.target.files[0]).then((zip) => {
+      zip.loadAsync(uploaded[0]).then((zip) => {
         zip.forEach((relativePath, file) => {
           if (relativePath.includes('dcm')) {
             totalCounter++
@@ -33,7 +37,7 @@ function Upload() {
                 progressCounter++
                 setProgress(progressCounter)
                 setFiles((files) => [...files, { fileName, output }])
-                log(fileName, anonymizer.outputDict)
+                console.log(fileName, anonymizer.outputDict)
                 // arrayBuffer = anonymizer.write()
               })
           }
@@ -83,17 +87,20 @@ function Upload() {
         <p>{script}</p>
       </div>
 
-      <label htmlFor='upload-file'>
-        <input
-          id='upload-file'
-          data-testid='upload-file'
-          name='upload-file'
-          type='file'
-          multiple={true}
-          onChange={(event) => onFileUpload(event)}
-        />
-        <br />
-      </label>
+      <Grid container justifyContent='center'>
+        <Grid item xs={6}>
+          <Dropzone onDrop={acceptedFiles => onFileUpload(acceptedFiles)}>
+            {({ getRootProps, getInputProps }) => (
+              <section>
+                <div {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <p>Drag&apos;n&apos;drop some files here, or click to select files</p>
+                </div>
+              </section>
+            )}
+          </Dropzone>
+        </Grid>
+      </Grid>
 
       <br />
 
