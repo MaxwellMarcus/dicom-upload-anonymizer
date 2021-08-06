@@ -110,10 +110,6 @@ function Upload() {
 
       <br />
 
-      <p style={{ color: 'red' }}>
-        If the (unzipped) total folder/file size exceeds 2 GB, expect the page
-        to crash
-      </p>
       <p>total upload size - {formatFileSize(totalVolume)}</p>
       <p>{totalFiles} files selected</p>
       <p>{progress} uploaded and anonymized</p>
