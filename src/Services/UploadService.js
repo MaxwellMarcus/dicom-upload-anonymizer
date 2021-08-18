@@ -1,22 +1,21 @@
-import { proxySingleFileUploadURL, singleFileUploadURL } from '../utils'
+import { baseUrl, singleFileUploadURL } from '../utils'
 
-async function UploadService(file) {
-  const postData = async (url = '', file = {}) => {
-    const response = await fetch(url, {
+// eslint-disable-next-line no-undef
+const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
+
+export const singleFileUpload = async (file = {}) => {
+  try {
+    fetch(`${baseUrl}${singleFileUploadURL}`, {
       method: 'POST',
-      cache: 'no-cache',
+      withCredentails: true,
+      credentials: 'include',
+      headers: {
+        Authorization: auth,
+      },
+      dest: '/prearchive',
       body: file,
     })
-      .then((result) => {
-        return result.json()
-      })
-      .catch((error) => {
-        return error
-      })
-    return response
+  } catch (error) {
+    console.log(error)
   }
-
-  return postData(proxySingleFileUploadURL, file)
 }
-
-export default UploadService
