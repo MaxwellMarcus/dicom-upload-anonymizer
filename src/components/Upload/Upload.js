@@ -5,12 +5,14 @@ import Anonymizer from 'dicomedit'
 import Dropzone from 'react-dropzone'
 import './Upload.module.css'
 import Grid from '@material-ui/core/Grid'
+import { singleFileUpload } from '../../Services/UploadService'
 
 function Upload() {
   const [files, setFiles] = useState([])
   const [progress, setProgress] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
 
+  const anonymizer = new Anonymizer(script)
   let progressCounter = 0
   let totalCounter = 0
   let totalVolume = 0
@@ -25,20 +27,12 @@ function Upload() {
           if (relativePath.includes('dcm')) {
             totalCounter++
             const fileName = file.name
-            const size = file._data.uncompressedSize
             zip
               .file(file.name)
               .async('arraybuffer')
-              .then((file) => {
-                const anonymizer = new Anonymizer(script)
-                anonymizer.loadDcm(file)
-                anonymizer.applyRules()
-                const output = anonymizer.outputDict
-                progressCounter++
-                setProgress(progressCounter)
-                setFiles((files) => [...files, { fileName, size, output }])
-                console.log(fileName, anonymizer.outputDict)
-                // arrayBuffer = anonymizer.write()
+              .then(async (file) => {
+                const anonFile = await handleAnonymizing(file, fileName)
+                singleFileUpload(anonFile)
               })
           }
         })
@@ -49,34 +43,36 @@ function Upload() {
       for (let i = 0; i < uploaded.length; i++) {
         setTotalFiles(uploaded.length)
         let reader = new FileReader()
-        const anonymizer = new Anonymizer(script)
         let file = uploaded[i]
         let fileName = file.name
-        let size = file.size
-        reader.onload = async function () {
-          anonymizer.loadDcm(reader.result)
-          await anonymizer.applyRules()
-          const output = anonymizer.outputDict
-          progressCounter++
-          setProgress(progressCounter)
-          setFiles((files) => [...files, { fileName, size, output }])
-          console.log(file.name, anonymizer.outputDict)
-          // const response = await UploadService(file)
-          // console.log('response ', response)
-          // arrayBuffer = anonymizer.write()
-        }
 
-        reader.onerror = function (error) {
-          console.log('onerror error ', error)
+        reader.onload = async function () {
+          const anonFile = await handleAnonymizing(reader.result, fileName)
+          singleFileUpload(anonFile)
         }
 
         try {
           reader.readAsArrayBuffer(file)
         } catch (error) {
-          console.log('catch error ', error)
+          console.log(error)
         }
       }
     }
+  }
+
+  const handleAnonymizing = async (file, name) => {
+    const fileName = name
+    anonymizer.loadDcm(file)
+    await anonymizer.applyRules()
+    const outputBuffer = anonymizer.write()
+    const anonymizedFile = new Blob([outputBuffer], {
+      type: 'application/octet',
+    })
+    let size = anonymizedFile.size
+    progressCounter++
+    setProgress(progressCounter)
+    setFiles((files) => [...files, { fileName, size, anonymizedFile }])
+    return anonymizedFile
   }
 
   if (files.length > 0) {
