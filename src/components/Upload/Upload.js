@@ -1,27 +1,28 @@
 import { useState } from 'react'
-import { script, formatFileSize } from '../../utils'
+import { script, formatFileSize, isZippedFolder } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Dropzone from 'react-dropzone'
 import './Upload.module.css'
 import Grid from '@material-ui/core/Grid'
-import { singleFileUpload } from '../../Services/UploadService'
+import { uploadFiles } from '../../Services/UploadService'
 
 function Upload() {
   const [files, setFiles] = useState([])
   const [progress, setProgress] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
+  const [freshFiles, setFreshFiles] = useState(true)
 
   const anonymizer = new Anonymizer(script)
+  const zip = new JSZip()
   let progressCounter = 0
   let totalCounter = 0
   let totalVolume = 0
 
-  const onFileUpload = async (uploaded) => {
+  const onFileUpload = (uploaded) => {
+    setFreshFiles(true)
     // If a zipped folder is uploaded
-    if (uploaded[0].type.includes('zip')) {
-      const zip = new JSZip()
-
+    if (isZippedFolder(uploaded[0])) {
       zip.loadAsync(uploaded[0]).then((zip) => {
         zip.forEach((relativePath, file) => {
           if (relativePath.includes('dcm')) {
@@ -31,8 +32,7 @@ function Upload() {
               .file(file.name)
               .async('arraybuffer')
               .then(async (file) => {
-                const anonFile = await handleAnonymizing(file, fileName)
-                singleFileUpload(anonFile)
+                handleAnonymizing(file, fileName)
               })
           }
         })
@@ -46,9 +46,8 @@ function Upload() {
         let file = uploaded[i]
         let fileName = file.name
 
-        reader.onload = async function () {
-          const anonFile = await handleAnonymizing(reader.result, fileName)
-          singleFileUpload(anonFile)
+        reader.onload = function () {
+          handleAnonymizing(reader.result, fileName)
         }
 
         try {
@@ -60,6 +59,12 @@ function Upload() {
     }
   }
 
+  /**
+   *
+   * @param {File} File the File object to anonymize
+   * @param {string} Name the name of the file
+   * @returns the new anonymized 'file'
+   */
   const handleAnonymizing = async (file, name) => {
     const fileName = name
     anonymizer.loadDcm(file)
@@ -70,9 +75,22 @@ function Upload() {
     })
     let size = anonymizedFile.size
     progressCounter++
-    setProgress(progressCounter)
     setFiles((files) => [...files, { fileName, size, anonymizedFile }])
-    return anonymizedFile
+    setProgress(progressCounter)
+  }
+
+  const zipAndUpload = async (files) => {
+    const zipToSend = new JSZip()
+    files.forEach((file) => {
+      zipToSend.file(file.fileName, file.anonymizedFile)
+    })
+    const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
+    uploadFiles(zippedFolder)
+  }
+
+  if (freshFiles && totalFiles > 0 && progress === totalFiles) {
+    setFreshFiles(false)
+    zipAndUpload(files)
   }
 
   if (files.length > 0) {
@@ -108,7 +126,7 @@ function Upload() {
 
       <p>total upload size - {formatFileSize(totalVolume)}</p>
       <p>{totalFiles} files selected</p>
-      <p>{progress} uploaded and anonymized</p>
+      <p>{progress} anonymized</p>
 
       <br />
     </>

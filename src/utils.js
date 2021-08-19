@@ -1,5 +1,7 @@
 export const baseUrl = 'https://dakota-dev-20210803-1130.dev.radiologics.com'
-export const singleFileUploadURL =
+export const importAPI =
+  '/data/services/import?inbody=true&import-handles=DICOM-zip'
+export const singleFileUploadParams =
   '/data/services/import?import-handler=gradual-DICOM&inbody=true'
 
 export const script = `
@@ -26,6 +28,10 @@ export function checkDicomFile(arrayBuffer) {
   const arr = new Uint8Array(arrayBuffer.slice(128, 132))
   // bytes from 128 to 132 must be "DICM"
   return Array.from('DICM').every((char, i) => char.charCodeAt(0) === arr[i])
+}
+
+export const isZippedFolder = (file) => {
+  return file.type.includes('zip')
 }
 
 //     // Common DIAN anonymization script 10Dec2012

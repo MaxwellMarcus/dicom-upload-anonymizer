@@ -1,11 +1,11 @@
-import { baseUrl, singleFileUploadURL } from '../utils'
+import { baseUrl, importAPI } from '../utils'
 
 // eslint-disable-next-line no-undef
 const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
 
-export const singleFileUpload = async (file = {}) => {
+export const uploadFiles = (files = {}) => {
   try {
-    fetch(`${baseUrl}${singleFileUploadURL}`, {
+    fetch(`${baseUrl}${importAPI}`, {
       method: 'POST',
       withCredentails: true,
       credentials: 'include',
@@ -13,7 +13,7 @@ export const singleFileUpload = async (file = {}) => {
         Authorization: auth,
       },
       dest: '/prearchive',
-      body: file,
+      body: files,
     })
   } catch (error) {
     console.log(error)
