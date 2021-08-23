@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { script, formatFileSize, isZippedFolder } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
@@ -9,9 +9,8 @@ import { uploadFiles } from '../../Services/UploadService'
 
 function Upload() {
   const [files, setFiles] = useState([])
-  const [progress, setProgress] = useState(0)
-  const [totalFiles, setTotalFiles] = useState(0)
-  const [freshFiles, setFreshFiles] = useState(true)
+  const [progress, setProgress] = useState(null)
+  const [totalFiles, setTotalFiles] = useState(null)
 
   const anonymizer = new Anonymizer(script)
   const zip = new JSZip()
@@ -20,7 +19,6 @@ function Upload() {
   let totalVolume = 0
 
   const onFileUpload = (uploaded) => {
-    setFreshFiles(true)
     // If a zipped folder is uploaded
     if (isZippedFolder(uploaded[0])) {
       zip.loadAsync(uploaded[0]).then((zip) => {
@@ -79,6 +77,20 @@ function Upload() {
     setProgress(progressCounter)
   }
 
+  /**
+   * watches for the files state to change, and handles the
+   * zipping and uploading when all files are read into memory
+   */
+  useEffect(() => {
+    if (files.length === totalFiles) {
+      zipAndUpload(files)
+    }
+  }, [files.length])
+
+  /**
+   *
+   * @param {files} files - the files to zip and upload
+   */
   const zipAndUpload = async (files) => {
     const zipToSend = new JSZip()
     files.forEach((file) => {
@@ -86,11 +98,6 @@ function Upload() {
     })
     const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
     uploadFiles(zippedFolder)
-  }
-
-  if (freshFiles && totalFiles > 0 && progress === totalFiles) {
-    setFreshFiles(false)
-    zipAndUpload(files)
   }
 
   if (files.length > 0) {
