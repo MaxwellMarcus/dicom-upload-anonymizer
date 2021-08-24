@@ -6,7 +6,6 @@ function App() {
   return (
     <div className='App'>
       <Container>
-        <div id='todaysDate'></div>
         <Upload />
       </Container>
     </div>

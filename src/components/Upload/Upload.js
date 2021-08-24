@@ -1,22 +1,36 @@
 import { useState, useEffect } from 'react'
-import { script, formatFileSize, isZippedFolder } from '../../utils'
+import { getSiteWideAnonScript, uploadFiles } from '../../Services'
+import { formatFileSize, isZippedFolder } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Dropzone from 'react-dropzone'
 import './Upload.module.css'
 import Grid from '@material-ui/core/Grid'
-import { uploadFiles } from '../../Services/UploadService'
+import Paper from '@material-ui/core/Paper'
 
 function Upload() {
   const [files, setFiles] = useState([])
   const [progress, setProgress] = useState(null)
   const [totalFiles, setTotalFiles] = useState(null)
+  const [anonScript, setAnonScript] = useState(null)
 
-  const anonymizer = new Anonymizer(script)
   const zip = new JSZip()
   let progressCounter = 0
   let totalCounter = 0
   let totalVolume = 0
+
+  /**
+   * retreive the site-wide anon script on app load
+   */
+  useEffect(() => {
+    getSiteWideAnonScript()
+      .then((response) => response.text())
+      .then((text) => {
+        const scriptStart = text.indexOf('version')
+        const parsedScript = text.substring(scriptStart)
+        setAnonScript(parsedScript)
+      })
+  }, [])
 
   const onFileUpload = (uploaded) => {
     // If a zipped folder is uploaded
@@ -64,6 +78,7 @@ function Upload() {
    * @returns the new anonymized 'file'
    */
   const handleAnonymizing = async (file, name) => {
+    const anonymizer = new Anonymizer(anonScript)
     const fileName = name
     anonymizer.loadDcm(file)
     await anonymizer.applyRules()
@@ -106,14 +121,17 @@ function Upload() {
 
   return (
     <>
-      <div>
-        <p>Script Being Used</p>
-        <p>{script}</p>
-      </div>
+      <Paper elevation={0}>
+        <h3>Your Site-wide Anonymization script</h3>
+        {anonScript && <p>{anonScript}</p>}
+      </Paper>
 
       <Grid container justifyContent='center'>
         <Grid item xs={6}>
-          <Dropzone onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}>
+          <Dropzone
+            disabled={!anonScript}
+            onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
+          >
             {({ getRootProps, getInputProps }) => (
               <section>
                 <div {...getRootProps()}>
