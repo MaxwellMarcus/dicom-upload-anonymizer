@@ -12,6 +12,14 @@ section:hover {
   text-align: center;
 }
 
-.inputPadding > div {
-  padding-right: 1em;
+.disabled {
+  background-color: lightcoral;
+}
+
+.disabled:hover {
+  cursor: not-allowed;
+}
+
+.largerText {
+  font-size: large;
 }

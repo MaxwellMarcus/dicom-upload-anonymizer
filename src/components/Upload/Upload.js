@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react'
 import { getSiteWideAnonScript, uploadFiles } from '../../Services'
-import { formatFileSize, isZippedFolder } from '../../utils'
+import { formatFileSize, isZippedFolder, msToMinutes } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Dropzone from 'react-dropzone'
 import styles from './Upload.module.css'
+import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
+import InputFields from '../InputFields/InputFields'
 
 function Upload() {
   const [files, setFiles] = useState([])
-  const [progress, setProgress] = useState(null)
+  const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(null)
   const [totalFiles, setTotalFiles] = useState(null)
   const [anonScript, setAnonScript] = useState(null)
   const [projectId, setProjectId] = useState(null)
   const [subjectId, setSubjectId] = useState(null)
+  const [dateTime, setDateTime] = useState(null)
 
   const zip = new JSZip()
   let progressCounter = 0
@@ -57,12 +59,13 @@ function Upload() {
       // one/many not-zipped dcm files are uploaded
       for (let i = 0; i < uploaded.length; i++) {
         setTotalFiles(uploaded.length)
-        let reader = new FileReader()
-        let file = uploaded[i]
-        let fileName = file.name
+        const reader = new FileReader()
+        const file = uploaded[i]
+        const fileName = file.name
+        const lastModified = file.lastModified
 
         reader.onload = function () {
-          handleAnonymizing(reader.result, fileName)
+          handleAnonymizing(reader.result, fileName, lastModified)
         }
 
         try {
@@ -80,7 +83,7 @@ function Upload() {
    * @param {string} Name the name of the file
    * @returns the new anonymized 'file'
    */
-  const handleAnonymizing = async (file, name) => {
+  const handleAnonymizing = async (file, name, lastModified) => {
     const anonymizer = new Anonymizer(anonScript)
     const fileName = name
     anonymizer.loadDcm(file)
@@ -91,19 +94,22 @@ function Upload() {
     })
     let size = anonymizedFile.size
     progressCounter++
-    setFiles((files) => [...files, { fileName, size, anonymizedFile }])
-    setProgress(progressCounter)
+    setFiles((files) => [
+      ...files,
+      { fileName, size, lastModified, anonymizedFile },
+    ])
+    setNumOfAnonomyzedFiles(progressCounter)
   }
 
   /**
    * watches for the files state to change, and handles the
    * zipping and uploading when all files are read into memory
    */
-  useEffect(() => {
-    if (files.length === totalFiles) {
-      zipAndUpload(files)
-    }
-  }, [files.length])
+  // useEffect(() => {
+  //   if (files.length === totalFiles) {
+  //     zipAndUpload(files)
+  //   }
+  // }, [files.length])
 
   /**
    *
@@ -122,59 +128,76 @@ function Upload() {
     files.forEach((file) => (totalVolume += file.size))
   }
 
-  const onProjectId = (value) => {
-    setProjectId(value)
-  }
+  const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
 
-  const onSubjectId = (value) => {
-    setSubjectId(value)
-  }
+  const fileVsVerifyTimeDiff =
+    files[0] &&
+    Math.abs(msToMinutes(files[0].lastModified) - msToMinutes(dateTime))
 
   return (
     <>
-      <form className={styles.inputPadding} noValidate autoComplete='off'>
-        <TextField
-          onChange={(event) => onProjectId(event.target.value)}
-          id='project'
-          label='Project ID'
-          variant='outlined'
-        />
-        <TextField
-          onChange={(event) => onSubjectId(event.target.value)}
-          id='subject'
-          label='Subject ID'
-          variant='outlined'
-        />
-      </form>
+      <Paper elevation={5}>
+        <Box p={2}>
+          <InputFields
+            setProjectId={setProjectId}
+            setSubjectId={setSubjectId}
+            setDateTime={setDateTime}
+          />
 
-      <Grid item xs={6}>
-        <Paper elevation={5}>
-          <Dropzone
-            disabled={!(anonScript && projectId && subjectId)}
-            onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
-          >
-            {({ getRootProps, getInputProps }) => (
-              <section>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p className={styles.centerText}>
-                    Drag&apos;n&apos;drop some files here, or click to select
-                    files
-                  </p>
-                </div>
-              </section>
-            )}
-          </Dropzone>
-        </Paper>
-      </Grid>
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
+              <Paper elevation={5}>
+                <Dropzone
+                  disabled={isUploadDisabled}
+                  onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
+                >
+                  {({ getRootProps, getInputProps }) => (
+                    <section
+                      className={`${styles.centerText} ${
+                        isUploadDisabled ? styles.disabled : ''
+                      }`}
+                    >
+                      <div {...getRootProps()}>
+                        <input {...getInputProps()} />
+                        {isUploadDisabled && (
+                          <p>Fill out the above fields to upload files</p>
+                        )}
+                        {!isUploadDisabled && (
+                          <p>
+                            Drag&apos;n&apos;drop some files here, or click to
+                            select files
+                          </p>
+                        )}
+                      </div>
+                    </section>
+                  )}
+                </Dropzone>
+              </Paper>
+            </Grid>
 
-      <br />
+            <Grid item xs={6}>
+              <p>
+                <b>{formatFileSize(totalVolume)}</b> total upload size
+              </p>
+              <p>
+                <b>{totalFiles}</b> file(s) selected
+              </p>
+              <p>
+                <b>{numOfAnonomyzedFiles}</b> file(s) anonymized
+              </p>
+            </Grid>
+          </Grid>
 
-      <p>total upload size - {formatFileSize(totalVolume)}</p>
-      <p>{totalFiles} files selected</p>
-      <p>{progress} anonymized</p>
-
-      <br />
+          {files.length > 0 && (
+            <div className={styles.largerText}>
+              <p>
+                File vs Verification time difference - {fileVsVerifyTimeDiff}{' '}
+                minutes (max difference allowed is 120)
+              </p>
+            </div>
+          )}
+        </Box>
+      </Paper>
     </>
   )
 }

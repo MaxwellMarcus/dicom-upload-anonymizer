@@ -1,0 +1,7 @@
+.inputPadding > div {
+  padding-right: 1em;
+}
+
+.dateTimePicker {
+  width: 250px;
+}

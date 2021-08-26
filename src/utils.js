@@ -23,3 +23,7 @@ export function checkDicomFile(arrayBuffer) {
 export const isZippedFolder = (file) => {
   return file.type.includes('zip')
 }
+
+export const msToMinutes = (milliseconds) => {
+  return Math.floor(milliseconds / (1000 * 60))
+}
