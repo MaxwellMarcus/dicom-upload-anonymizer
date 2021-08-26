@@ -1,8 +1,5 @@
 export const baseUrl = 'https://dakota-dev-20210803-1130.dev.radiologics.com'
 
-export const importAPI =
-  '/data/services/import?inbody=true&import-handler=DICOM-zip'
-
 export const anonymizeAPI = '/xapi/anonymize/site'
 
 export function formatFileSize(size) {

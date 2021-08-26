@@ -1,9 +1,17 @@
 section {
-    height: 100px;
-    line-height: 100px;
-    background-color:cadetblue;
+  height: 100px;
+  line-height: 100px;
+  background-color: cadetblue;
 }
 
 section:hover {
-    cursor: pointer;
+  cursor: pointer;
+}
+
+.centerText {
+  text-align: center;
+}
+
+.inputPadding > div {
+  padding-right: 1em;
 }

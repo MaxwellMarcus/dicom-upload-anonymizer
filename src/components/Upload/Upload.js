@@ -4,15 +4,18 @@ import { formatFileSize, isZippedFolder } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Dropzone from 'react-dropzone'
-import './Upload.module.css'
-import Grid from '@material-ui/core/Grid'
+import styles from './Upload.module.css'
 import Paper from '@material-ui/core/Paper'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
 
 function Upload() {
   const [files, setFiles] = useState([])
   const [progress, setProgress] = useState(null)
   const [totalFiles, setTotalFiles] = useState(null)
   const [anonScript, setAnonScript] = useState(null)
+  const [projectId, setProjectId] = useState(null)
+  const [subjectId, setSubjectId] = useState(null)
 
   const zip = new JSZip()
   let progressCounter = 0
@@ -112,31 +115,49 @@ function Upload() {
       zipToSend.file(file.fileName, file.anonymizedFile)
     })
     const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-    uploadFiles(zippedFolder)
+    uploadFiles(projectId, subjectId, zippedFolder)
   }
 
   if (files.length > 0) {
     files.forEach((file) => (totalVolume += file.size))
   }
 
+  const onProjectId = (value) => {
+    setProjectId(value)
+  }
+
+  const onSubjectId = (value) => {
+    setSubjectId(value)
+  }
+
   return (
     <>
-      <Paper elevation={0}>
-        <h3>Your Site-wide Anonymization script</h3>
-        {anonScript && <p>{anonScript}</p>}
-      </Paper>
+      <form className={styles.inputPadding} noValidate autoComplete='off'>
+        <TextField
+          onChange={(event) => onProjectId(event.target.value)}
+          id='project'
+          label='Project ID'
+          variant='outlined'
+        />
+        <TextField
+          onChange={(event) => onSubjectId(event.target.value)}
+          id='subject'
+          label='Subject ID'
+          variant='outlined'
+        />
+      </form>
 
-      <Grid container justifyContent='center'>
-        <Grid item xs={6}>
+      <Grid item xs={6}>
+        <Paper elevation={5}>
           <Dropzone
-            disabled={!anonScript}
+            disabled={!(anonScript && projectId && subjectId)}
             onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
           >
             {({ getRootProps, getInputProps }) => (
               <section>
                 <div {...getRootProps()}>
                   <input {...getInputProps()} />
-                  <p>
+                  <p className={styles.centerText}>
                     Drag&apos;n&apos;drop some files here, or click to select
                     files
                   </p>
@@ -144,7 +165,7 @@ function Upload() {
               </section>
             )}
           </Dropzone>
-        </Grid>
+        </Paper>
       </Grid>
 
       <br />
