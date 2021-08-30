@@ -7,6 +7,7 @@ import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import InputFields from '../InputFields/InputFields'
 import UploadButton from '../UploadButton/UploadButton'
+import SubmitButton from '../SubmitButton/SubmitButton'
 
 function Upload() {
   const [files, setFiles] = useState([])
@@ -16,11 +17,12 @@ function Upload() {
   const [projectId, setProjectId] = useState(null)
   const [subjectId, setSubjectId] = useState(null)
   const [dateTime, setDateTime] = useState(null)
+  const [sendingFiles, setSendingFiles] = useState(false)
 
   const jsZip = new JSZip()
   let progressCounter = 0
   let totalVolume = 0
-  let filesOutsideRange = {}
+  let fileOutsideRange = ''
 
   useEffect(() => {
     getSiteWideAnonScript()
@@ -96,22 +98,21 @@ function Upload() {
     setNumOfAnonomyzedFiles(progressCounter)
   }
 
-  /**
-   *
-   * @param {files} files - the files to zip and upload
-   */
-  const zipAndUpload = async (files) => {
+  const onSubmit = async () => {
     const zipToSend = new JSZip()
     files.forEach((file) => {
       zipToSend.file(file.fileName, file.anonymizedFile)
     })
+    setSendingFiles(true)
     const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-    uploadFiles(projectId, subjectId, zippedFolder)
+    uploadFiles(projectId, subjectId, zippedFolder).then(() => {
+      setSendingFiles(false)
+    })
   }
 
   if (files.length === totalFiles) {
     files.forEach((file) => (totalVolume += file.size))
-    filesOutsideRange = checkTimeDiffs(files, dateTime)
+    fileOutsideRange = checkTimeDiffs(files, dateTime)
   }
 
   const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
@@ -132,14 +133,16 @@ function Upload() {
             totalVolume={totalVolume}
             totalFiles={totalFiles}
             numOfAnonomyzedFiles={numOfAnonomyzedFiles}
+            fileOutsideRange={fileOutsideRange}
           />
 
-          {!!filesOutsideRange.count && (
-            <p>
-              <b>{filesOutsideRange.count}</b> file(s) are outside the two hour
-              window by an average of <b>{filesOutsideRange.time}</b> minutes
-            </p>
-          )}
+          <SubmitButton
+            isUploadDisabled={isUploadDisabled}
+            fileOutsideRange={fileOutsideRange}
+            areFilesReady={files.length === totalFiles}
+            sendingFiles={sendingFiles}
+            onSubmit={onSubmit}
+          />
         </Box>
       </Paper>
     </>

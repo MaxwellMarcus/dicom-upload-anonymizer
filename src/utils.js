@@ -41,20 +41,17 @@ const msToMinutes = (milliseconds) => {
  *
  * @param {File} files - the uploaded anonymized files
  * @param {*} dateTime - the date-time user input value
- * @returns {Array} an array containing file names that are out of the two hour range
+ * @returns {String} The name of the first file outside the 2 houor range
  */
 export const checkTimeDiffs = (files, dateTime) => {
-  let count = 0
-  let outsideAverageTime = 0
-  files.forEach((file) => {
-    const timeDiff = msToMinutes(Math.abs(file.lastModified - dateTime))
-    if (timeDiff > 120) {
-      count++
-      outsideAverageTime += timeDiff
+  for (let i = 0; i < files.length; i++) {
+    const timeDiff = msToMinutes(files[i].lastModified - dateTime)
+    const absTimeDiff = Math.abs(timeDiff)
+    if (absTimeDiff > 120) {
+      return `${files[i].fileName} is ${absTimeDiff} minutes ${
+        timeDiff > 0 ? 'after' : 'before'
+      } the verification time entered`
     }
-  })
-  return {
-    count,
-    time: Math.floor(outsideAverageTime / count),
   }
+  return ''
 }

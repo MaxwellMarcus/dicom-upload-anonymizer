@@ -11,7 +11,7 @@ const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
  */
 export const uploadFiles = (projectId = '', subjectId = '', files = {}) => {
   try {
-    fetch(
+    return fetch(
       `${baseUrl}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}`,
       {
         method: 'POST',

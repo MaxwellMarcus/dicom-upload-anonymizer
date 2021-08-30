@@ -11,6 +11,7 @@ const UploadButton = ({
   totalVolume,
   totalFiles,
   numOfAnonomyzedFiles,
+  fileOutsideRange,
 }) => {
   return (
     <Grid container spacing={3}>
@@ -55,6 +56,10 @@ const UploadButton = ({
           <b>{numOfAnonomyzedFiles}</b> file(s) anonymized
         </p>
       </Grid>
+
+      <Grid item xs={12}>
+        {!!fileOutsideRange && <p>{fileOutsideRange}</p>}
+      </Grid>
     </Grid>
   )
 }
@@ -67,4 +72,5 @@ UploadButton.propTypes = {
   totalVolume: PropTypes.number,
   totalFiles: PropTypes.number,
   numOfAnonomyzedFiles: PropTypes.number,
+  fileOutsideRange: PropTypes.string,
 }
