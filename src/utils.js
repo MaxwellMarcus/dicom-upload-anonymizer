@@ -12,18 +12,49 @@ export function formatFileSize(size) {
   )
 }
 
-/* eslint-disable */
-export function checkDicomFile(arrayBuffer) {
-  if (arrayBuffer.length <= 132) return false
-  const arr = new Uint8Array(arrayBuffer.slice(128, 132))
-  // bytes from 128 to 132 must be "DICM"
-  return Array.from('DICM').every((char, i) => char.charCodeAt(0) === arr[i])
-}
+// function checkDicomFile(arrayBuffer) {
+//   if (arrayBuffer.length <= 132) return false
+//   const arr = new Uint8Array(arrayBuffer.slice(128, 132))
+//   // bytes from 128 to 132 must be "DICM"
+//   return Array.from('DICM').every((char, i) => char.charCodeAt(0) === arr[i])
+// }
 
+/**
+ *
+ * @param {File} file - checks whether the uploaded item is a zip folder
+ * @returns
+ */
 export const isZippedFolder = (file) => {
   return file.type.includes('zip')
 }
 
-export const msToMinutes = (milliseconds) => {
+/**
+ *
+ * @param {number} milliseconds - converts milliseconds to minutes
+ * @returns
+ */
+const msToMinutes = (milliseconds) => {
   return Math.floor(milliseconds / (1000 * 60))
+}
+
+/**
+ *
+ * @param {File} files - the uploaded anonymized files
+ * @param {*} dateTime - the date-time user input value
+ * @returns {Array} an array containing file names that are out of the two hour range
+ */
+export const checkTimeDiffs = (files, dateTime) => {
+  let count = 0
+  let outsideAverageTime = 0
+  files.forEach((file) => {
+    const timeDiff = msToMinutes(Math.abs(file.lastModified - dateTime))
+    if (timeDiff > 120) {
+      count++
+      outsideAverageTime += timeDiff
+    }
+  })
+  return {
+    count,
+    time: Math.floor(outsideAverageTime / count),
+  }
 }

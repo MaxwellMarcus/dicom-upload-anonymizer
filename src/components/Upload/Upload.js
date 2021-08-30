@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import { getSiteWideAnonScript, uploadFiles } from '../../Services'
-import { formatFileSize, isZippedFolder, msToMinutes } from '../../utils'
+import { isZippedFolder, checkTimeDiffs } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
-import Dropzone from 'react-dropzone'
-import styles from './Upload.module.css'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
 import InputFields from '../InputFields/InputFields'
+import UploadButton from '../UploadButton/UploadButton'
 
 function Upload() {
   const [files, setFiles] = useState([])
@@ -19,14 +17,11 @@ function Upload() {
   const [subjectId, setSubjectId] = useState(null)
   const [dateTime, setDateTime] = useState(null)
 
-  const zip = new JSZip()
+  const jsZip = new JSZip()
   let progressCounter = 0
-  let totalCounter = 0
   let totalVolume = 0
+  let filesOutsideRange = {}
 
-  /**
-   * retreive the site-wide anon script on app load
-   */
   useEffect(() => {
     getSiteWideAnonScript()
       .then((response) => response.text())
@@ -38,25 +33,25 @@ function Upload() {
   }, [])
 
   const onFileUpload = (uploaded) => {
-    // If a zipped folder is uploaded
     if (isZippedFolder(uploaded[0])) {
-      zip.loadAsync(uploaded[0]).then((zip) => {
+      let totalCounter = 0
+      jsZip.loadAsync(uploaded[0]).then((zip) => {
         zip.forEach((relativePath, file) => {
           if (relativePath.includes('dcm')) {
             totalCounter++
             const fileName = file.name
-            zip
+            const lastModified = new Date(file.date).getTime()
+            jsZip
               .file(file.name)
               .async('arraybuffer')
               .then(async (file) => {
-                handleAnonymizing(file, fileName)
+                handleAnonymizing(file, fileName, lastModified)
               })
           }
         })
         setTotalFiles(totalCounter)
       })
     } else {
-      // one/many not-zipped dcm files are uploaded
       for (let i = 0; i < uploaded.length; i++) {
         setTotalFiles(uploaded.length)
         const reader = new FileReader()
@@ -92,7 +87,7 @@ function Upload() {
     const anonymizedFile = new Blob([outputBuffer], {
       type: 'application/octet',
     })
-    let size = anonymizedFile.size
+    const size = anonymizedFile.size
     progressCounter++
     setFiles((files) => [
       ...files,
@@ -100,16 +95,6 @@ function Upload() {
     ])
     setNumOfAnonomyzedFiles(progressCounter)
   }
-
-  /**
-   * watches for the files state to change, and handles the
-   * zipping and uploading when all files are read into memory
-   */
-  // useEffect(() => {
-  //   if (files.length === totalFiles) {
-  //     zipAndUpload(files)
-  //   }
-  // }, [files.length])
 
   /**
    *
@@ -124,15 +109,12 @@ function Upload() {
     uploadFiles(projectId, subjectId, zippedFolder)
   }
 
-  if (files.length > 0) {
+  if (files.length === totalFiles) {
     files.forEach((file) => (totalVolume += file.size))
+    filesOutsideRange = checkTimeDiffs(files, dateTime)
   }
 
   const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
-
-  const fileVsVerifyTimeDiff =
-    files[0] &&
-    Math.abs(msToMinutes(files[0].lastModified) - msToMinutes(dateTime))
 
   return (
     <>
@@ -144,57 +126,19 @@ function Upload() {
             setDateTime={setDateTime}
           />
 
-          <Grid container spacing={3}>
-            <Grid item xs={6}>
-              <Paper elevation={5}>
-                <Dropzone
-                  disabled={isUploadDisabled}
-                  onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
-                >
-                  {({ getRootProps, getInputProps }) => (
-                    <section
-                      className={`${styles.centerText} ${
-                        isUploadDisabled ? styles.disabled : ''
-                      }`}
-                    >
-                      <div {...getRootProps()}>
-                        <input {...getInputProps()} />
-                        {isUploadDisabled && (
-                          <p>Fill out the above fields to upload files</p>
-                        )}
-                        {!isUploadDisabled && (
-                          <p>
-                            Drag&apos;n&apos;drop some files here, or click to
-                            select files
-                          </p>
-                        )}
-                      </div>
-                    </section>
-                  )}
-                </Dropzone>
-              </Paper>
-            </Grid>
+          <UploadButton
+            onFileUpload={onFileUpload}
+            isUploadDisabled={isUploadDisabled}
+            totalVolume={totalVolume}
+            totalFiles={totalFiles}
+            numOfAnonomyzedFiles={numOfAnonomyzedFiles}
+          />
 
-            <Grid item xs={6}>
-              <p>
-                <b>{formatFileSize(totalVolume)}</b> total upload size
-              </p>
-              <p>
-                <b>{totalFiles}</b> file(s) selected
-              </p>
-              <p>
-                <b>{numOfAnonomyzedFiles}</b> file(s) anonymized
-              </p>
-            </Grid>
-          </Grid>
-
-          {files.length > 0 && (
-            <div className={styles.largerText}>
-              <p>
-                File vs Verification time difference - {fileVsVerifyTimeDiff}{' '}
-                minutes (max difference allowed is 120)
-              </p>
-            </div>
+          {!!filesOutsideRange.count && (
+            <p>
+              <b>{filesOutsideRange.count}</b> file(s) are outside the two hour
+              window by an average of <b>{filesOutsideRange.time}</b> minutes
+            </p>
           )}
         </Box>
       </Paper>
