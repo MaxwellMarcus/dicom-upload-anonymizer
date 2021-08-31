@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getSiteWideAnonScript, uploadFiles } from '../../Services'
-import { isZippedFolder, checkTimeDiffs } from '../../utils'
+import { isZippedFolder, checkTimeDiffs, LIBRARY_PARSER } from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Box from '@material-ui/core/Box'
@@ -10,6 +10,7 @@ import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
 
 function Upload() {
+  // file - {fileName, size, lastModified, anonymizedFile}
   const [files, setFiles] = useState([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(null)
   const [totalFiles, setTotalFiles] = useState(null)
@@ -24,6 +25,7 @@ function Upload() {
   let totalVolume = 0
   let fileOutsideRange = ''
 
+  // Retrieve site-wide anon script and parse it
   useEffect(() => {
     getSiteWideAnonScript()
       .then((response) => response.text())
@@ -81,7 +83,9 @@ function Upload() {
    * @returns the new anonymized 'file'
    */
   const handleAnonymizing = async (file, name, lastModified) => {
-    const anonymizer = new Anonymizer(anonScript)
+    const anonymizer = new Anonymizer(anonScript, {
+      parserLibrary: LIBRARY_PARSER.ANTLR4,
+    })
     const fileName = name
     anonymizer.loadDcm(file)
     await anonymizer.applyRules()

@@ -55,3 +55,8 @@ export const checkTimeDiffs = (files, dateTime) => {
   }
   return ''
 }
+
+export const LIBRARY_PARSER = {
+  ANTLR4: 'ANTLR4',
+  PEGJS: 'PEGJS',
+}
