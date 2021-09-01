@@ -3,26 +3,29 @@ import Button from '@material-ui/core/Button'
 
 const SubmitButton = ({
   isUploadDisabled,
-  fileOutsideRange,
+  fileCheck,
   areFilesReady,
   sendingFiles,
   onSubmit,
 }) => {
   return (
     <>
-      {!isUploadDisabled && !fileOutsideRange && areFilesReady && (
-        <form noValidate autoComplete='off'>
-          <Button
-            onClick={() => onSubmit()}
-            disabled={sendingFiles}
-            variant='contained'
-            color='primary'
-            size='large'
-          >
-            Submit Files
-          </Button>
-        </form>
-      )}
+      {!isUploadDisabled &&
+        !fileCheck.dateTimeError &&
+        !fileCheck.studyInstanceUidError &&
+        areFilesReady && (
+          <form noValidate autoComplete='off'>
+            <Button
+              onClick={() => onSubmit()}
+              disabled={sendingFiles}
+              variant='contained'
+              color='primary'
+              size='large'
+            >
+              Submit Files
+            </Button>
+          </form>
+        )}
     </>
   )
 }
@@ -31,7 +34,7 @@ export default SubmitButton
 
 SubmitButton.propTypes = {
   isUploadDisabled: PropTypes.bool,
-  fileOutsideRange: PropTypes.string,
+  fileCheck: PropTypes.object,
   areFilesReady: PropTypes.bool,
   sendingFiles: PropTypes.bool,
   onSubmit: PropTypes.func,

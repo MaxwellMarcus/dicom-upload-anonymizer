@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import { getSiteWideAnonScript, uploadFiles } from '../../Services'
-import { isZippedFolder, checkTimeDiffs, LIBRARY_PARSER } from '../../utils'
+import {
+  isZippedFolder,
+  checkStudyDateTimeAndUID,
+  LIBRARY_PARSER,
+  STUDY_DATE,
+  STUDY_TIME,
+  STUDY_INSTANCE_UID,
+} from '../../utils'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Box from '@material-ui/core/Box'
@@ -10,7 +17,7 @@ import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
 
 function Upload() {
-  // file - {fileName, size, lastModified, anonymizedFile}
+  // file - {fileName, size, dicomTags, anonymizedFile}
   const [files, setFiles] = useState([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(null)
   const [totalFiles, setTotalFiles] = useState(null)
@@ -23,7 +30,7 @@ function Upload() {
   const jsZip = new JSZip()
   let progressCounter = 0
   let totalVolume = 0
-  let fileOutsideRange = ''
+  let fileCheck = { dateTimeError: false, studyInstanceUidError: false }
 
   // Retrieve site-wide anon script and parse it
   useEffect(() => {
@@ -44,12 +51,12 @@ function Upload() {
           if (relativePath.includes('dcm')) {
             totalCounter++
             const fileName = file.name
-            const lastModified = new Date(file.date).getTime()
+            // const lastModified = new Date(file.date).getTime()
             jsZip
               .file(file.name)
               .async('arraybuffer')
               .then(async (file) => {
-                handleAnonymizing(file, fileName, lastModified)
+                handleAnonymizing(file, fileName)
               })
           }
         })
@@ -61,10 +68,10 @@ function Upload() {
         const reader = new FileReader()
         const file = uploaded[i]
         const fileName = file.name
-        const lastModified = file.lastModified
+        // const lastModified = file.lastModified
 
         reader.onload = function () {
-          handleAnonymizing(reader.result, fileName, lastModified)
+          handleAnonymizing(reader.result, fileName)
         }
 
         try {
@@ -82,7 +89,7 @@ function Upload() {
    * @param {string} Name the name of the file
    * @returns the new anonymized 'file'
    */
-  const handleAnonymizing = async (file, name, lastModified) => {
+  const handleAnonymizing = async (file, name) => {
     const anonymizer = new Anonymizer(anonScript, {
       parserLibrary: LIBRARY_PARSER.ANTLR4,
     })
@@ -94,10 +101,15 @@ function Upload() {
       type: 'application/octet',
     })
     const size = anonymizedFile.size
+    const dicomTags = {
+      date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
+      time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
+      UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
+    }
     progressCounter++
     setFiles((files) => [
       ...files,
-      { fileName, size, lastModified, anonymizedFile },
+      { fileName, size, dicomTags, anonymizedFile },
     ])
     setNumOfAnonomyzedFiles(progressCounter)
   }
@@ -116,7 +128,7 @@ function Upload() {
 
   if (files.length === totalFiles) {
     files.forEach((file) => (totalVolume += file.size))
-    fileOutsideRange = checkTimeDiffs(files, dateTime)
+    fileCheck = checkStudyDateTimeAndUID(files, dateTime)
   }
 
   const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
@@ -137,12 +149,12 @@ function Upload() {
             totalVolume={totalVolume}
             totalFiles={totalFiles}
             numOfAnonomyzedFiles={numOfAnonomyzedFiles}
-            fileOutsideRange={fileOutsideRange}
+            fileCheck={fileCheck}
           />
 
           <SubmitButton
             isUploadDisabled={isUploadDisabled}
-            fileOutsideRange={fileOutsideRange}
+            fileCheck={fileCheck}
             areFilesReady={files.length === totalFiles}
             sendingFiles={sendingFiles}
             onSubmit={onSubmit}

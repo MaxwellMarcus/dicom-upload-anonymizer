@@ -23,3 +23,7 @@ section:hover {
 .largerText {
   font-size: large;
 }
+
+.redText {
+  color: red;
+}

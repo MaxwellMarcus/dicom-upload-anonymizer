@@ -11,7 +11,7 @@ const UploadButton = ({
   totalVolume,
   totalFiles,
   numOfAnonomyzedFiles,
-  fileOutsideRange,
+  fileCheck,
 }) => {
   return (
     <Grid container spacing={3}>
@@ -58,7 +58,18 @@ const UploadButton = ({
       </Grid>
 
       <Grid item xs={12}>
-        {!!fileOutsideRange && <p>{fileOutsideRange}</p>}
+        {fileCheck.dateTimeError && (
+          <p className={styles.redText}>
+            At least one of the uploaded files is outside the two hour window
+          </p>
+        )}
+
+        {fileCheck.studyInstanceUidError && (
+          <p className={styles.redText}>
+            At least one of the uploaded files has a different Study Instance
+            UID value
+          </p>
+        )}
       </Grid>
     </Grid>
   )
@@ -72,5 +83,5 @@ UploadButton.propTypes = {
   totalVolume: PropTypes.number,
   totalFiles: PropTypes.number,
   numOfAnonomyzedFiles: PropTypes.number,
-  fileOutsideRange: PropTypes.string,
+  fileCheck: PropTypes.object,
 }

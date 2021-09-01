@@ -38,7 +38,7 @@ const msToMinutes = (milliseconds) => {
 }
 
 /**
- *
+ * CURRENTLY UNUSED - unsure if needed later
  * @param {File} files - the uploaded anonymized files
  * @param {*} dateTime - the date-time user input value
  * @returns {String} The name of the first file outside the 2 houor range
@@ -56,7 +56,39 @@ export const checkTimeDiffs = (files, dateTime) => {
   return ''
 }
 
+export const checkStudyDateTimeAndUID = (files, dateTime) => {
+  let errors = {
+    dateTimeError: false,
+    studyInstanceUidError: false,
+  }
+  const formattedDateTime = dateTime.replace(/-|T|:/g, '')
+  const dateTimeInput = {
+    date: formattedDateTime.substring(0, 8),
+    hour: formattedDateTime.substring(8, 10),
+  }
+
+  const initialUID = files[0].dicomTags.UID
+
+  for (let i = 0; i < files.length; i++) {
+    const hourDiff = Math.abs(
+      files[i].dicomTags.time.substring(0, 2) - dateTimeInput.hour,
+    )
+
+    if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
+      errors.dateTimeError = true
+    }
+
+    if (files[0].dicomTags.UID !== initialUID) {
+      errors.studyInstanceUidError = true
+    }
+  }
+  return errors
+}
+
 export const LIBRARY_PARSER = {
   ANTLR4: 'ANTLR4',
   PEGJS: 'PEGJS',
 }
+export const STUDY_DATE = '00080020'
+export const STUDY_TIME = '00080030'
+export const STUDY_INSTANCE_UID = '0020000D'

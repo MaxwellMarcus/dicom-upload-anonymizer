@@ -10,6 +10,7 @@ const InputFields = ({ setProjectId, setSubjectId, setDateTime }) => {
         id='project'
         label='Project ID'
         variant='outlined'
+        autoFocus={true}
       />
       <TextField
         onChange={(event) => setSubjectId(event.target.value)}
@@ -26,7 +27,7 @@ const InputFields = ({ setProjectId, setSubjectId, setDateTime }) => {
         InputLabelProps={{
           shrink: true,
         }}
-        onChange={(event) => setDateTime(event.target.valueAsNumber)}
+        onChange={(event) => setDateTime(event.target.value)}
       />
     </form>
   )
