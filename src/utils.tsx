@@ -1,12 +1,10 @@
-export const baseUrl = 'https://dakota-dev-20210803-1130.dev.radiologics.com'
+import { myFiles, dateTimeErrors } from './myTypes'
 
-export const anonymizeAPI = '/xapi/anonymize/site'
-
-export function formatFileSize(size) {
+export function formatFileSize(size: number) {
   if (size === 0) return '0 B'
   const n = Math.floor(Math.log(size) / Math.log(1024))
   return (
-    (size / Math.pow(1024, n)).toFixed(2) * 1 +
+    Number((size / Math.pow(1024, n)).toFixed(2)) * 1 +
     ' ' +
     ['B', 'kB', 'MB', 'GB', 'TB'][n]
   )
@@ -24,7 +22,7 @@ export function formatFileSize(size) {
  * @param {File} file - checks whether the uploaded item is a zip folder
  * @returns
  */
-export const isZippedFolder = (file) => {
+export const isZippedFolder = (file: File) => {
   return file.type.includes('zip')
 }
 
@@ -33,7 +31,7 @@ export const isZippedFolder = (file) => {
  * @param {number} milliseconds - converts milliseconds to minutes
  * @returns
  */
-const msToMinutes = (milliseconds) => {
+const msToMinutes = (milliseconds: number) => {
   return Math.floor(milliseconds / (1000 * 60))
 }
 
@@ -43,7 +41,7 @@ const msToMinutes = (milliseconds) => {
  * @param {*} dateTime - the date-time user input value
  * @returns {String} The name of the first file outside the 2 houor range
  */
-export const checkTimeDiffs = (files, dateTime) => {
+export const checkTimeDiffs = (files: any, dateTime: number) => {
   for (let i = 0; i < files.length; i++) {
     const timeDiff = msToMinutes(files[i].lastModified - dateTime)
     const absTimeDiff = Math.abs(timeDiff)
@@ -56,8 +54,8 @@ export const checkTimeDiffs = (files, dateTime) => {
   return ''
 }
 
-export const checkStudyDateTimeAndUID = (files, dateTime) => {
-  let errors = {
+export const checkStudyDateTimeAndUID = (files: myFiles, dateTime: string) => {
+  let errors: dateTimeErrors = {
     dateTimeError: false,
     studyInstanceUidError: false,
   }
@@ -71,7 +69,8 @@ export const checkStudyDateTimeAndUID = (files, dateTime) => {
 
   for (let i = 0; i < files.length; i++) {
     const hourDiff = Math.abs(
-      files[i].dicomTags.time.substring(0, 2) - dateTimeInput.hour,
+      Number(files[i].dicomTags.time.substring(0, 2)) -
+        Number(dateTimeInput.hour),
     )
 
     if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
@@ -84,11 +83,3 @@ export const checkStudyDateTimeAndUID = (files, dateTime) => {
   }
   return errors
 }
-
-export const LIBRARY_PARSER = {
-  ANTLR4: 'ANTLR4',
-  PEGJS: 'PEGJS',
-}
-export const STUDY_DATE = '00080020'
-export const STUDY_TIME = '00080030'
-export const STUDY_INSTANCE_UID = '0020000D'

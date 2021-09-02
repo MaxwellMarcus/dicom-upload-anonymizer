@@ -2,5 +2,13 @@
   "singleQuote": true,
   "trailingComma": "all",
   "semi": false,
-  "jsxSingleQuote": true
+  "jsxSingleQuote": true,
+  "overrides": [
+    {
+      "files": "myTypes.tsx",
+      "options": {
+        "semi": true
+      }
+    }
+  ]
 }

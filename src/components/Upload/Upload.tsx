@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
+import { myFiles, myFile, dateTimeErrors } from '../../myTypes'
 import { getSiteWideAnonScript, uploadFiles } from '../../Services'
+import { isZippedFolder, checkStudyDateTimeAndUID } from '../../utils'
 import {
-  isZippedFolder,
-  checkStudyDateTimeAndUID,
   LIBRARY_PARSER,
   STUDY_DATE,
   STUDY_TIME,
   STUDY_INSTANCE_UID,
-} from '../../utils'
+} from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
 import Box from '@material-ui/core/Box'
@@ -17,33 +17,35 @@ import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
 
 function Upload() {
-  // file - {fileName, size, dicomTags, anonymizedFile}
-  const [files, setFiles] = useState([])
-  const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(null)
-  const [totalFiles, setTotalFiles] = useState(null)
-  const [anonScript, setAnonScript] = useState(null)
-  const [projectId, setProjectId] = useState(null)
-  const [subjectId, setSubjectId] = useState(null)
-  const [dateTime, setDateTime] = useState(null)
+  const [files, setFiles] = useState<myFiles>([])
+  const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
+  const [totalFiles, setTotalFiles] = useState(0)
+  const [anonScript, setAnonScript] = useState('')
+  const [projectId, setProjectId] = useState('')
+  const [subjectId, setSubjectId] = useState('')
+  const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
 
   const jsZip = new JSZip()
   let progressCounter = 0
   let totalVolume = 0
-  let fileCheck = { dateTimeError: false, studyInstanceUidError: false }
+  let fileCheck: dateTimeErrors = {
+    dateTimeError: false,
+    studyInstanceUidError: false,
+  }
 
   // Retrieve site-wide anon script and parse it
   useEffect(() => {
     getSiteWideAnonScript()
-      .then((response) => response.text())
-      .then((text) => {
+      .then((response: Response) => response.text())
+      .then((text: string) => {
         const scriptStart = text.indexOf('version')
         const parsedScript = text.substring(scriptStart)
         setAnonScript(parsedScript)
       })
   }, [])
 
-  const onFileUpload = (uploaded) => {
+  const onFileUpload = (uploaded: any) => {
     if (isZippedFolder(uploaded[0])) {
       let totalCounter = 0
       jsZip.loadAsync(uploaded[0]).then((zip) => {
@@ -89,9 +91,14 @@ function Upload() {
    * @param {string} Name the name of the file
    * @returns the new anonymized 'file'
    */
-  const handleAnonymizing = async (file, name) => {
+  const handleAnonymizing = async (file: any, name: string) => {
     const anonymizer = new Anonymizer(anonScript, {
+      identifiers: undefined,
+      lookupMap: undefined,
+      inputBuffer: undefined,
+      namespaceforHashUID: '',
       parserLibrary: LIBRARY_PARSER.ANTLR4,
+      trace: false,
     })
     const fileName = name
     anonymizer.loadDcm(file)
@@ -107,16 +114,16 @@ function Upload() {
       UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
     }
     progressCounter++
-    setFiles((files) => [
+    setFiles((files: myFiles) => [
       ...files,
-      { fileName, size, dicomTags, anonymizedFile },
+      new myFile(fileName, size, dicomTags, anonymizedFile),
     ])
     setNumOfAnonomyzedFiles(progressCounter)
   }
 
   const onSubmit = async () => {
     const zipToSend = new JSZip()
-    files.forEach((file) => {
+    files.forEach((file: myFile) => {
       zipToSend.file(file.fileName, file.anonymizedFile)
     })
     setSendingFiles(true)
@@ -126,12 +133,18 @@ function Upload() {
     })
   }
 
-  if (files.length === totalFiles) {
-    files.forEach((file) => (totalVolume += file.size))
+  const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
+  const isUploadDisabled: boolean = !(
+    anonScript &&
+    projectId &&
+    subjectId &&
+    dateTime
+  )
+
+  if (areFilesReady) {
+    files.forEach((file: myFile) => (totalVolume += file.size))
     fileCheck = checkStudyDateTimeAndUID(files, dateTime)
   }
-
-  const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
 
   return (
     <>
@@ -155,7 +168,7 @@ function Upload() {
           <SubmitButton
             isUploadDisabled={isUploadDisabled}
             fileCheck={fileCheck}
-            areFilesReady={files.length === totalFiles}
+            areFilesReady={areFilesReady}
             sendingFiles={sendingFiles}
             onSubmit={onSubmit}
           />

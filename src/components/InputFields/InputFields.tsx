@@ -1,8 +1,12 @@
-import PropTypes from 'prop-types'
+import { InputFieldsProps } from '../../myTypes'
 import styles from './InputFields.module.css'
 import TextField from '@material-ui/core/TextField'
 
-const InputFields = ({ setProjectId, setSubjectId, setDateTime }) => {
+const InputFields = ({
+  setProjectId,
+  setSubjectId,
+  setDateTime,
+}: InputFieldsProps) => {
   return (
     <form className={styles.inputPadding} noValidate autoComplete='off'>
       <TextField
@@ -34,9 +38,3 @@ const InputFields = ({ setProjectId, setSubjectId, setDateTime }) => {
 }
 
 export default InputFields
-
-InputFields.propTypes = {
-  setProjectId: PropTypes.func,
-  setSubjectId: PropTypes.func,
-  setDateTime: PropTypes.func,
-}

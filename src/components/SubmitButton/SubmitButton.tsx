@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types'
+import { SubmitButtonProps } from '../../myTypes'
 import Button from '@material-ui/core/Button'
 
 const SubmitButton = ({
@@ -7,7 +7,7 @@ const SubmitButton = ({
   areFilesReady,
   sendingFiles,
   onSubmit,
-}) => {
+}: SubmitButtonProps) => {
   return (
     <>
       {!isUploadDisabled &&
@@ -31,11 +31,3 @@ const SubmitButton = ({
 }
 
 export default SubmitButton
-
-SubmitButton.propTypes = {
-  isUploadDisabled: PropTypes.bool,
-  fileCheck: PropTypes.object,
-  areFilesReady: PropTypes.bool,
-  sendingFiles: PropTypes.bool,
-  onSubmit: PropTypes.func,
-}

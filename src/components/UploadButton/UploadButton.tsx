@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types'
+import { UploadButtonProps } from '../../myTypes'
 import Dropzone from 'react-dropzone'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
@@ -12,7 +12,7 @@ const UploadButton = ({
   totalFiles,
   numOfAnonomyzedFiles,
   fileCheck,
-}) => {
+}: UploadButtonProps) => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={6}>
@@ -76,12 +76,3 @@ const UploadButton = ({
 }
 
 export default UploadButton
-
-UploadButton.propTypes = {
-  onFileUpload: PropTypes.func,
-  isUploadDisabled: PropTypes.bool,
-  totalVolume: PropTypes.number,
-  totalFiles: PropTypes.number,
-  numOfAnonomyzedFiles: PropTypes.number,
-  fileCheck: PropTypes.object,
-}
