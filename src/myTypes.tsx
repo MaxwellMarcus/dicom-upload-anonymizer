@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export class myFile {
   fileName;
   size;
@@ -17,6 +18,16 @@ export class myFile {
   }
 }
 
+export type fetchParams = {
+  method: string;
+  withCredentails: boolean;
+  credentials: RequestCredentials;
+  headers: {
+    Authorization: string;
+  };
+  body?: Blob;
+};
+
 export type myFiles = Array<myFile>;
 
 export type dateTimeErrors = {
@@ -24,16 +35,17 @@ export type dateTimeErrors = {
   studyInstanceUidError: boolean;
 };
 
-type dicomTags = {
+export type dicomTags = {
   date: string;
   time: string;
   UID: string;
 };
 
 export type InputFieldsProps = {
-  setProjectId: Function;
-  setSubjectId: Function;
-  setDateTime: Function;
+  onProjectBlur: (value: string) => void;
+  setSubjectId: (value: string) => void;
+  setDateTime: (value: string) => void;
+  isDateTimeInputRequired: boolean;
 };
 
 export type SubmitButtonProps = {
@@ -41,11 +53,11 @@ export type SubmitButtonProps = {
   fileCheck: dateTimeErrors;
   areFilesReady: boolean;
   sendingFiles: boolean;
-  onSubmit: Function;
+  onSubmit: () => void;
 };
 
 export type UploadButtonProps = {
-  onFileUpload: Function;
+  onFileUpload: (value: Array<File>) => void;
   isUploadDisabled: boolean;
   totalVolume: number;
   totalFiles: number;

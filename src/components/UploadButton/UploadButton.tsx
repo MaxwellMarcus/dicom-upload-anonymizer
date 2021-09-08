@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid'
 import styles from './UploadButton.module.css'
 import { formatFileSize } from '../../utils'
 
-const UploadButton = ({
+const UploadButton: React.FC<UploadButtonProps> = ({
   onFileUpload,
   isUploadDisabled,
   totalVolume,

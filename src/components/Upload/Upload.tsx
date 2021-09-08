@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
-import { myFiles, myFile, dateTimeErrors } from '../../myTypes'
-import { getSiteWideAnonScript, uploadFiles } from '../../Services'
+import { myFiles, myFile, dateTimeErrors, dicomTags } from '../../myTypes'
+import {
+  getSiteWideAnonScript,
+  uploadFiles,
+  getIsDateTimeProjectValidationRequired,
+  getIsDateTimeSiteValidationRequired,
+} from '../../Services'
 import { isZippedFolder, checkStudyDateTimeAndUID } from '../../utils'
 import {
   LIBRARY_PARSER,
@@ -16,7 +21,7 @@ import InputFields from '../InputFields/InputFields'
 import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
 
-function Upload() {
+const Upload: React.FC = () => {
   const [files, setFiles] = useState<myFiles>([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
@@ -25,6 +30,7 @@ function Upload() {
   const [subjectId, setSubjectId] = useState('')
   const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
+  const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -45,7 +51,7 @@ function Upload() {
       })
   }, [])
 
-  const onFileUpload = (uploaded: any) => {
+  const onFileUpload = (uploaded: Array<File>) => {
     if (isZippedFolder(uploaded[0])) {
       let totalCounter = 0
       jsZip.loadAsync(uploaded[0]).then((zip) => {
@@ -73,7 +79,7 @@ function Upload() {
         // const lastModified = file.lastModified
 
         reader.onload = function () {
-          handleAnonymizing(reader.result, fileName)
+          handleAnonymizing(reader.result as ArrayBuffer, fileName)
         }
 
         try {
@@ -86,12 +92,9 @@ function Upload() {
   }
 
   /**
-   *
-   * @param {File} File the File object to anonymize
-   * @param {string} Name the name of the file
-   * @returns the new anonymized 'file'
+   * @returns anonymizes a single file
    */
-  const handleAnonymizing = async (file: any, name: string) => {
+  const handleAnonymizing = async (file: ArrayBuffer, name: string) => {
     const anonymizer = new Anonymizer(anonScript, {
       identifiers: undefined,
       lookupMap: undefined,
@@ -108,7 +111,7 @@ function Upload() {
       type: 'application/octet',
     })
     const size = anonymizedFile.size
-    const dicomTags = {
+    const dicomTags: dicomTags = {
       date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
       time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
       UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
@@ -119,6 +122,24 @@ function Upload() {
       new myFile(fileName, size, dicomTags, anonymizedFile),
     ])
     setNumOfAnonomyzedFiles(progressCounter)
+  }
+
+  const onProjectBlur = async (value: string) => {
+    if (value.length > 0) {
+      setProjectId(value)
+      let responseValue
+      const projResponse = await getIsDateTimeProjectValidationRequired(value)
+      if (projResponse.ok) {
+        responseValue = await projResponse.json()
+        setIsDateTimeInputRequired(responseValue)
+      } else {
+        const siteResponse = await getIsDateTimeSiteValidationRequired()
+        if (siteResponse.ok) {
+          responseValue = await siteResponse.json()
+          setIsDateTimeInputRequired(responseValue)
+        }
+      }
+    }
   }
 
   const onSubmit = async () => {
@@ -134,12 +155,7 @@ function Upload() {
   }
 
   const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
-  const isUploadDisabled: boolean = !(
-    anonScript &&
-    projectId &&
-    subjectId &&
-    dateTime
-  )
+  const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
 
   if (areFilesReady) {
     files.forEach((file: myFile) => (totalVolume += file.size))
@@ -151,9 +167,10 @@ function Upload() {
       <Paper elevation={5}>
         <Box p={2}>
           <InputFields
-            setProjectId={setProjectId}
+            onProjectBlur={onProjectBlur}
             setSubjectId={setSubjectId}
             setDateTime={setDateTime}
+            isDateTimeInputRequired={isDateTimeInputRequired}
           />
 
           <UploadButton

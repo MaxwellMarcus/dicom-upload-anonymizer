@@ -1,4 +1,10 @@
-import { baseUrl, anonymizeAPI } from './constants'
+import {
+  baseUrl,
+  anonymizeAPI,
+  dateTimeProjectValidationAPI,
+  dateTimeSiteValidationAPI,
+} from './constants'
+import { fetchParams } from './myTypes'
 const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
 
 /**
@@ -8,11 +14,11 @@ const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
  * @param {Blob} files
  */
 export const uploadFiles = (
-  projectId = '',
-  subjectId = '',
-  files = {},
+  projectId: string,
+  subjectId: string,
+  files: Blob,
 ): Promise<Response> => {
-  const params: Object = {
+  const params: fetchParams = {
     method: 'POST',
     withCredentails: true,
     credentials: 'include',
@@ -32,7 +38,7 @@ export const uploadFiles = (
  * @returns the site-wide anonymization script
  */
 export const getSiteWideAnonScript = (): Promise<Response> => {
-  const params: Object = {
+  const params: fetchParams = {
     method: 'GET',
     withCredentails: true,
     credentials: 'include',
@@ -42,3 +48,35 @@ export const getSiteWideAnonScript = (): Promise<Response> => {
   }
   return fetch(`${baseUrl}${anonymizeAPI}`, params)
 }
+
+export const getIsDateTimeProjectValidationRequired = async (
+  projectId: string,
+): Promise<Response> => {
+  const params: fetchParams = {
+    method: 'GET',
+    withCredentails: true,
+    credentials: 'include',
+    headers: {
+      Authorization: auth,
+    },
+  }
+
+  return await fetch(
+    `${baseUrl}${dateTimeProjectValidationAPI(projectId)}`,
+    params,
+  )
+}
+
+export const getIsDateTimeSiteValidationRequired =
+  async (): Promise<Response> => {
+    const params: fetchParams = {
+      method: 'GET',
+      withCredentails: true,
+      credentials: 'include',
+      headers: {
+        Authorization: auth,
+      },
+    }
+
+    return await fetch(`${baseUrl}${dateTimeSiteValidationAPI}`, params)
+  }

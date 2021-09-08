@@ -2,29 +2,34 @@ import { InputFieldsProps } from '../../myTypes'
 import styles from './InputFields.module.css'
 import TextField from '@material-ui/core/TextField'
 
-const InputFields = ({
-  setProjectId,
+const InputFields: React.FC<InputFieldsProps> = ({
+  onProjectBlur,
   setSubjectId,
   setDateTime,
+  isDateTimeInputRequired,
 }: InputFieldsProps) => {
   return (
     <form className={styles.inputPadding} noValidate autoComplete='off'>
       <TextField
-        onChange={(event) => setProjectId(event.target.value)}
+        onBlur={(event) => onProjectBlur(event.target.value)}
         id='project'
         label='Project ID'
         variant='outlined'
         autoFocus={true}
       />
       <TextField
-        onChange={(event) => setSubjectId(event.target.value)}
+        onBlur={(event) => setSubjectId(event.target.value)}
         id='subject'
         label='Subject ID'
         variant='outlined'
       />
       <TextField
         id='datetime-local'
-        label='Date-Time verification'
+        label={
+          isDateTimeInputRequired
+            ? 'Date-Time verification'
+            : 'Date-Time verify NOT required'
+        }
         type='datetime-local'
         variant='outlined'
         className={styles.dateTimePicker}
@@ -32,6 +37,7 @@ const InputFields = ({
           shrink: true,
         }}
         onChange={(event) => setDateTime(event.target.value)}
+        disabled={!isDateTimeInputRequired}
       />
     </form>
   )

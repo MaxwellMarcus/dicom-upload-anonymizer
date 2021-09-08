@@ -1,7 +1,7 @@
 import { SubmitButtonProps } from '../../myTypes'
 import Button from '@material-ui/core/Button'
 
-const SubmitButton = ({
+const SubmitButton: React.FC<SubmitButtonProps> = ({
   isUploadDisabled,
   fileCheck,
   areFilesReady,

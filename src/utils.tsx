@@ -1,6 +1,6 @@
 import { myFiles, dateTimeErrors } from './myTypes'
 
-export function formatFileSize(size: number) {
+export const formatFileSize = (size: number): string => {
   if (size === 0) return '0 B'
   const n = Math.floor(Math.log(size) / Math.log(1024))
   return (
@@ -22,7 +22,7 @@ export function formatFileSize(size: number) {
  * @param {File} file - checks whether the uploaded item is a zip folder
  * @returns
  */
-export const isZippedFolder = (file: File) => {
+export const isZippedFolder = (file: File): boolean => {
   return file.type.includes('zip')
 }
 
@@ -31,9 +31,9 @@ export const isZippedFolder = (file: File) => {
  * @param {number} milliseconds - converts milliseconds to minutes
  * @returns
  */
-const msToMinutes = (milliseconds: number) => {
-  return Math.floor(milliseconds / (1000 * 60))
-}
+// const msToMinutes = (milliseconds: number) => {
+//   return Math.floor(milliseconds / (1000 * 60))
+// }
 
 /**
  * CURRENTLY UNUSED - unsure if needed later
@@ -41,21 +41,24 @@ const msToMinutes = (milliseconds: number) => {
  * @param {*} dateTime - the date-time user input value
  * @returns {String} The name of the first file outside the 2 houor range
  */
-export const checkTimeDiffs = (files: any, dateTime: number) => {
-  for (let i = 0; i < files.length; i++) {
-    const timeDiff = msToMinutes(files[i].lastModified - dateTime)
-    const absTimeDiff = Math.abs(timeDiff)
-    if (absTimeDiff > 120) {
-      return `${files[i].fileName} is ${absTimeDiff} minutes ${
-        timeDiff > 0 ? 'after' : 'before'
-      } the verification time entered`
-    }
-  }
-  return ''
-}
+// export const checkTimeDiffs = (files: myFiles, dateTime: number) : string => {
+//   for (let i = 0; i < files.length; i++) {
+//     const timeDiff = msToMinutes(files[i].lastModified - dateTime)
+//     const absTimeDiff = Math.abs(timeDiff)
+//     if (absTimeDiff > 120) {
+//       return `${files[i].fileName} is ${absTimeDiff} minutes ${
+//         timeDiff > 0 ? 'after' : 'before'
+//       } the verification time entered`
+//     }
+//   }
+//   return ''
+// }
 
-export const checkStudyDateTimeAndUID = (files: myFiles, dateTime: string) => {
-  let errors: dateTimeErrors = {
+export const checkStudyDateTimeAndUID = (
+  files: myFiles,
+  dateTime: string,
+): dateTimeErrors => {
+  const errors: dateTimeErrors = {
     dateTimeError: false,
     studyInstanceUidError: false,
   }
