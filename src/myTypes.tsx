@@ -42,7 +42,7 @@ export type dicomTags = {
 };
 
 export type InputFieldsProps = {
-  onProjectChange: (value: string) => void;
+  onProjectBlur: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
   onPdfUpload: (file: File) => void;

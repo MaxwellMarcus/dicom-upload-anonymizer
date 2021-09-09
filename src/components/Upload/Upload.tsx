@@ -18,6 +18,7 @@ import {
   STUDY_DATE,
   STUDY_TIME,
   STUDY_INSTANCE_UID,
+  FIVE_MEGA_BYTES,
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
@@ -51,10 +52,8 @@ const Upload: React.FC = () => {
   useEffect(() => {
     getSiteWideAnonScript()
       .then((response: Response) => response.text())
-      .then((text: string) => {
-        const scriptStart = text.indexOf('version')
-        const parsedScript = text.substring(scriptStart)
-        setAnonScript(parsedScript)
+      .then((script: string) => {
+        setAnonScript(script)
       })
   }, [])
 
@@ -131,7 +130,7 @@ const Upload: React.FC = () => {
     setNumOfAnonomyzedFiles(progressCounter)
   }
 
-  const onProjectChange = async (value: string) => {
+  const onProjectBlur = async (value: string) => {
     if (value.length > 0) {
       setProjectId(value)
       let responseValue
@@ -155,15 +154,22 @@ const Upload: React.FC = () => {
   }
 
   const onSubmit = async () => {
-    const zipToSend = new JSZip()
-    files.forEach((file: myFile) => {
-      zipToSend.file(file.fileName, file.anonymizedFile)
-    })
-    setSendingFiles(true)
-    const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-    uploadFiles(projectId, subjectId, zippedFolder).then(() => {
-      setSendingFiles(false)
-    })
+    let zipToSend = new JSZip()
+    let totalSize = 0
+
+    for (let i = 0; i < files.length; i++) {
+      zipToSend.file(files[i].fileName, files[i].anonymizedFile)
+      totalSize += files[i].size
+
+      if (totalSize > FIVE_MEGA_BYTES || i + 1 === files.length) {
+        setSendingFiles(true)
+        const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
+        uploadFiles(projectId, subjectId, zippedFolder)
+        setSendingFiles(false)
+        zipToSend = new JSZip()
+        totalSize = 0
+      }
+    }
   }
 
   const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
@@ -176,7 +182,9 @@ const Upload: React.FC = () => {
 
   if (areFilesReady) {
     files.forEach((file: myFile) => (totalVolume += file.size))
-    fileCheck = checkStudyDateTimeAndUID(files, dateTime)
+    if (isDateTimeInputRequired) {
+      fileCheck = checkStudyDateTimeAndUID(files, dateTime)
+    }
   }
 
   return (
@@ -184,7 +192,7 @@ const Upload: React.FC = () => {
       <Paper elevation={5}>
         <Box p={2}>
           <InputFields
-            onProjectChange={onProjectChange}
+            onProjectBlur={onProjectBlur}
             setSubjectId={setSubjectId}
             setDateTime={setDateTime}
             onPdfUpload={onPdfUpload}

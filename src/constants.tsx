@@ -13,3 +13,5 @@ export const LIBRARY_PARSER = {
   ANTLR4: 'ANTLR4',
   PEGJS: 'PEGJS',
 }
+
+export const FIVE_MEGA_BYTES = 5000000

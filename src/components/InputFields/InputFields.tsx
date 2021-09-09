@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 
 const InputFields: React.FC<InputFieldsProps> = ({
-  onProjectChange,
+  onProjectBlur,
   setSubjectId,
   setDateTime,
   onPdfUpload,
@@ -14,7 +14,7 @@ const InputFields: React.FC<InputFieldsProps> = ({
   return (
     <form className={styles.inputPadding} noValidate autoComplete='off'>
       <TextField
-        onChange={(event) => onProjectChange(event.target.value)}
+        onBlur={(event) => onProjectBlur(event.target.value)}
         id='project'
         label='Project ID'
         variant='outlined'
