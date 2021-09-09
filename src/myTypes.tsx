@@ -42,9 +42,11 @@ export type dicomTags = {
 };
 
 export type InputFieldsProps = {
-  onProjectBlur: (value: string) => void;
+  onProjectChange: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
+  onPdfUpload: (file: File) => void;
+  pdfFile: pdfFile;
   isDateTimeInputRequired: boolean;
 };
 
@@ -63,4 +65,9 @@ export type UploadButtonProps = {
   totalFiles: number;
   numOfAnonomyzedFiles: number;
   fileCheck: dateTimeErrors;
+};
+
+export type pdfFile = {
+  file: File;
+  fileName: string;
 };

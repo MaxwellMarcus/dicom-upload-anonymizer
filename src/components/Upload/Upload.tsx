@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import { myFiles, myFile, dateTimeErrors, dicomTags } from '../../myTypes'
+import {
+  myFiles,
+  myFile,
+  dateTimeErrors,
+  dicomTags,
+  pdfFile,
+} from '../../myTypes'
 import {
   getSiteWideAnonScript,
   uploadFiles,
@@ -31,6 +37,7 @@ const Upload: React.FC = () => {
   const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
+  const [pdfFile, setPdfFile] = useState<pdfFile>({ file: null, fileName: '' })
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -124,7 +131,7 @@ const Upload: React.FC = () => {
     setNumOfAnonomyzedFiles(progressCounter)
   }
 
-  const onProjectBlur = async (value: string) => {
+  const onProjectChange = async (value: string) => {
     if (value.length > 0) {
       setProjectId(value)
       let responseValue
@@ -142,6 +149,11 @@ const Upload: React.FC = () => {
     }
   }
 
+  const onPdfUpload = (file: File) => {
+    const pdf: pdfFile = { file: file, fileName: file.name }
+    setPdfFile(pdf)
+  }
+
   const onSubmit = async () => {
     const zipToSend = new JSZip()
     files.forEach((file: myFile) => {
@@ -155,7 +167,12 @@ const Upload: React.FC = () => {
   }
 
   const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
-  const isUploadDisabled = !(anonScript && projectId && subjectId && dateTime)
+  const isUploadDisabled = !(
+    anonScript &&
+    projectId &&
+    subjectId &&
+    !(isDateTimeInputRequired && dateTime === '')
+  )
 
   if (areFilesReady) {
     files.forEach((file: myFile) => (totalVolume += file.size))
@@ -167,9 +184,11 @@ const Upload: React.FC = () => {
       <Paper elevation={5}>
         <Box p={2}>
           <InputFields
-            onProjectBlur={onProjectBlur}
+            onProjectChange={onProjectChange}
             setSubjectId={setSubjectId}
             setDateTime={setDateTime}
+            onPdfUpload={onPdfUpload}
+            pdfFile={pdfFile}
             isDateTimeInputRequired={isDateTimeInputRequired}
           />
 
