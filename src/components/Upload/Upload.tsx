@@ -18,7 +18,7 @@ import {
   STUDY_DATE,
   STUDY_TIME,
   STUDY_INSTANCE_UID,
-  FIVE_MEGA_BYTES,
+  TWENTY_FIVE_MEGA_BYTES,
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
@@ -161,10 +161,10 @@ const Upload: React.FC = () => {
       zipToSend.file(files[i].fileName, files[i].anonymizedFile)
       totalSize += files[i].size
 
-      if (totalSize > FIVE_MEGA_BYTES || i + 1 === files.length) {
+      if (totalSize > TWENTY_FIVE_MEGA_BYTES || i + 1 === files.length) {
         setSendingFiles(true)
         const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-        uploadFiles(projectId, subjectId, zippedFolder)
+        await uploadFiles(projectId, subjectId, zippedFolder)
         setSendingFiles(false)
         zipToSend = new JSZip()
         totalSize = 0

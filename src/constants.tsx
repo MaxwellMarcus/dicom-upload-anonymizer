@@ -14,4 +14,4 @@ export const LIBRARY_PARSER = {
   PEGJS: 'PEGJS',
 }
 
-export const FIVE_MEGA_BYTES = 5000000
+export const TWENTY_FIVE_MEGA_BYTES = 25000000
