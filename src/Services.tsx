@@ -4,7 +4,7 @@ import {
   dateTimeProjectValidationAPI,
   dateTimeSiteValidationAPI,
 } from './constants'
-import { fetchParams } from './myTypes'
+import { fetchParams, pdfFile } from './myTypes'
 const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
 
 export const uploadFiles = (
@@ -39,7 +39,7 @@ export const getSiteWideAnonScript = (): Promise<Response> => {
   return fetch(`${baseUrl}${anonymizeAPI}`, params)
 }
 
-export const getIsDateTimeProjectValidationRequired = async (
+export const getIsDateTimeProjectValidationRequired = (
   projectId: string,
 ): Promise<Response> => {
   const params: fetchParams = {
@@ -51,22 +51,56 @@ export const getIsDateTimeProjectValidationRequired = async (
     },
   }
 
-  return await fetch(
-    `${baseUrl}${dateTimeProjectValidationAPI(projectId)}`,
-    params,
-  )
+  return fetch(`${baseUrl}${dateTimeProjectValidationAPI(projectId)}`, params)
 }
 
-export const getIsDateTimeSiteValidationRequired =
-  async (): Promise<Response> => {
-    const params: fetchParams = {
-      method: 'GET',
-      withCredentails: true,
-      credentials: 'include',
-      headers: {
-        Authorization: auth,
-      },
-    }
-
-    return await fetch(`${baseUrl}${dateTimeSiteValidationAPI}`, params)
+export const getIsDateTimeSiteValidationRequired = (): Promise<Response> => {
+  const params: fetchParams = {
+    method: 'GET',
+    withCredentails: true,
+    credentials: 'include',
+    headers: {
+      Authorization: auth,
+    },
   }
+
+  return fetch(`${baseUrl}${dateTimeSiteValidationAPI}`, params)
+}
+
+export const uploadPdf = async (
+  pdf: pdfFile,
+  pdfUrl: string,
+): Promise<Response> => {
+  const params: fetchParams = {
+    method: 'PUT',
+    withCredentails: true,
+    credentials: 'include',
+    headers: {
+      Authorization: auth,
+    },
+    body: pdf.file,
+  }
+  const response = await commitZipUpload(pdfUrl)
+  if (response.ok) {
+    const fileType = pdf.file.name.substr(pdf.file.name.indexOf('.'))
+    return fetch(
+      `${baseUrl}${pdfUrl}/resources/${pdf.fileName}/files/${pdf.fileName}${fileType}?inbody=true`,
+      params,
+    )
+  }
+}
+
+/**
+ * intermediary call to say the dicom file upload process is done
+ */
+const commitZipUpload = (pdfUrl: string): Promise<Response> => {
+  const params: fetchParams = {
+    method: 'POST',
+    withCredentails: true,
+    credentials: 'include',
+    headers: {
+      Authorization: auth,
+    },
+  }
+  return fetch(`${baseUrl}${pdfUrl}?action=commit`, params)
+}

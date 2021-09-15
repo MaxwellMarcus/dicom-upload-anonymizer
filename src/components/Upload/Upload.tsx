@@ -11,6 +11,7 @@ import {
   uploadFiles,
   getIsDateTimeProjectValidationRequired,
   getIsDateTimeSiteValidationRequired,
+  uploadPdf,
 } from '../../Services'
 import { isZippedFolder, checkStudyDateTimeAndUID } from '../../utils'
 import {
@@ -48,7 +49,7 @@ const Upload: React.FC = () => {
     studyInstanceUidError: false,
   }
 
-  // Retrieve site-wide anon script and parse it
+  // Retrieve site-wide anon script
   useEffect(() => {
     getSiteWideAnonScript()
       .then((response: Response) => response.text())
@@ -149,7 +150,7 @@ const Upload: React.FC = () => {
   }
 
   const onPdfUpload = (file: File) => {
-    const pdf: pdfFile = { file: file, fileName: file.name }
+    const pdf: pdfFile = { file: file, fileName: subjectId }
     setPdfFile(pdf)
   }
 
@@ -160,11 +161,26 @@ const Upload: React.FC = () => {
     for (let i = 0; i < files.length; i++) {
       zipToSend.file(files[i].fileName, files[i].anonymizedFile)
       totalSize += files[i].size
+      const isLastChunk = i + 1 === files.length
 
-      if (totalSize > TWENTY_FIVE_MEGA_BYTES || i + 1 === files.length) {
+      if (totalSize > TWENTY_FIVE_MEGA_BYTES || isLastChunk) {
         setSendingFiles(true)
         const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-        await uploadFiles(projectId, subjectId, zippedFolder)
+        const uploadFilesResponse = await uploadFiles(
+          projectId,
+          subjectId,
+          zippedFolder,
+        )
+        if (isLastChunk) {
+          if (uploadFilesResponse.ok) {
+            const response = await uploadFilesResponse.text()
+            const urlFromUploadFilesResponse = response.substring(
+              0,
+              response.length - 2,
+            )
+            await uploadPdf(pdfFile, urlFromUploadFilesResponse)
+          }
+        }
         setSendingFiles(false)
         zipToSend = new JSZip()
         totalSize = 0
