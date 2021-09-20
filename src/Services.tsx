@@ -87,7 +87,7 @@ const requestParams = (method: string, body?: Blob): fetchParams => {
     }
   } else
     return {
-      domain: location.hostname,
+      domain: '',
       params: {
         method: method,
         withCredentails: true,
