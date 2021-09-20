@@ -19,13 +19,16 @@ export class myFile {
 }
 
 export type fetchParams = {
-  method: string;
-  withCredentails: boolean;
-  credentials: RequestCredentials;
-  headers: {
-    Authorization: string;
+  domain: string;
+  params: {
+    method: string;
+    withCredentails: boolean;
+    credentials: RequestCredentials;
+    headers?: {
+      Authorization: string;
+    };
+    body?: Blob;
   };
-  body?: Blob;
 };
 
 export type myFiles = Array<myFile>;

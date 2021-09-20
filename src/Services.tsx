@@ -1,91 +1,53 @@
 import {
-  baseUrl,
-  anonymizeAPI,
+  siteWideAnonAPI,
   dateTimeProjectValidationAPI,
   dateTimeSiteValidationAPI,
 } from './constants'
 import { fetchParams, pdfFile } from './myTypes'
-const auth = 'Basic ' + Buffer.from('admin:admin').toString('base64')
+
+export const getSiteWideAnonScript = (): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(`${call.domain}${siteWideAnonAPI}`, call.params)
+}
 
 export const uploadFiles = (
   projectId: string,
   subjectId: string,
   files: Blob,
 ): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'POST',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-    body: files,
-  }
+  const call: fetchParams = requestParams('POST', files)
   return fetch(
-    `${baseUrl}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}`,
-    params,
+    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}`,
+    call.params,
   )
-}
-
-export const getSiteWideAnonScript = (): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'GET',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-  }
-  return fetch(`${baseUrl}${anonymizeAPI}`, params)
 }
 
 export const getIsDateTimeProjectValidationRequired = (
   projectId: string,
 ): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'GET',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-  }
-
-  return fetch(`${baseUrl}${dateTimeProjectValidationAPI(projectId)}`, params)
+  const call: fetchParams = requestParams('GET')
+  return fetch(
+    `${call.domain}${dateTimeProjectValidationAPI(projectId)}`,
+    call.params,
+  )
 }
 
 export const getIsDateTimeSiteValidationRequired = (): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'GET',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-  }
-
-  return fetch(`${baseUrl}${dateTimeSiteValidationAPI}`, params)
+  const call: fetchParams = requestParams('GET')
+  return fetch(`${call.domain}${dateTimeSiteValidationAPI}`, call.params)
 }
 
 export const uploadPdf = async (
   pdf: pdfFile,
   pdfUrl: string,
 ): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'PUT',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-    body: pdf.file,
-  }
+  const call: fetchParams = requestParams('PUT', pdf.file)
   const response = await commitZipUpload(pdfUrl)
   if (response.ok) {
     const fileType = pdf.file.name.substr(pdf.file.name.indexOf('.'))
     return fetch(
-      `${baseUrl}${pdfUrl}/resources/${pdf.fileName}/files/${pdf.fileName}${fileType}?inbody=true`,
-      params,
+      `${call.domain}${pdfUrl}/resources/${pdf.fileName}/files/${pdf.fileName}${fileType}?inbody=true`,
+      call.params,
     )
   }
 }
@@ -94,13 +56,43 @@ export const uploadPdf = async (
  * intermediary call to say the dicom file upload process is done
  */
 const commitZipUpload = (pdfUrl: string): Promise<Response> => {
-  const params: fetchParams = {
-    method: 'POST',
-    withCredentails: true,
-    credentials: 'include',
-    headers: {
-      Authorization: auth,
-    },
-  }
-  return fetch(`${baseUrl}${pdfUrl}?action=commit`, params)
+  const call: fetchParams = requestParams('POST')
+  return fetch(`${call.domain}${pdfUrl}?action=commit`, call.params)
+}
+
+/**
+ * Handle differences for production vs development
+ * @param method - the http request type
+ * @param body - optional to pass something to the body of the request
+ * @returns a fetchParams object
+ */
+const requestParams = (method: string, body?: Blob): fetchParams => {
+  if (process.env.NODE_ENV === 'development') {
+    const username = process.env.REACT_APP_XNAT_USERNAME
+    const password = process.env.REACT_APP_XNAT_PASSWORD
+    const auth = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      'base64',
+    )}`
+    return {
+      domain: process.env.REACT_APP_XNAT_DOMAIN,
+      params: {
+        method: method,
+        withCredentails: true,
+        credentials: 'include',
+        headers: {
+          Authorization: auth,
+        },
+        body: body,
+      },
+    }
+  } else
+    return {
+      domain: location.hostname,
+      params: {
+        method: method,
+        withCredentails: true,
+        credentials: 'include',
+        body: body,
+      },
+    }
 }

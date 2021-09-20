@@ -13,6 +13,7 @@ development, testing, etc.
 
 ### `npm start`
 
+BUT FIRST: Set your xnat domain, username and password in .env.development.local file
 Runs the app in the development mode.\
 Should open [http://127.0.0.1:3000](http://localhost:3000) automatically in the browser.
 

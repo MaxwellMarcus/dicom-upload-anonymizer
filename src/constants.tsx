@@ -1,5 +1,4 @@
-export const baseUrl = 'https://dakota-dev-20210803-1130.dev.radiologics.com'
-export const anonymizeAPI = '/xapi/anonymize/site'
+export const siteWideAnonAPI = '/xapi/anonymize/site'
 export const dateTimeSiteValidationAPI =
   '/data/config/applet/require-date?contents=true&accept-not-found=true'
 export const dateTimeProjectValidationAPI = (projectId: string): string => {
