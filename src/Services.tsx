@@ -2,10 +2,23 @@ import {
   siteWideAnonAPI,
   dateTimeProjectValidationAPI,
   dateTimeSiteValidationAPI,
+  csrfAPI,
 } from './constants'
 import { fetchParams, pdfFile } from './myTypes'
 
-export const getSiteWideAnonScript = (): Promise<Response> => {
+export const getSetCSRF = async (): Promise<void> => {
+  const call: fetchParams = requestParams('GET')
+  const response = await fetch(`${call.domain}${csrfAPI}`, call.params)
+  if (response.ok) {
+    const responseValue = await response.text()
+    const splitResponse = responseValue.split(';')
+    const csrf = splitResponse[1].trim()
+    document.cookie = csrf
+  }
+}
+
+export const getSiteWideAnonScript = async (): Promise<Response> => {
+  await getSetCSRF()
   const call: fetchParams = requestParams('GET')
   return fetch(`${call.domain}${siteWideAnonAPI}`, call.params)
 }

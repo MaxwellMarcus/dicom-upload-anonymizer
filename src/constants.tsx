@@ -1,3 +1,4 @@
+export const csrfAPI = '/data/JSESSION?CSRF=True'
 export const siteWideAnonAPI = '/xapi/anonymize/site'
 export const dateTimeSiteValidationAPI =
   '/data/config/applet/require-date?contents=true&accept-not-found=true'
