@@ -5,14 +5,14 @@ import {
   csrfAPI,
 } from './constants'
 import { fetchParams, pdfFile } from './myTypes'
-
+let csrf = ''
 export const getSetCSRF = async (): Promise<void> => {
   const call: fetchParams = requestParams('GET')
   const response = await fetch(`${call.domain}${csrfAPI}`, call.params)
   if (response.status === 200) {
     const responseValue = await response.text()
     const splitResponse = responseValue.split(';')
-    const csrf = splitResponse[1].trim()
+    csrf = splitResponse[1].trim()
     document.cookie = csrf
   }
 }
@@ -30,7 +30,7 @@ export const uploadFiles = (
 ): Promise<Response> => {
   const call: fetchParams = requestParams('POST', files)
   return fetch(
-    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}`,
+    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&${csrf}`,
     call.params,
   )
 }
