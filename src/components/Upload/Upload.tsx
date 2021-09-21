@@ -136,12 +136,12 @@ const Upload: React.FC = () => {
       setProjectId(value)
       let responseValue
       const projResponse = await getIsDateTimeProjectValidationRequired(value)
-      if (projResponse.ok) {
+      if (projResponse.status === 200) {
         responseValue = await projResponse.json()
         setIsDateTimeInputRequired(responseValue)
       } else {
         const siteResponse = await getIsDateTimeSiteValidationRequired()
-        if (siteResponse.ok) {
+        if (siteResponse.status === 200) {
           responseValue = await siteResponse.json()
           setIsDateTimeInputRequired(responseValue)
         }
@@ -172,7 +172,7 @@ const Upload: React.FC = () => {
           zippedFolder,
         )
         if (isLastChunk) {
-          if (uploadFilesResponse.ok) {
+          if (uploadFilesResponse.status === 200) {
             const response = await uploadFilesResponse.text()
             const urlFromUploadFilesResponse = response.substring(
               0,

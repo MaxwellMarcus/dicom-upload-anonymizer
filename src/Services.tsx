@@ -9,7 +9,7 @@ import { fetchParams, pdfFile } from './myTypes'
 export const getSetCSRF = async (): Promise<void> => {
   const call: fetchParams = requestParams('GET')
   const response = await fetch(`${call.domain}${csrfAPI}`, call.params)
-  if (response.ok) {
+  if (response.status === 200) {
     const responseValue = await response.text()
     const splitResponse = responseValue.split(';')
     const csrf = splitResponse[1].trim()
@@ -56,7 +56,7 @@ export const uploadPdf = async (
 ): Promise<Response> => {
   const call: fetchParams = requestParams('PUT', pdf.file)
   const response = await commitZipUpload(pdfUrl)
-  if (response.ok) {
+  if (response.status === 200) {
     const fileType = pdf.file.name.substr(pdf.file.name.indexOf('.'))
     return fetch(
       `${call.domain}${pdfUrl}/resources/${pdf.fileName}/files/${pdf.fileName}${fileType}?inbody=true`,
