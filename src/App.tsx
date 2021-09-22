@@ -1,12 +1,18 @@
+import { Paper } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container'
 import Upload from './components/Upload/Upload'
-
+import styles from './App.module.css'
 const App: React.FC = () => {
   return (
     <div className='App'>
-      <Box py={2}>
-        <Container>
+      <Paper elevation={0}>
+        <Box px={2} marginTop={0}>
+          <h3 className={styles.title}>Subject Data Upload</h3>
+        </Box>
+      </Paper>
+      <Box className={styles.greyBackground} py={2}>
+        <Container maxWidth='md'>
           <Upload />
         </Container>
       </Box>

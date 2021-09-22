@@ -15,3 +15,5 @@ export const LIBRARY_PARSER = {
 }
 
 export const TWENTY_FIVE_MEGA_BYTES = 25000000
+
+export const uploadSteps = ['Session Information', 'Imaging Data']

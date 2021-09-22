@@ -20,15 +20,20 @@ import {
   STUDY_TIME,
   STUDY_INSTANCE_UID,
   TWENTY_FIVE_MEGA_BYTES,
+  uploadSteps,
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
+
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
+import StepContent from '@material-ui/core/StepContent'
 import InputFields from '../InputFields/InputFields'
 import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
-
 const Upload: React.FC = () => {
   const [files, setFiles] = useState<myFiles>([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
@@ -203,28 +208,40 @@ const Upload: React.FC = () => {
     }
   }
 
+  const stepsContent = [
+    <InputFields
+      key={0}
+      onProjectBlur={onProjectBlur}
+      setSubjectId={setSubjectId}
+      setDateTime={setDateTime}
+      onPdfUpload={onPdfUpload}
+      pdfFile={pdfFile}
+      isDateTimeInputRequired={isDateTimeInputRequired}
+    />,
+    <UploadButton
+      key={1}
+      onFileUpload={onFileUpload}
+      isUploadDisabled={isUploadDisabled}
+      totalVolume={totalVolume}
+      totalFiles={totalFiles}
+      numOfAnonomyzedFiles={numOfAnonomyzedFiles}
+      fileCheck={fileCheck}
+    />,
+  ]
+
   return (
     <>
-      <Paper elevation={5}>
+      <Stepper orientation='vertical'>
+        {uploadSteps.map((label, index) => (
+          <Step active={true} completed={false} key={label}>
+            <StepLabel>{label}</StepLabel>
+            <StepContent>{stepsContent[index]}</StepContent>
+          </Step>
+        ))}
+      </Stepper>
+
+      <Paper elevation={0}>
         <Box p={2}>
-          <InputFields
-            onProjectBlur={onProjectBlur}
-            setSubjectId={setSubjectId}
-            setDateTime={setDateTime}
-            onPdfUpload={onPdfUpload}
-            pdfFile={pdfFile}
-            isDateTimeInputRequired={isDateTimeInputRequired}
-          />
-
-          <UploadButton
-            onFileUpload={onFileUpload}
-            isUploadDisabled={isUploadDisabled}
-            totalVolume={totalVolume}
-            totalFiles={totalFiles}
-            numOfAnonomyzedFiles={numOfAnonomyzedFiles}
-            fileCheck={fileCheck}
-          />
-
           <SubmitButton
             isUploadDisabled={isUploadDisabled}
             fileCheck={fileCheck}
