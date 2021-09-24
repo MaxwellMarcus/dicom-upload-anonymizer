@@ -44,12 +44,11 @@ export type dicomTags = {
   UID: string;
 };
 
-export type InputFieldsProps = {
+export type SessionInformationProps = {
   onProjectBlur: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
-  onPdfUpload: (file: File) => void;
-  pdfFile: pdfFile;
+  onPdfUpload: (file: Array<File>) => void;
   isDateTimeInputRequired: boolean;
 };
 

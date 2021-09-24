@@ -1,18 +1,17 @@
-import { InputFieldsProps } from '../../myTypes'
-import '../../index.css'
-import styles from './InputFields.module.css'
+import { SessionInformationProps } from '../../myTypes'
+import styles from './SessionInformation.module.css'
 import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Dropzone from 'react-dropzone'
+import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
 
-const InputFields: React.FC<InputFieldsProps> = ({
+const SessionInformation: React.FC<SessionInformationProps> = ({
   onProjectBlur,
   setSubjectId,
   setDateTime,
   onPdfUpload,
-  pdfFile,
   isDateTimeInputRequired,
-}: InputFieldsProps) => {
+}: SessionInformationProps) => {
   return (
     <form className={styles.inputPadding} noValidate autoComplete='off'>
       <Grid container>
@@ -62,23 +61,32 @@ const InputFields: React.FC<InputFieldsProps> = ({
 
       <Grid container>
         <Grid item xs={5}>
-          <input
-            accept='application/pdf'
-            style={{ display: 'none' }}
-            id='raised-button-file'
-            multiple
-            type='file'
-            onChange={(event) => onPdfUpload(event.target.files[0])}
-          />
-          <label htmlFor='raised-button-file'>
-            <Button variant='outlined' component='span'>
-              {pdfFile.fileName ? pdfFile.fileName : 'Upload PDF'}
-            </Button>
-          </label>
+          <label className={styles.dropzoneLabel}>Metadata Form</label>
+          <Dropzone
+            accept='.pdf'
+            maxFiles={1}
+            onDrop={(acceptedFiles) => onPdfUpload(acceptedFiles)}
+          >
+            {({ getRootProps, getInputProps }) => (
+              <section className={styles.dropzone}>
+                <div {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <p className={styles.icon}>
+                    <DescriptionOutlined
+                      style={{ fontSize: 50 }}
+                      className={`${styles.icon} ${styles.themeBlue}`}
+                    />
+                  </p>
+                  <p className={styles.dropzoneText}>Attach Metadata Form</p>
+                </div>
+              </section>
+            )}
+          </Dropzone>
+          <p className={styles.pdfOnly}>Only PDF files accepted</p>
         </Grid>
       </Grid>
     </form>
   )
 }
 
-export default InputFields
+export default SessionInformation

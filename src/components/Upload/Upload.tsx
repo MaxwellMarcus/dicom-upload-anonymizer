@@ -24,14 +24,13 @@ import {
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
-
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
-import InputFields from '../InputFields/InputFields'
+import SessionInformation from '../InputFields/SessionInformation'
 import UploadButton from '../UploadButton/UploadButton'
 import SubmitButton from '../SubmitButton/SubmitButton'
 const Upload: React.FC = () => {
@@ -154,8 +153,8 @@ const Upload: React.FC = () => {
     }
   }
 
-  const onPdfUpload = (file: File) => {
-    const pdf: pdfFile = { file: file, fileName: subjectId }
+  const onPdfUpload = (file: Array<File>) => {
+    const pdf: pdfFile = { file: file[0], fileName: subjectId }
     setPdfFile(pdf)
   }
 
@@ -209,13 +208,12 @@ const Upload: React.FC = () => {
   }
 
   const stepsContent = [
-    <InputFields
+    <SessionInformation
       key={0}
       onProjectBlur={onProjectBlur}
       setSubjectId={setSubjectId}
       setDateTime={setDateTime}
       onPdfUpload={onPdfUpload}
-      pdfFile={pdfFile}
       isDateTimeInputRequired={isDateTimeInputRequired}
     />,
     <UploadButton

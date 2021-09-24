@@ -16,7 +16,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({
   return (
     <Grid container spacing={3}>
       <Grid item xs={6}>
-        <Paper elevation={5}>
+        <Paper elevation={5} className={styles.uploadDropzone}>
           <Dropzone
             disabled={isUploadDisabled}
             onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
