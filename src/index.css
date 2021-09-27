@@ -19,3 +19,20 @@ code {
 .MuiSvgIcon-root.MuiStepIcon-root.MuiStepIcon-active {
   color: var(--main-theme-blue);
 }
+
+label.MuiFormLabel-root.Mui-focused {
+  color: var(--main-theme-blue);
+}
+
+.MuiInputBase-root.MuiOutlinedInput-root.Mui-focused
+  fieldset.MuiOutlinedInput-notchedOutline {
+  border-color: var(--main-theme-blue);
+}
+
+.MuiStepConnector-line.MuiStepConnector-lineVertical {
+  min-height: auto;
+}
+
+div.MuiStepContent-root {
+  border-left: 2px solid #00000014;
+}

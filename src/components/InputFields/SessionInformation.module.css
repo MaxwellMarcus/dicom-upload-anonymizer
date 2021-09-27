@@ -3,6 +3,10 @@
   padding-left: 1rem;
 }
 
+.inputPadding > div:last-child {
+  padding-bottom: 0px;
+}
+
 .dropzone {
   font-family: Inter;
   font-weight: 400;
@@ -11,6 +15,7 @@
   border: 2px dashed #c0d5fc;
   box-sizing: border-box;
   margin-top: 5px;
+  cursor: pointer;
 }
 
 .dropzoneText {
@@ -35,4 +40,8 @@
 
 .themeBlue {
   color: var(--main-theme-blue);
+}
+
+.stepperStep {
+  margin-bottom: 20px;
 }

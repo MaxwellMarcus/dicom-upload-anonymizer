@@ -1,29 +1,46 @@
-.uploadDropzone {
-  height: 100px;
-  line-height: 100px;
-  background-color: cadetblue;
+.inputPadding > div {
+  padding-bottom: 1.5rem;
+  padding-left: 1rem;
 }
 
-section:hover {
+.dropzone {
+  font-family: Inter;
+  font-weight: 400;
+  text-align: center;
+  background-color: white;
+  border: 2px dashed #c0d5fc;
+  box-sizing: border-box;
+  margin-top: 5px;
   cursor: pointer;
 }
 
-.centerText {
-  text-align: center;
+.dropzoneTopText {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.disabled {
-  background-color: lightcoral;
+.dropzoneBottomText {
+  margin-top: 0px;
+  margin-bottom: 15px;
 }
 
-.disabled:hover {
-  cursor: not-allowed;
+.icon {
+  margin-bottom: 0px;
 }
 
-.largerText {
-  font-size: large;
+.dropzoneLabel {
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-.redText {
-  color: red;
+.infoText {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #5b6779;
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
+
+.themeBlue {
+  color: var(--main-theme-blue);
 }

@@ -24,15 +24,12 @@ import {
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import SessionInformation from '../InputFields/SessionInformation'
 import UploadButton from '../UploadButton/UploadButton'
-import SubmitButton from '../SubmitButton/SubmitButton'
 const Upload: React.FC = () => {
   const [files, setFiles] = useState<myFiles>([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
@@ -232,23 +229,11 @@ const Upload: React.FC = () => {
       <Stepper orientation='vertical'>
         {uploadSteps.map((label, index) => (
           <Step active={true} completed={false} key={label}>
-            <StepLabel>{label}</StepLabel>
+            {label !== 'Empty Third' && <StepLabel>{label}</StepLabel>}
             <StepContent>{stepsContent[index]}</StepContent>
           </Step>
         ))}
       </Stepper>
-
-      <Paper elevation={0}>
-        <Box p={2}>
-          <SubmitButton
-            isUploadDisabled={isUploadDisabled}
-            fileCheck={fileCheck}
-            areFilesReady={areFilesReady}
-            sendingFiles={sendingFiles}
-            onSubmit={onSubmit}
-          />
-        </Box>
-      </Paper>
     </>
   )
 }

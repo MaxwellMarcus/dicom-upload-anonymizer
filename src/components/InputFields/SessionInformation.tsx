@@ -13,7 +13,11 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   isDateTimeInputRequired,
 }: SessionInformationProps) => {
   return (
-    <form className={styles.inputPadding} noValidate autoComplete='off'>
+    <form
+      className={`${styles.inputPadding} ${styles.stepperStep}`}
+      noValidate
+      autoComplete='off'
+    >
       <Grid container>
         <Grid item xs={5}>
           <TextField
