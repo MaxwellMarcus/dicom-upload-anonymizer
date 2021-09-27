@@ -4,6 +4,8 @@ import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import Dropzone from 'react-dropzone'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
+import HelpIcon from '@material-ui/icons/Help'
+import Tooltip from '@material-ui/core/Tooltip'
 
 const SessionInformation: React.FC<SessionInformationProps> = ({
   onProjectBlur,
@@ -12,22 +14,44 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   onPdfUpload,
   isDateTimeInputRequired,
 }: SessionInformationProps) => {
+  const helpTooltip = (labelText: string, toolTipText: string) => {
+    return (
+      <>
+        {labelText + ' '}{' '}
+        <Tooltip
+          title={toolTipText}
+          placement='right'
+          arrow
+          classes={{ tooltip: styles.tooltip }}
+        >
+          <HelpIcon className={styles.helpIcon} />
+        </Tooltip>
+      </>
+    )
+  }
   return (
     <form
       className={`${styles.inputPadding} ${styles.stepperStep}`}
       noValidate
       autoComplete='off'
     >
-      <Grid container>
+      <Grid container className={styles.gridContainer}>
         <Grid item xs={5}>
           <TextField
             onBlur={(event) => onProjectBlur(event.target.value)}
             id='project'
-            label='Performance Site ID'
+            label={helpTooltip(
+              'Performance Site ID',
+              'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
+            )}
             variant='outlined'
             autoFocus={true}
             size='small'
             fullWidth={true}
+            InputLabelProps={{
+              shrink: true,
+              style: { pointerEvents: 'auto' },
+            }}
           />
         </Grid>
       </Grid>
@@ -37,10 +61,17 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           <TextField
             onChange={(event) => setSubjectId(event.target.value)}
             id='subject'
-            label='Subject ID'
+            label={helpTooltip(
+              'Subject ID',
+              'Enter the Subject ID as noted on the metadata form',
+            )}
             variant='outlined'
             size='small'
             fullWidth={true}
+            InputLabelProps={{
+              shrink: true,
+              style: { pointerEvents: 'auto' },
+            }}
           />
         </Grid>
       </Grid>
@@ -49,13 +80,17 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
         <Grid item xs={5}>
           <TextField
             id='datetime-local'
-            label='Imaging Session Date and Time'
+            label={helpTooltip(
+              'Imaging Session Date and Time',
+              'Enter the date and time as noted in the DICOM for study verification',
+            )}
             type='datetime-local'
             variant='outlined'
             size='small'
             fullWidth={true}
             InputLabelProps={{
               shrink: true,
+              style: { pointerEvents: 'auto' },
             }}
             onChange={(event) => setDateTime(event.target.value)}
             disabled={!isDateTimeInputRequired}

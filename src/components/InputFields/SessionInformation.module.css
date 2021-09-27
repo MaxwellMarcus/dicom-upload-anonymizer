@@ -45,3 +45,18 @@
 .stepperStep {
   margin-bottom: 20px;
 }
+
+svg.helpIcon {
+  height: 15px;
+  opacity: 0.4;
+}
+
+.tooltip {
+  width: 250px;
+  font-size: 0.75em;
+  background-color: black;
+}
+
+.gridContainer {
+  margin-top: 20px;
+}

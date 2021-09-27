@@ -36,3 +36,7 @@ label.MuiFormLabel-root.Mui-focused {
 div.MuiStepContent-root {
   border-left: 2px solid #00000014;
 }
+
+label.MuiInputLabel-outlined {
+  color: black;
+}
