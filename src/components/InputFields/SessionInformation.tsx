@@ -6,12 +6,15 @@ import Dropzone from 'react-dropzone'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
 import HelpIcon from '@material-ui/icons/Help'
 import Tooltip from '@material-ui/core/Tooltip'
+import Button from '@material-ui/core/Button'
 
 const SessionInformation: React.FC<SessionInformationProps> = ({
   onProjectBlur,
   setSubjectId,
   setDateTime,
+  pdfFile,
   onPdfUpload,
+  onPdfDiscard,
   isDateTimeInputRequired,
 }: SessionInformationProps) => {
   const helpTooltip = (labelText: string, toolTipText: string) => {
@@ -101,27 +104,48 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
       <Grid container>
         <Grid item xs={5}>
           <label className={styles.dropzoneLabel}>Metadata Form</label>
-          <Dropzone
-            accept='.pdf'
-            maxFiles={1}
-            onDrop={(acceptedFiles) => onPdfUpload(acceptedFiles)}
-          >
-            {({ getRootProps, getInputProps }) => (
-              <section className={styles.dropzone}>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p className={styles.icon}>
-                    <DescriptionOutlined
-                      style={{ fontSize: 50 }}
-                      className={`${styles.icon} ${styles.themeBlue}`}
-                    />
-                  </p>
-                  <p className={styles.dropzoneText}>Attach Metadata Form</p>
-                </div>
-              </section>
-            )}
-          </Dropzone>
-          <p className={styles.pdfOnly}>Only PDF files accepted</p>
+
+          {pdfFile.file && (
+            <div className={styles.pdfInfo}>
+              <DescriptionOutlined className={styles.themeBlue} />
+              <span className={styles.pdfFileName}>{pdfFile.file.name}</span>
+              <Button
+                className={styles.pdfDiscardButton}
+                variant='outlined'
+                onClick={() => onPdfDiscard()}
+              >
+                Discard
+              </Button>
+            </div>
+          )}
+
+          {!pdfFile.file && (
+            <>
+              <Dropzone
+                accept='.pdf'
+                maxFiles={1}
+                onDrop={(acceptedFiles) => onPdfUpload(acceptedFiles)}
+              >
+                {({ getRootProps, getInputProps }) => (
+                  <section className={styles.dropzone}>
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <p className={styles.icon}>
+                        <DescriptionOutlined
+                          style={{ fontSize: 50 }}
+                          className={`${styles.icon} ${styles.themeBlue}`}
+                        />
+                      </p>
+                      <p className={styles.dropzoneText}>
+                        Attach Metadata Form
+                      </p>
+                    </div>
+                  </section>
+                )}
+              </Dropzone>
+              <p className={styles.pdfOnly}>Only PDF files accepted</p>
+            </>
+          )}
         </Grid>
       </Grid>
     </form>

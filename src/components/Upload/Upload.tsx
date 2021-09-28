@@ -40,7 +40,7 @@ const Upload: React.FC = () => {
   const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
-  const [pdfFile, setPdfFile] = useState<pdfFile>({ file: null, fileName: '' })
+  const [pdfFile, setPdfFile] = useState<pdfFile>({ file: null })
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -151,7 +151,12 @@ const Upload: React.FC = () => {
   }
 
   const onPdfUpload = (file: Array<File>) => {
-    const pdf: pdfFile = { file: file[0], fileName: subjectId }
+    const pdf: pdfFile = { ...pdfFile, file: file[0] }
+    setPdfFile(pdf)
+  }
+
+  const onPdfDiscard = () => {
+    const pdf: pdfFile = { file: null }
     setPdfFile(pdf)
   }
 
@@ -179,7 +184,7 @@ const Upload: React.FC = () => {
               0,
               response.length - 2,
             )
-            await uploadPdf(pdfFile, urlFromUploadFilesResponse)
+            await uploadPdf(pdfFile, subjectId, urlFromUploadFilesResponse)
           }
         }
         setSendingFiles(false)
@@ -210,7 +215,9 @@ const Upload: React.FC = () => {
       onProjectBlur={onProjectBlur}
       setSubjectId={setSubjectId}
       setDateTime={setDateTime}
+      pdfFile={pdfFile}
       onPdfUpload={onPdfUpload}
+      onPdfDiscard={onPdfDiscard}
       isDateTimeInputRequired={isDateTimeInputRequired}
     />,
     <UploadButton

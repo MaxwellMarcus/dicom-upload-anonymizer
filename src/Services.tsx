@@ -52,6 +52,7 @@ export const getIsDateTimeSiteValidationRequired = (): Promise<Response> => {
 
 export const uploadPdf = async (
   pdf: pdfFile,
+  subjectId: string,
   pdfUrl: string,
 ): Promise<Response> => {
   const call: fetchParams = requestParams('PUT', pdf.file)
@@ -59,7 +60,7 @@ export const uploadPdf = async (
   if (response.status === 200) {
     const fileType = pdf.file.name.substr(pdf.file.name.indexOf('.'))
     return fetch(
-      `${call.domain}${pdfUrl}/resources/${pdf.fileName}/files/${pdf.fileName}${fileType}?inbody=true`,
+      `${call.domain}${pdfUrl}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
       call.params,
     )
   }

@@ -48,7 +48,9 @@ export type SessionInformationProps = {
   onProjectBlur: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
+  pdfFile: pdfFile;
   onPdfUpload: (file: Array<File>) => void;
+  onPdfDiscard: () => void;
   isDateTimeInputRequired: boolean;
 };
 
@@ -71,5 +73,4 @@ export type UploadButtonProps = {
 
 export type pdfFile = {
   file: File;
-  fileName: string;
 };

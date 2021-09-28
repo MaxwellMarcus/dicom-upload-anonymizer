@@ -60,3 +60,24 @@ svg.helpIcon {
 .gridContainer {
   margin-top: 20px;
 }
+
+.pdfInfo {
+  font-family: Inter;
+  font-weight: 400;
+}
+.pdfInfo svg {
+  vertical-align: sub;
+  font-size: 1.3rem;
+}
+
+.pdfFileName {
+  margin-left: 5px;
+}
+
+button.pdfDiscardButton {
+  margin-left: 10px;
+  color: var(--main-theme-blue);
+  border-color: var(--main-theme-blue);
+  font-weight: 500;
+  border-radius: 6px;
+}
