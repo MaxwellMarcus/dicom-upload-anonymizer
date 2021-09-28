@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  myFiles,
-  myFile,
-  dateTimeErrors,
-  dicomTags,
-  pdfFile,
-} from '../../myTypes'
+import { myFiles, myFile, dateTimeErrors, dicomTags } from '../../myTypes'
 import {
   getSiteWideAnonScript,
   uploadFiles,
@@ -24,6 +18,7 @@ import {
 } from '../../constants'
 import JSZip from 'jszip'
 import Anonymizer from 'dicomedit'
+import PageFooter from '../PageFooter/PageFooter'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
@@ -40,7 +35,7 @@ const Upload: React.FC = () => {
   const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
-  const [pdfFile, setPdfFile] = useState<pdfFile>({ file: null })
+  const [pdfFile, setPdfFile] = useState<File>(null)
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -134,7 +129,6 @@ const Upload: React.FC = () => {
 
   const onProjectBlur = async (value: string) => {
     if (value.length > 0) {
-      setProjectId(value)
       let responseValue
       const projResponse = await getIsDateTimeProjectValidationRequired(value)
       if (projResponse.status === 200) {
@@ -150,14 +144,17 @@ const Upload: React.FC = () => {
     }
   }
 
+  const onProjectChange = (value: string) => {
+    setProjectId(value)
+  }
+
   const onPdfUpload = (file: Array<File>) => {
-    const pdf: pdfFile = { ...pdfFile, file: file[0] }
+    const pdf: File = file[0]
     setPdfFile(pdf)
   }
 
   const onPdfDiscard = () => {
-    const pdf: pdfFile = { file: null }
-    setPdfFile(pdf)
+    setPdfFile(null)
   }
 
   const onSubmit = async () => {
@@ -194,13 +191,17 @@ const Upload: React.FC = () => {
     }
   }
 
+  const resetAllData = () => {
+    setFiles([])
+    setTotalFiles(0)
+    setProjectId('')
+    setSubjectId('')
+    setDateTime('')
+    setIsDateTimeInputRequired(false)
+    setPdfFile(null)
+  }
+
   const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
-  const isUploadDisabled = !(
-    anonScript &&
-    projectId &&
-    subjectId &&
-    !(isDateTimeInputRequired && dateTime === '')
-  )
 
   if (areFilesReady) {
     files.forEach((file: myFile) => (totalVolume += file.size))
@@ -212,7 +213,11 @@ const Upload: React.FC = () => {
   const stepsContent = [
     <SessionInformation
       key={0}
+      projectId={projectId}
+      subjectId={subjectId}
+      dateTime={dateTime}
       onProjectBlur={onProjectBlur}
+      onProjectChange={onProjectChange}
       setSubjectId={setSubjectId}
       setDateTime={setDateTime}
       pdfFile={pdfFile}
@@ -223,7 +228,6 @@ const Upload: React.FC = () => {
     <UploadButton
       key={1}
       onFileUpload={onFileUpload}
-      isUploadDisabled={isUploadDisabled}
       totalVolume={totalVolume}
       totalFiles={totalFiles}
       numOfAnonomyzedFiles={numOfAnonomyzedFiles}
@@ -241,6 +245,12 @@ const Upload: React.FC = () => {
           </Step>
         ))}
       </Stepper>
+
+      <PageFooter
+        sendingFiles={sendingFiles}
+        onSubmit={onSubmit}
+        resetAllData={resetAllData}
+      />
     </>
   )
 }

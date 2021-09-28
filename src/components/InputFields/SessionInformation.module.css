@@ -52,9 +52,9 @@ svg.helpIcon {
 }
 
 .tooltip {
-  width: 250px;
-  font-size: 0.75em;
-  background-color: black;
+  width: 250px !important;
+  font-size: 0.75em !important;
+  background-color: black !important;
 }
 
 .gridContainer {
@@ -62,7 +62,6 @@ svg.helpIcon {
 }
 
 .pdfInfo {
-  font-family: Inter;
   font-weight: 400;
 }
 .pdfInfo svg {

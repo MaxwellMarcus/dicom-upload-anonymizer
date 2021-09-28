@@ -9,7 +9,11 @@ import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
 
 const SessionInformation: React.FC<SessionInformationProps> = ({
+  projectId,
+  subjectId,
+  dateTime,
   onProjectBlur,
+  onProjectChange,
   setSubjectId,
   setDateTime,
   pdfFile,
@@ -42,7 +46,9 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
         <Grid item xs={5}>
           <TextField
             onBlur={(event) => onProjectBlur(event.target.value)}
+            onChange={(event) => onProjectChange(event.target.value)}
             id='project'
+            value={projectId}
             label={helpTooltip(
               'Performance Site ID',
               'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
@@ -64,6 +70,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           <TextField
             onChange={(event) => setSubjectId(event.target.value)}
             id='subject'
+            value={subjectId}
             label={helpTooltip(
               'Subject ID',
               'Enter the Subject ID as noted on the metadata form',
@@ -83,6 +90,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
         <Grid item xs={5}>
           <TextField
             id='datetime-local'
+            value={dateTime}
             label={helpTooltip(
               'Imaging Session Date and Time',
               'Enter the date and time as noted in the DICOM for study verification',
@@ -105,13 +113,14 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
         <Grid item xs={5}>
           <label className={styles.dropzoneLabel}>Metadata Form</label>
 
-          {pdfFile.file && (
+          {pdfFile && (
             <div className={styles.pdfInfo}>
               <DescriptionOutlined className={styles.themeBlue} />
-              <span className={styles.pdfFileName}>{pdfFile.file.name}</span>
+              <span className={styles.pdfFileName}>{pdfFile.name}</span>
               <Button
                 className={styles.pdfDiscardButton}
                 variant='outlined'
+                style={{ textTransform: 'none' }}
                 onClick={() => onPdfDiscard()}
               >
                 Discard
@@ -119,7 +128,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
             </div>
           )}
 
-          {!pdfFile.file && (
+          {!pdfFile && (
             <>
               <Dropzone
                 accept='.pdf'

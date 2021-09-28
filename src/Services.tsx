@@ -4,7 +4,7 @@ import {
   dateTimeSiteValidationAPI,
   csrfAPI,
 } from './constants'
-import { fetchParams, pdfFile } from './myTypes'
+import { fetchParams } from './myTypes'
 let csrf = ''
 export const getSetCSRF = async (): Promise<void> => {
   const call: fetchParams = requestParams('GET')
@@ -51,14 +51,14 @@ export const getIsDateTimeSiteValidationRequired = (): Promise<Response> => {
 }
 
 export const uploadPdf = async (
-  pdf: pdfFile,
+  pdf: File,
   subjectId: string,
   pdfUrl: string,
 ): Promise<Response> => {
-  const call: fetchParams = requestParams('PUT', pdf.file)
+  const call: fetchParams = requestParams('PUT', pdf)
   const response = await commitZipUpload(pdfUrl)
   if (response.status === 200) {
-    const fileType = pdf.file.name.substr(pdf.file.name.indexOf('.'))
+    const fileType = pdf.name.substr(pdf.name.indexOf('.'))
     return fetch(
       `${call.domain}${pdfUrl}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
       call.params,

@@ -45,32 +45,29 @@ export type dicomTags = {
 };
 
 export type SessionInformationProps = {
+  projectId: string;
+  subjectId: string;
+  dateTime: string;
   onProjectBlur: (value: string) => void;
+  onProjectChange: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
-  pdfFile: pdfFile;
+  pdfFile: File;
   onPdfUpload: (file: Array<File>) => void;
   onPdfDiscard: () => void;
   isDateTimeInputRequired: boolean;
 };
 
-export type SubmitButtonProps = {
-  isUploadDisabled: boolean;
-  fileCheck: dateTimeErrors;
-  areFilesReady: boolean;
-  sendingFiles: boolean;
-  onSubmit: () => void;
-};
-
 export type UploadButtonProps = {
   onFileUpload: (value: Array<File>) => void;
-  isUploadDisabled: boolean;
   totalVolume: number;
   totalFiles: number;
   numOfAnonomyzedFiles: number;
   fileCheck: dateTimeErrors;
 };
 
-export type pdfFile = {
-  file: File;
+export type PageFooterProps = {
+  sendingFiles: boolean;
+  onSubmit: () => void;
+  resetAllData: () => void;
 };
