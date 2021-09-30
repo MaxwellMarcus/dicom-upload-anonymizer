@@ -58,12 +58,14 @@ export type SessionInformationProps = {
   isDateTimeInputRequired: boolean;
 };
 
-export type UploadButtonProps = {
+export type ImagingDataProps = {
   onFileUpload: (value: Array<File>) => void;
-  totalVolume: number;
   totalFiles: number;
   numOfAnonomyzedFiles: number;
   fileCheck: dateTimeErrors;
+  folderName: string;
+  areFilesReady: boolean;
+  discardDicomFilesClicked: () => void;
 };
 
 export type PageFooterProps = {

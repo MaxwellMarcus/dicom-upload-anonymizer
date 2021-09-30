@@ -1,3 +1,4 @@
+import { FileWithPath } from 'react-dropzone'
 import { myFiles, dateTimeErrors } from './myTypes'
 
 export const formatFileSize = (size: number): string => {
@@ -22,7 +23,7 @@ export const formatFileSize = (size: number): string => {
  * @param {File} file - checks whether the uploaded item is a zip folder
  * @returns
  */
-export const isZippedFolder = (file: File): boolean => {
+export const isZippedFolder = (file: FileWithPath): boolean => {
   return file.type.includes('zip')
 }
 
@@ -85,4 +86,11 @@ export const checkStudyDateTimeAndUID = (
     }
   }
   return errors
+}
+
+export const getFolderName = (path: string): string => {
+  const folderName = path.split('/')
+  // If directory - name will be index 1
+  // If zip - name will be index 0
+  return folderName[1] || folderName[0]
 }

@@ -40,3 +40,7 @@ div.MuiStepContent-root {
 label.MuiInputLabel-outlined {
   color: black;
 }
+
+div.MuiLinearProgress-barColorPrimary {
+  background-color: #00b778;
+}

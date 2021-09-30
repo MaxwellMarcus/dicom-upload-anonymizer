@@ -26,6 +26,9 @@
 
 .icon {
   margin-bottom: 0px;
+  color: var(--main-theme-blue);
+  vertical-align: sub;
+  font-size: 1.3rem;
 }
 
 .dropzoneLabel {
@@ -41,6 +44,21 @@
   margin-bottom: 0px;
 }
 
-.themeBlue {
+div.progressBar {
+  height: 8px;
+  background-color: #e3e5e8;
+  border-radius: 17px;
+  margin-top: 20px;
+}
+
+.anonInfo {
+  margin-top: 10px;
+}
+
+button.dicomDiscard {
+  margin-left: 10px;
   color: var(--main-theme-blue);
+  border-color: var(--main-theme-blue);
+  font-weight: 500;
+  border-radius: 6px;
 }

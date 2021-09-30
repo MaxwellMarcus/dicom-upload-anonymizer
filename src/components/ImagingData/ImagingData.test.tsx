@@ -1,13 +1,14 @@
 import renderer from 'react-test-renderer'
-import UploadButton from './UploadButton'
+import ImagingData from './ImagingData'
 import { dateTimeErrors } from '../../myTypes'
 
 it('renders disabled and without dateTime errors', () => {
   const onFileUpload = jest.fn()
-  const isUploadDisabled = true
-  const totalVolume = 0
   const totalFiles = 0
   const numOfAnonomyzedFiles = 0
+  const folderName = 'myFolder'
+  const areFilesReady = true
+  const discardDicomFilesClicked = jest.fn()
   const fileCheck: dateTimeErrors = {
     dateTimeError: false,
     studyInstanceUidError: false,
@@ -15,13 +16,14 @@ it('renders disabled and without dateTime errors', () => {
 
   const tree = renderer
     .create(
-      <UploadButton
+      <ImagingData
         onFileUpload={onFileUpload}
-        isUploadDisabled={isUploadDisabled}
-        totalVolume={totalVolume}
         totalFiles={totalFiles}
         numOfAnonomyzedFiles={numOfAnonomyzedFiles}
         fileCheck={fileCheck}
+        folderName={folderName}
+        areFilesReady={areFilesReady}
+        discardDicomFilesClicked={discardDicomFilesClicked}
       />,
     )
     .toJSON()
@@ -100,10 +102,11 @@ it('renders disabled and without dateTime errors', () => {
 
 it('renders enabled and without dateTime errors', () => {
   const onFileUpload = jest.fn()
-  const isUploadDisabled = false
-  const totalVolume = 0
   const totalFiles = 0
   const numOfAnonomyzedFiles = 0
+  const folderName = 'myFolder'
+  const areFilesReady = true
+  const discardDicomFilesClicked = jest.fn()
   const fileCheck: dateTimeErrors = {
     dateTimeError: false,
     studyInstanceUidError: false,
@@ -111,13 +114,14 @@ it('renders enabled and without dateTime errors', () => {
 
   const tree = renderer
     .create(
-      <UploadButton
+      <ImagingData
         onFileUpload={onFileUpload}
-        isUploadDisabled={isUploadDisabled}
-        totalVolume={totalVolume}
         totalFiles={totalFiles}
         numOfAnonomyzedFiles={numOfAnonomyzedFiles}
         fileCheck={fileCheck}
+        folderName={folderName}
+        areFilesReady={areFilesReady}
+        discardDicomFilesClicked={discardDicomFilesClicked}
       />,
     )
     .toJSON()
