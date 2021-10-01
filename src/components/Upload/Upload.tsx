@@ -43,6 +43,7 @@ const Upload: React.FC = () => {
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
   const [pdfFile, setPdfFile] = useState<File>(null)
   const [folderName, setFolderName] = useState('')
+  const [pdfModalOpen, setPdfModalOpen] = useState(false)
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -158,6 +159,7 @@ const Upload: React.FC = () => {
   const onPdfUpload = (file: Array<File>) => {
     const pdf: File = file[0]
     setPdfFile(pdf)
+    setPdfModalOpen(true)
   }
 
   const onPdfDiscard = () => {
@@ -239,6 +241,8 @@ const Upload: React.FC = () => {
       onPdfUpload={onPdfUpload}
       onPdfDiscard={onPdfDiscard}
       isDateTimeInputRequired={isDateTimeInputRequired}
+      pdfModalOpen={pdfModalOpen}
+      setPdfModalOpen={setPdfModalOpen}
     />,
     <ImagingData
       key={1}

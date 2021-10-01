@@ -56,6 +56,8 @@ export type SessionInformationProps = {
   onPdfUpload: (file: Array<File>) => void;
   onPdfDiscard: () => void;
   isDateTimeInputRequired: boolean;
+  pdfModalOpen: boolean;
+  setPdfModalOpen: (value: boolean) => void;
 };
 
 export type ImagingDataProps = {
@@ -72,4 +74,11 @@ export type PageFooterProps = {
   sendingFiles: boolean;
   onSubmit: () => void;
   resetAllData: () => void;
+};
+
+export type PdfModalProps = {
+  pdfModalOpen: boolean;
+  handlePdfClose: () => void;
+  pdfFile: File;
+  onPdfDiscard: () => void;
 };
