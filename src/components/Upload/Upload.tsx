@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import { myFiles, myFile, dateTimeErrors, dicomTags } from '../../myTypes'
+import {
+  myFiles,
+  myFile,
+  dateTimeErrors,
+  dicomTags,
+  siteWideAnonAPI,
+} from '../../myTypes'
 import {
   getSiteWideAnonScript,
   uploadFiles,
@@ -56,9 +62,13 @@ const Upload: React.FC = () => {
   // Retrieve site-wide anon script
   useEffect(() => {
     getSiteWideAnonScript()
-      .then((response: Response) => response.text())
-      .then((script: string) => {
-        setAnonScript(script)
+      .then((response: Response) => {
+        return response.json()
+      })
+      .then((response: siteWideAnonAPI) => {
+        if (response.ResultSet.Result[0].status === 'enabled') {
+          setAnonScript(response.ResultSet.Result[0].contents)
+        }
       })
   }, [])
 

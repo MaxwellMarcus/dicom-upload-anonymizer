@@ -82,3 +82,20 @@ export type PdfModalProps = {
   pdfFile: File;
   onPdfDiscard: () => void;
 };
+
+export type siteWideAnonAPI = {
+  ResultSet: {
+    Result: Array<{
+      contents: string;
+      create_date: string;
+      path: string;
+      project: string;
+      reason: string;
+      status: string;
+      tool: string;
+      unversioned: string;
+      user: string;
+      version: string;
+    }>;
+  };
+};
