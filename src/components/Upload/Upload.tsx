@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  myFiles,
-  myFile,
-  dateTimeErrors,
-  dicomTags,
-  siteWideAnonAPI,
-} from '../../myTypes'
+import { myFiles, myFile, dicomTags, siteWideAnonAPI } from '../../myTypes'
 import {
   getSiteWideAnonScript,
   uploadFiles,
@@ -13,11 +7,7 @@ import {
   getIsDateTimeSiteValidationRequired,
   uploadPdf,
 } from '../../Services'
-import {
-  isZippedFolder,
-  checkStudyDateTimeAndUID,
-  getFolderName,
-} from '../../utils'
+import { isZippedFolder, getFolderName } from '../../utils'
 import {
   LIBRARY_PARSER,
   STUDY_DATE,
@@ -53,11 +43,6 @@ const Upload: React.FC = () => {
 
   const jsZip = new JSZip()
   let progressCounter = 0
-  let totalVolume = 0
-  let fileCheck: dateTimeErrors = {
-    dateTimeError: false,
-    studyInstanceUidError: false,
-  }
 
   // Retrieve site-wide anon script
   useEffect(() => {
@@ -220,21 +205,12 @@ const Upload: React.FC = () => {
     setPdfFile(null)
   }
 
-  const discardDicomFilesClicked = () => {
+  const discardDicomFiles = () => {
     setFiles([])
     setNumOfAnonomyzedFiles(0)
     setTotalFiles(0)
     setFolderName('')
     setNumOfAnonomyzedFiles(0)
-  }
-
-  const areFilesReady: boolean = files.length > 0 && files.length === totalFiles
-
-  if (areFilesReady) {
-    files.forEach((file: myFile) => (totalVolume += file.size))
-    if (isDateTimeInputRequired) {
-      fileCheck = checkStudyDateTimeAndUID(files, dateTime)
-    }
   }
 
   const stepsContent = [
@@ -256,13 +232,13 @@ const Upload: React.FC = () => {
     />,
     <ImagingData
       key={1}
+      files={files}
+      dateTime={dateTime}
       onFileUpload={onFileUpload}
       totalFiles={totalFiles}
       numOfAnonomyzedFiles={numOfAnonomyzedFiles}
-      fileCheck={fileCheck}
       folderName={folderName}
-      areFilesReady={areFilesReady}
-      discardDicomFilesClicked={discardDicomFilesClicked}
+      discardDicomFiles={discardDicomFiles}
     />,
   ]
 

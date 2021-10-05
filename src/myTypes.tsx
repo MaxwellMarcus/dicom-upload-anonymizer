@@ -35,6 +35,9 @@ export type myFiles = Array<myFile>;
 
 export type dateTimeErrors = {
   dateTimeError: boolean;
+  dateTimeErrorFiles: Array<{
+    filename: string;
+  }>;
   studyInstanceUidError: boolean;
 };
 
@@ -61,13 +64,13 @@ export type SessionInformationProps = {
 };
 
 export type ImagingDataProps = {
+  files: myFiles;
+  dateTime: string;
   onFileUpload: (value: Array<File>) => void;
   totalFiles: number;
   numOfAnonomyzedFiles: number;
-  fileCheck: dateTimeErrors;
   folderName: string;
-  areFilesReady: boolean;
-  discardDicomFilesClicked: () => void;
+  discardDicomFiles: () => void;
 };
 
 export type PageFooterProps = {
@@ -98,4 +101,11 @@ export type siteWideAnonAPI = {
       version: string;
     }>;
   };
+};
+
+export type DicomValidationErrorModalProps = {
+  files: myFiles;
+  dateTime: string;
+  areFilesReady: boolean;
+  discardDicomFiles: () => void;
 };

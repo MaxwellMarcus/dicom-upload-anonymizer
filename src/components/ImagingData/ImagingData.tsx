@@ -6,20 +6,24 @@ import Grid from '@material-ui/core/Grid'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import Button from '@material-ui/core/Button'
 import styles from './ImagingData.module.css'
+import DicomValidationErrorModal from '../DicomValidationErrorModal/DicomValidationErrorModal'
 
 const ImagingData: React.FC<ImagingDataProps> = ({
+  files,
+  dateTime,
   onFileUpload,
   totalFiles,
   numOfAnonomyzedFiles,
-  fileCheck,
   folderName,
-  areFilesReady,
-  discardDicomFilesClicked,
+  discardDicomFiles,
 }: ImagingDataProps) => {
   const anonProgress =
     numOfAnonomyzedFiles > 0
       ? Math.ceil((numOfAnonomyzedFiles / totalFiles) * 100)
       : 0
+
+  const areFilesReady =
+    numOfAnonomyzedFiles > 0 && numOfAnonomyzedFiles === totalFiles
 
   return (
     <Grid container spacing={3}>
@@ -79,7 +83,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
                 className={styles.dicomDiscard}
                 variant='outlined'
                 style={{ textTransform: 'none' }}
-                onClick={() => discardDicomFilesClicked()}
+                onClick={() => discardDicomFiles()}
               >
                 Discard
               </Button>
@@ -99,22 +103,12 @@ const ImagingData: React.FC<ImagingDataProps> = ({
         )}
       </Grid>
 
-      {(fileCheck.dateTimeError || fileCheck.studyInstanceUidError) && (
-        <Grid item xs={12}>
-          {fileCheck.dateTimeError && (
-            <p className={styles.redText}>
-              At least one of the uploaded files is outside the two hour window
-            </p>
-          )}
-
-          {fileCheck.studyInstanceUidError && (
-            <p className={styles.redText}>
-              At least one of the uploaded files has a different Study Instance
-              UID value
-            </p>
-          )}
-        </Grid>
-      )}
+      <DicomValidationErrorModal
+        files={files}
+        dateTime={dateTime}
+        areFilesReady={areFilesReady}
+        discardDicomFiles={discardDicomFiles}
+      />
     </Grid>
   )
 }

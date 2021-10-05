@@ -1,0 +1,49 @@
+.title {
+  background-color: #eff1f4;
+  height: 49px;
+}
+
+.title h2 {
+  font-size: 1rem;
+}
+
+.background {
+  background-color: rgba(6, 23, 52, 0.5);
+}
+
+button.ok {
+  background-color: var(--main-theme-blue);
+  color: white;
+}
+
+button.closeIconButton {
+  position: absolute;
+  right: 15px;
+  top: 0px;
+}
+
+p.bodyContent {
+  font-size: 0.8rem;
+}
+
+.errorText {
+  color: #f14646;
+}
+
+.infoText {
+  color: #666666;
+}
+
+.fileCount {
+  color: #333333;
+}
+
+.fileListBox {
+  height: 100px;
+  overflow: auto;
+  font-size: 0.75rem;
+}
+
+.fileListBox > p {
+  width: max-content;
+}

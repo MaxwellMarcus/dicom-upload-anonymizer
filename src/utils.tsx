@@ -61,6 +61,7 @@ export const checkStudyDateTimeAndUID = (
 ): dateTimeErrors => {
   const errors: dateTimeErrors = {
     dateTimeError: false,
+    dateTimeErrorFiles: [],
     studyInstanceUidError: false,
   }
   const formattedDateTime = dateTime.replace(/-|T|:/g, '')
@@ -79,6 +80,7 @@ export const checkStudyDateTimeAndUID = (
 
     if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
       errors.dateTimeError = true
+      errors.dateTimeErrorFiles.push({ filename: files[i].fileName })
     }
 
     if (files[0].dicomTags.UID !== initialUID) {
