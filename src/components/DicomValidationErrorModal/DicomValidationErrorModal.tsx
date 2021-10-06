@@ -15,6 +15,7 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
   dateTime,
   areFilesReady,
   discardDicomFiles,
+  isDateTimeInputRequired,
 }: DicomValidationErrorModalProps) => {
   let fileCheck: dateTimeErrors = {
     dateTimeError: false,
@@ -22,7 +23,7 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
     studyInstanceUidError: false,
   }
 
-  if (areFilesReady) {
+  if (areFilesReady && isDateTimeInputRequired) {
     fileCheck = checkStudyDateTimeAndUID(files, dateTime)
   }
 

@@ -1,12 +1,5 @@
-import { useState, useEffect } from 'react'
-import { myFiles, myFile, dicomTags, siteWideAnonAPI } from '../../myTypes'
-import {
-  getSiteWideAnonScript,
-  uploadFiles,
-  getIsDateTimeProjectValidationRequired,
-  getIsDateTimeSiteValidationRequired,
-  uploadPdf,
-} from '../../Services'
+import { useState } from 'react'
+import { myFiles, myFile, dicomTags, UploadProps } from '../../myTypes'
 import { isZippedFolder, getFolderName } from '../../utils'
 import {
   LIBRARY_PARSER,
@@ -27,35 +20,27 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import SessionInformation from '../InputFields/SessionInformation'
 import ImagingData from '../ImagingData/ImagingData'
-const Upload: React.FC = () => {
+
+const Upload: React.FC<UploadProps> = ({
+  anonScript,
+  checkIfDateTimeRequired,
+  handleUploadFiles,
+  handleUploadPdf,
+}: UploadProps) => {
   const [files, setFiles] = useState<myFiles>([])
   const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
-  const [anonScript, setAnonScript] = useState('')
   const [projectId, setProjectId] = useState('')
   const [subjectId, setSubjectId] = useState('')
   const [dateTime, setDateTime] = useState('')
   const [sendingFiles, setSendingFiles] = useState(false)
-  const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(false)
+  const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(true)
   const [pdfFile, setPdfFile] = useState<File>(null)
   const [folderName, setFolderName] = useState('')
   const [pdfModalOpen, setPdfModalOpen] = useState(false)
 
   const jsZip = new JSZip()
   let progressCounter = 0
-
-  // Retrieve site-wide anon script
-  useEffect(() => {
-    getSiteWideAnonScript()
-      .then((response: Response) => {
-        return response.json()
-      })
-      .then((response: siteWideAnonAPI) => {
-        if (response.ResultSet.Result[0].status === 'enabled') {
-          setAnonScript(response.ResultSet.Result[0].contents)
-        }
-      })
-  }, [])
 
   const onFileUpload = (uploaded: Array<FileWithPath>) => {
     setFolderName(getFolderName(uploaded[0].path))
@@ -132,18 +117,8 @@ const Upload: React.FC = () => {
 
   const onProjectBlur = async (value: string) => {
     if (value.length > 0) {
-      let responseValue
-      const projResponse = await getIsDateTimeProjectValidationRequired(value)
-      if (projResponse.status === 200) {
-        responseValue = await projResponse.json()
-        setIsDateTimeInputRequired(responseValue)
-      } else {
-        const siteResponse = await getIsDateTimeSiteValidationRequired()
-        if (siteResponse.status === 200) {
-          responseValue = await siteResponse.json()
-          setIsDateTimeInputRequired(responseValue)
-        }
-      }
+      const dateTimeValidation = await checkIfDateTimeRequired(value)
+      setIsDateTimeInputRequired(dateTimeValidation)
     }
   }
 
@@ -173,7 +148,7 @@ const Upload: React.FC = () => {
       if (totalSize > TWENTY_FIVE_MEGA_BYTES || isLastChunk) {
         setSendingFiles(true)
         const zippedFolder = await zipToSend.generateAsync({ type: 'blob' })
-        const uploadFilesResponse = await uploadFiles(
+        const uploadFilesResponse = await handleUploadFiles(
           projectId,
           subjectId,
           zippedFolder,
@@ -185,7 +160,11 @@ const Upload: React.FC = () => {
               0,
               response.length - 2,
             )
-            await uploadPdf(pdfFile, subjectId, urlFromUploadFilesResponse)
+            await handleUploadPdf(
+              pdfFile,
+              subjectId,
+              urlFromUploadFilesResponse,
+            )
           }
         }
         setSendingFiles(false)
@@ -239,6 +218,7 @@ const Upload: React.FC = () => {
       numOfAnonomyzedFiles={numOfAnonomyzedFiles}
       folderName={folderName}
       discardDicomFiles={discardDicomFiles}
+      isDateTimeInputRequired={isDateTimeInputRequired}
     />,
   ]
 

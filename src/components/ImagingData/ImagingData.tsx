@@ -16,6 +16,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
   numOfAnonomyzedFiles,
   folderName,
   discardDicomFiles,
+  isDateTimeInputRequired,
 }: ImagingDataProps) => {
   const anonProgress =
     numOfAnonomyzedFiles > 0
@@ -108,6 +109,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
         dateTime={dateTime}
         areFilesReady={areFilesReady}
         discardDicomFiles={discardDicomFiles}
+        isDateTimeInputRequired={isDateTimeInputRequired}
       />
     </Grid>
   )

@@ -56,20 +56,18 @@ export const uploadPdf = async (
   pdfUrl: string,
 ): Promise<Response> => {
   const call: fetchParams = requestParams('PUT', pdf)
-  const response = await commitZipUpload(pdfUrl)
-  if (response.status === 200) {
-    const fileType = pdf.name.substr(pdf.name.indexOf('.'))
-    return fetch(
-      `${call.domain}${pdfUrl}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
-      call.params,
-    )
-  }
+  await commitDicomFilesUpload(pdfUrl)
+  const fileType = pdf.name.substr(pdf.name.indexOf('.'))
+  return fetch(
+    `${call.domain}${pdfUrl}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
+    call.params,
+  )
 }
 
 /**
  * intermediary call to say the dicom file upload process is done
  */
-const commitZipUpload = (pdfUrl: string): Promise<Response> => {
+const commitDicomFilesUpload = (pdfUrl: string): Promise<Response> => {
   const call: fetchParams = requestParams('POST')
   return fetch(`${call.domain}${pdfUrl}?action=commit`, call.params)
 }

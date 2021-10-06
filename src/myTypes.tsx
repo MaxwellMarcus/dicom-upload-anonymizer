@@ -1,4 +1,20 @@
 /* eslint-disable no-unused-vars */
+
+export type UploadProps = {
+  anonScript: string;
+  checkIfDateTimeRequired: (value: string) => Promise<boolean>;
+  handleUploadFiles: (
+    projectId: string,
+    subjectId: string,
+    zippedFolder: Blob,
+  ) => Promise<Response>;
+  handleUploadPdf: (
+    pdfFile: File,
+    subjectId: string,
+    url: string,
+  ) => Promise<Response>;
+};
+
 export class myFile {
   fileName;
   size;
@@ -71,6 +87,7 @@ export type ImagingDataProps = {
   numOfAnonomyzedFiles: number;
   folderName: string;
   discardDicomFiles: () => void;
+  isDateTimeInputRequired: boolean;
 };
 
 export type PageFooterProps = {
@@ -86,7 +103,7 @@ export type PdfModalProps = {
   onPdfDiscard: () => void;
 };
 
-export type siteWideAnonAPI = {
+export type siteWideAnonResponse = {
   ResultSet: {
     Result: Array<{
       contents: string;
@@ -108,4 +125,5 @@ export type DicomValidationErrorModalProps = {
   dateTime: string;
   areFilesReady: boolean;
   discardDicomFiles: () => void;
+  isDateTimeInputRequired: boolean;
 };

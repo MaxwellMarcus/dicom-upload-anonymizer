@@ -21,3 +21,36 @@ export const uploadSteps = [
   'Imaging Data',
   'Empty Third',
 ]
+
+export const fullStopErrors = {
+  NO_PROJECTS_AVAILABLE: {
+    error: true,
+    errorTitle: 'Access Denied',
+    errorTextLine1: 'You do not have access to any Performance Sites.',
+    errorTextLine2: 'Please contact your system administrator.',
+  },
+  PROJECTS_IRRETRIEVABLE: {
+    error: true,
+    errorTitle: 'Service Failure',
+    errorTextLine1: 'Performance site information cannot be retrived.',
+    errorTextLine2: 'Please contact your system administrator.',
+  },
+  ANON_SCRIPT_IRRETRIEVABLE: {
+    error: true,
+    errorTitle: 'Service Failure',
+    errorTextLine1: 'Anonymization service is unavailable.',
+    errorTextLine2: 'Please contact your system administrator.',
+  },
+  DICOM_UPLOAD_FAILED: {
+    error: true,
+    errorTitle: 'Service Failure',
+    errorTextLine1: 'Uploading annonymized DICOM files failed.',
+    errorTextLine2: 'Please contact your system administrator.',
+  },
+  PDF_UPLOAD_FAILED: {
+    error: true,
+    errorTitle: 'Service Failure',
+    errorTextLine1: 'Uploading PDF file failed.',
+    errorTextLine2: 'Please contact your system administrator.',
+  },
+}
