@@ -3,6 +3,7 @@ import {
   dateTimeProjectValidationAPI,
   dateTimeSiteValidationAPI,
   csrfAPI,
+  availableProjectsAPI,
 } from './constants'
 import { fetchParams } from './myTypes'
 let csrf = ''
@@ -33,6 +34,11 @@ export const uploadFiles = (
     `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&${csrf}`,
     call.params,
   )
+}
+
+export const getAvailableProjects = (): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(`${call.domain}${availableProjectsAPI}`, call.params)
 }
 
 export const getIsDateTimeProjectValidationRequired = (

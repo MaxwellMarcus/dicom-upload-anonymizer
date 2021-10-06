@@ -3,6 +3,7 @@
 export type UploadProps = {
   anonScript: string;
   checkIfDateTimeRequired: (value: string) => Promise<boolean>;
+  availableProjects: Array<string>;
   handleUploadFiles: (
     projectId: string,
     subjectId: string,
@@ -67,7 +68,7 @@ export type SessionInformationProps = {
   projectId: string;
   subjectId: string;
   dateTime: string;
-  onProjectBlur: (value: string) => void;
+  availableProjects: Array<string>;
   onProjectChange: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
@@ -119,6 +120,21 @@ export type siteWideAnonResponse = {
     }>;
   };
 };
+
+export type availableProjectsResponse = Array<{
+  approvalDate: number;
+  approved: boolean;
+  approverUserId: number;
+  createDate: number;
+  email: string;
+  guid: string;
+  hashedEmail: string;
+  projectId: string;
+  requestId: number;
+  role: string;
+  userId: number;
+  userString: string;
+}>;
 
 export type DicomValidationErrorModalProps = {
   files: myFiles;

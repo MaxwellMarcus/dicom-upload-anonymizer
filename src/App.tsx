@@ -5,13 +5,14 @@ import Container from '@material-ui/core/Container'
 import Upload from './components/Upload/Upload'
 import styles from './App.module.css'
 import {
+  getAvailableProjects,
   getIsDateTimeProjectValidationRequired,
   getIsDateTimeSiteValidationRequired,
   getSiteWideAnonScript,
   uploadFiles,
   uploadPdf,
 } from './Services'
-import { siteWideAnonResponse } from './myTypes'
+import { availableProjectsResponse, siteWideAnonResponse } from './myTypes'
 import { fullStopErrors } from './constants'
 const App: React.FC = () => {
   const [fullStopError, setFullStopError] = useState({
@@ -21,6 +22,7 @@ const App: React.FC = () => {
     errorTextLine2: '',
   })
   const [anonScript, setAnonScript] = useState('')
+  const [availableProjects, setAvailableProjects] = useState<Array<string>>([])
 
   useEffect(() => {
     getSiteWideAnonScript().then((response: Response) => {
@@ -32,6 +34,21 @@ const App: React.FC = () => {
         })
       } else {
         setFullStopError(fullStopErrors.ANON_SCRIPT_IRRETRIEVABLE)
+      }
+    })
+    getAvailableProjects().then((response: Response) => {
+      if (response.status === 200) {
+        response.json().then((response: availableProjectsResponse) => {
+          if (response.length === 0) {
+            setFullStopError(fullStopErrors.NO_PROJECTS_AVAILABLE)
+          } else {
+            response.forEach((project) => {
+              setAvailableProjects([...availableProjects, project.projectId])
+            })
+          }
+        })
+      } else {
+        setFullStopError(fullStopErrors.PROJECTS_IRRETRIEVABLE)
       }
     })
   }, [])
@@ -102,6 +119,7 @@ const App: React.FC = () => {
             <Upload
               anonScript={anonScript}
               checkIfDateTimeRequired={checkIfDateTimeRequired}
+              availableProjects={availableProjects}
               handleUploadFiles={handleUploadFiles}
               handleUploadPdf={handleUploadPdf}
             />

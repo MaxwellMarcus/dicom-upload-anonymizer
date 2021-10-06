@@ -3,6 +3,10 @@
   padding-left: 1rem;
 }
 
+.inputPadding > div:nth-last-child(2) {
+  padding-bottom: 1rem;
+}
+
 .inputPadding > div:last-child {
   padding-bottom: 0px;
 }
@@ -79,4 +83,12 @@ button.pdfDiscardButton {
   border-color: var(--main-theme-blue);
   font-weight: 500;
   border-radius: 6px;
+}
+
+label.projectInputLabel {
+  pointer-events: auto;
+  background-color: white;
+  left: -5px;
+  padding-left: 10px;
+  padding-right: 10px;
 }

@@ -24,6 +24,7 @@ import ImagingData from '../ImagingData/ImagingData'
 const Upload: React.FC<UploadProps> = ({
   anonScript,
   checkIfDateTimeRequired,
+  availableProjects,
   handleUploadFiles,
   handleUploadPdf,
 }: UploadProps) => {
@@ -115,15 +116,12 @@ const Upload: React.FC<UploadProps> = ({
     setNumOfAnonomyzedFiles(progressCounter)
   }
 
-  const onProjectBlur = async (value: string) => {
+  const onProjectChange = async (value: string) => {
     if (value.length > 0) {
       const dateTimeValidation = await checkIfDateTimeRequired(value)
       setIsDateTimeInputRequired(dateTimeValidation)
+      setProjectId(value)
     }
-  }
-
-  const onProjectChange = (value: string) => {
-    setProjectId(value)
   }
 
   const onPdfUpload = (file: Array<File>) => {
@@ -198,7 +196,7 @@ const Upload: React.FC<UploadProps> = ({
       projectId={projectId}
       subjectId={subjectId}
       dateTime={dateTime}
-      onProjectBlur={onProjectBlur}
+      availableProjects={availableProjects}
       onProjectChange={onProjectChange}
       setSubjectId={setSubjectId}
       setDateTime={setDateTime}

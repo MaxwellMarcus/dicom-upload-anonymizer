@@ -2,6 +2,10 @@ import { SessionInformationProps } from '../../myTypes'
 import styles from './SessionInformation.module.css'
 import PdfModal from '../PdfModal/PdfModal'
 import TextField from '@material-ui/core/TextField'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import Select from '@material-ui/core/Select'
 import Grid from '@material-ui/core/Grid'
 import Dropzone from 'react-dropzone'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
@@ -13,7 +17,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   projectId,
   subjectId,
   dateTime,
-  onProjectBlur,
+  availableProjects,
   onProjectChange,
   setSubjectId,
   setDateTime,
@@ -52,24 +56,35 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
       >
         <Grid container className={styles.gridContainer}>
           <Grid item xs={5}>
-            <TextField
-              onBlur={(event) => onProjectBlur(event.target.value)}
-              onChange={(event) => onProjectChange(event.target.value)}
-              id='project'
-              value={projectId}
-              label={helpTooltip(
-                'Performance Site ID',
-                'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
-              )}
-              variant='outlined'
-              autoFocus={true}
-              size='small'
-              fullWidth={true}
-              InputLabelProps={{
-                shrink: true,
-                style: { pointerEvents: 'auto' },
-              }}
-            />
+            <FormControl variant='outlined' fullWidth={true} size='small'>
+              <InputLabel
+                id='project-label'
+                shrink
+                className={styles.projectInputLabel}
+              >
+                {helpTooltip(
+                  'Performance Site ID',
+                  'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
+                )}
+              </InputLabel>
+              <Select
+                labelId='project-label'
+                value={projectId}
+                onChange={(event) =>
+                  onProjectChange(event.target.value as string)
+                }
+                disabled={availableProjects.length === 0}
+                className={styles.projectSelect}
+                displayEmpty={true}
+              >
+                <MenuItem value=''>Select Performance Site</MenuItem>
+                {availableProjects.map((project, index) => (
+                  <MenuItem value={project} key={index}>
+                    {project}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 
