@@ -96,3 +96,11 @@ export const getFolderName = (path: string): string => {
   // If zip - name will be index 0
   return folderName[1] || folderName[0]
 }
+
+export const parseUserString = (userString: string): string => {
+  if (userString !== '') {
+    const parts = userString.split(' ')
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`
+  }
+  return ''
+}

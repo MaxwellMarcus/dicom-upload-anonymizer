@@ -18,7 +18,7 @@ import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
-import SessionInformation from '../InputFields/SessionInformation'
+import SessionInformation from '../SessionInformation/SessionInformation'
 import ImagingData from '../ImagingData/ImagingData'
 
 const Upload: React.FC<UploadProps> = ({

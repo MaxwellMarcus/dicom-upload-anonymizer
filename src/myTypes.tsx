@@ -1,5 +1,10 @@
 /* eslint-disable no-unused-vars */
 
+export type user = {
+  userString: string;
+  email: string;
+};
+
 export type UploadProps = {
   anonScript: string;
   checkIfDateTimeRequired: (value: string) => Promise<boolean>;
@@ -95,6 +100,13 @@ export type PageFooterProps = {
   sendingFiles: boolean;
   onSubmit: () => void;
   resetAllData: () => void;
+};
+
+export type PageHeaderProps = {
+  userInfo: {
+    userString: string;
+    email: string;
+  };
 };
 
 export type PdfModalProps = {

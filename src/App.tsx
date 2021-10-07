@@ -12,8 +12,13 @@ import {
   uploadFiles,
   uploadPdf,
 } from './Services'
-import { availableProjectsResponse, siteWideAnonResponse } from './myTypes'
+import {
+  availableProjectsResponse,
+  siteWideAnonResponse,
+  user,
+} from './myTypes'
 import { fullStopErrors } from './constants'
+import PageHeader from './components/PageHeader/PageHeader'
 const App: React.FC = () => {
   const [fullStopError, setFullStopError] = useState({
     error: false,
@@ -23,6 +28,7 @@ const App: React.FC = () => {
   })
   const [anonScript, setAnonScript] = useState('')
   const [availableProjects, setAvailableProjects] = useState<Array<string>>([])
+  const [userInfo, setUserInfo] = useState<user>({ userString: '', email: '' })
 
   useEffect(() => {
     getSiteWideAnonScript().then((response: Response) => {
@@ -42,6 +48,10 @@ const App: React.FC = () => {
           if (response.length === 0) {
             setFullStopError(fullStopErrors.NO_PROJECTS_AVAILABLE)
           } else {
+            setUserInfo({
+              userString: response[0].userString,
+              email: response[0].email,
+            })
             response.forEach((project) => {
               setAvailableProjects([...availableProjects, project.projectId])
             })
@@ -110,7 +120,7 @@ const App: React.FC = () => {
     <div className='App'>
       <Paper elevation={0} square>
         <Box px={2} marginTop={0}>
-          <h3 className={styles.title}>Subject Data Upload</h3>
+          <PageHeader userInfo={userInfo} />
         </Box>
       </Paper>
       <Box className={styles.greyBackground} py={2}>

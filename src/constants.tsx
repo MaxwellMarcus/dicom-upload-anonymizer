@@ -6,6 +6,9 @@ export const dateTimeSiteValidationAPI =
 export const dateTimeProjectValidationAPI = (projectId: string): string => {
   return `/data/projects/${projectId}/config/applet/require-date?contents=true&accept-not-found=true`
 }
+export const myProfileLink =
+  '/app/template/XDATScreen_UpdateUser.vm#tab=user-profile-tab'
+export const logoutUserLink = '/app/action/LogoutUser'
 export const STUDY_DATE = '00080020'
 export const STUDY_TIME = '00080030'
 export const STUDY_INSTANCE_UID = '0020000D'
