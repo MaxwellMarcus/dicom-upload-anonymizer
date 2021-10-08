@@ -100,6 +100,7 @@ export type PageFooterProps = {
   sendingFiles: boolean;
   onSubmit: () => void;
   resetAllData: () => void;
+  uploadProgress: uploadProgressProps;
 };
 
 export type PageHeaderProps = {
@@ -154,4 +155,9 @@ export type DicomValidationErrorModalProps = {
   areFilesReady: boolean;
   discardDicomFiles: () => void;
   isDateTimeInputRequired: boolean;
+};
+
+export type uploadProgressProps = {
+  totalNumberOfChunks: number;
+  chunksSent: number;
 };

@@ -1,6 +1,12 @@
 import { useState } from 'react'
-import { myFiles, myFile, dicomTags, UploadProps } from '../../myTypes'
-import { isZippedFolder, getFolderName } from '../../utils'
+import {
+  myFiles,
+  myFile,
+  dicomTags,
+  UploadProps,
+  uploadProgressProps,
+} from '../../myTypes'
+import { isZippedFolder, getFolderName, numberOfChunks } from '../../utils'
 import {
   LIBRARY_PARSER,
   STUDY_DATE,
@@ -39,6 +45,10 @@ const Upload: React.FC<UploadProps> = ({
   const [pdfFile, setPdfFile] = useState<File>(null)
   const [folderName, setFolderName] = useState('')
   const [pdfModalOpen, setPdfModalOpen] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<uploadProgressProps>({
+    totalNumberOfChunks: 0,
+    chunksSent: 0,
+  })
 
   const jsZip = new JSZip()
   let progressCounter = 0
@@ -135,6 +145,10 @@ const Upload: React.FC<UploadProps> = ({
   }
 
   const onSubmit = async () => {
+    setUploadProgress((current) => ({
+      ...current,
+      totalNumberOfChunks: numberOfChunks(files),
+    }))
     let zipToSend = new JSZip()
     let totalSize = 0
 
@@ -151,8 +165,12 @@ const Upload: React.FC<UploadProps> = ({
           subjectId,
           zippedFolder,
         )
-        if (isLastChunk) {
-          if (uploadFilesResponse.status === 200) {
+        if (uploadFilesResponse.status === 200) {
+          setUploadProgress((current) => ({
+            ...current,
+            chunksSent: current.chunksSent + 1,
+          }))
+          if (isLastChunk) {
             const response = await uploadFilesResponse.text()
             const urlFromUploadFilesResponse = response.substring(
               0,
@@ -180,6 +198,9 @@ const Upload: React.FC<UploadProps> = ({
     setDateTime('')
     setIsDateTimeInputRequired(false)
     setPdfFile(null)
+    setFolderName('')
+    setNumOfAnonomyzedFiles(0)
+    setUploadProgress({ totalNumberOfChunks: 0, chunksSent: 0 })
   }
 
   const discardDicomFiles = () => {
@@ -235,6 +256,7 @@ const Upload: React.FC<UploadProps> = ({
         sendingFiles={sendingFiles}
         onSubmit={onSubmit}
         resetAllData={resetAllData}
+        uploadProgress={uploadProgress}
       />
     </>
   )

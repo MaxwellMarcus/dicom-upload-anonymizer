@@ -1,4 +1,5 @@
 import { FileWithPath } from 'react-dropzone'
+import { TWENTY_FIVE_MEGA_BYTES } from './constants'
 import { myFiles, dateTimeErrors } from './myTypes'
 
 export const formatFileSize = (size: number): string => {
@@ -103,4 +104,14 @@ export const parseUserString = (userString: string): string => {
     return `${parts[0].charAt(0)}${parts[1].charAt(0)}`
   }
   return ''
+}
+
+export const numberOfChunks = (files: myFiles): number => {
+  let totalUploadSize = 0
+
+  files.forEach((file) => {
+    totalUploadSize += file.size
+  })
+
+  return Math.ceil(totalUploadSize / TWENTY_FIVE_MEGA_BYTES)
 }

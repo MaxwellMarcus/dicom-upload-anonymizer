@@ -91,7 +91,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             )}
 
             <Box display='flex' alignItems='baseline'>
-              <Box width='100%' mr={1}>
+              <Box width='100%' marginRight={1}>
                 <LinearProgress
                   variant='determinate'
                   value={anonProgress}

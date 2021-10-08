@@ -53,7 +53,7 @@ const App: React.FC = () => {
               email: response[0].email,
             })
             response.forEach((project) => {
-              setAvailableProjects([...availableProjects, project.projectId])
+              setAvailableProjects((current) => [...current, project.projectId])
             })
           }
         })
