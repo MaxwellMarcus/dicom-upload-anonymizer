@@ -6,7 +6,12 @@ import {
   UploadProps,
   uploadProgressProps,
 } from '../../myTypes'
-import { isZippedFolder, getFolderName, numberOfChunks } from '../../utils'
+import {
+  isZippedFolder,
+  getFolderName,
+  numberOfChunks,
+  isDicomfile,
+} from '../../utils'
 import {
   LIBRARY_PARSER,
   STUDY_DATE,
@@ -52,6 +57,7 @@ const Upload: React.FC<UploadProps> = ({
 
   const jsZip = new JSZip()
   let progressCounter = 0
+  let initialIsDateTimeInputRequired = true
 
   const onFileUpload = (uploaded: Array<FileWithPath>) => {
     setFolderName(getFolderName(uploaded[0].path))
@@ -60,16 +66,14 @@ const Upload: React.FC<UploadProps> = ({
       let totalCounter = 0
       jsZip.loadAsync(uploaded[0]).then((zip) => {
         zip.forEach((relativePath, file) => {
-          if (relativePath.includes('dcm')) {
-            totalCounter++
-            const fileName = file.name
-            jsZip
-              .file(file.name)
-              .async('arraybuffer')
-              .then(async (file) => {
-                handleAnonymizing(file, fileName)
-              })
-          }
+          totalCounter++
+          const fileName = file.name
+          jsZip
+            .file(file.name)
+            .async('arraybuffer')
+            .then(async (file) => {
+              handleAnonymizing(file, fileName)
+            })
         })
         setTotalFiles(totalCounter)
       })
@@ -97,45 +101,47 @@ const Upload: React.FC<UploadProps> = ({
    * @returns anonymizes a single file
    */
   const handleAnonymizing = async (file: ArrayBuffer, name: string) => {
-    const anonymizer = new Anonymizer(anonScript, {
-      identifiers: undefined,
-      lookupMap: undefined,
-      inputBuffer: undefined,
-      namespaceforHashUID: '',
-      parserLibrary: LIBRARY_PARSER.ANTLR4,
-      trace: false,
-    })
-    const fileName = name
-    anonymizer.loadDcm(file)
-    await anonymizer.applyRules()
-    const outputBuffer = anonymizer.write()
-    const anonymizedFile = new Blob([outputBuffer], {
-      type: 'application/octet',
-    })
-    const size = anonymizedFile.size
-    const dicomTags: dicomTags = {
-      date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
-      time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
-      UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
+    if (isDicomfile(file)) {
+      const anonymizer = new Anonymizer(anonScript, {
+        identifiers: undefined,
+        lookupMap: undefined,
+        inputBuffer: undefined,
+        namespaceforHashUID: '',
+        parserLibrary: LIBRARY_PARSER.ANTLR4,
+        trace: false,
+      })
+      const fileName = name
+      anonymizer.loadDcm(file)
+      await anonymizer.applyRules()
+      const outputBuffer = anonymizer.write()
+      const anonymizedFile = new Blob([outputBuffer], {
+        type: 'application/octet',
+      })
+      const size = anonymizedFile.size
+      const dicomTags: dicomTags = {
+        date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
+        time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
+        UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
+      }
+      progressCounter++
+      setFiles((files: myFiles) => [
+        ...files,
+        new myFile(fileName, size, dicomTags, anonymizedFile),
+      ])
+      setNumOfAnonomyzedFiles(progressCounter)
     }
-    progressCounter++
-    setFiles((files: myFiles) => [
-      ...files,
-      new myFile(fileName, size, dicomTags, anonymizedFile),
-    ])
-    setNumOfAnonomyzedFiles(progressCounter)
   }
 
   const onProjectChange = async (value: string) => {
     if (value.length > 0) {
       const dateTimeValidation = await checkIfDateTimeRequired(value)
       setIsDateTimeInputRequired(dateTimeValidation)
+      initialIsDateTimeInputRequired = dateTimeValidation
       setProjectId(value)
     }
   }
 
-  const onPdfUpload = (file: Array<File>) => {
-    const pdf: File = file[0]
+  const onPdfUpload = (pdf: File) => {
     setPdfFile(pdf)
     setPdfModalOpen(true)
   }
@@ -196,7 +202,7 @@ const Upload: React.FC<UploadProps> = ({
     setProjectId('')
     setSubjectId('')
     setDateTime('')
-    setIsDateTimeInputRequired(false)
+    setIsDateTimeInputRequired(initialIsDateTimeInputRequired)
     setPdfFile(null)
     setFolderName('')
     setNumOfAnonomyzedFiles(0)
@@ -210,6 +216,15 @@ const Upload: React.FC<UploadProps> = ({
     setFolderName('')
     setNumOfAnonomyzedFiles(0)
   }
+
+  const readyToUpload =
+    projectId &&
+    subjectId &&
+    dateTime &&
+    pdfFile &&
+    files &&
+    numOfAnonomyzedFiles > 0 &&
+    totalFiles === numOfAnonomyzedFiles
 
   const stepsContent = [
     <SessionInformation
@@ -241,11 +256,27 @@ const Upload: React.FC<UploadProps> = ({
     />,
   ]
 
+  const isCompleted = (index: number): boolean => {
+    return (
+      !!(index === 0 && projectId && subjectId && dateTime && pdfFile) ||
+      !!(
+        index === 1 &&
+        numOfAnonomyzedFiles > 0 &&
+        numOfAnonomyzedFiles === totalFiles
+      )
+    )
+  }
+
   return (
     <>
-      <Stepper orientation='vertical' className={styles.stepLabel}>
+      <Stepper orientation='vertical'>
         {uploadSteps.map((label, index) => (
-          <Step active={true} completed={false} key={label}>
+          <Step
+            active={true}
+            completed={isCompleted(index)}
+            key={label}
+            className={styles.stepItem}
+          >
             {label !== 'Empty Third' && <StepLabel>{label}</StepLabel>}
             <StepContent>{stepsContent[index]}</StepContent>
           </Step>
@@ -257,6 +288,7 @@ const Upload: React.FC<UploadProps> = ({
         onSubmit={onSubmit}
         resetAllData={resetAllData}
         uploadProgress={uploadProgress}
+        readyToUpload={readyToUpload}
       />
     </>
   )

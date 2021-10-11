@@ -12,12 +12,12 @@ export const formatFileSize = (size: number): string => {
   )
 }
 
-// function checkDicomFile(arrayBuffer) {
-//   if (arrayBuffer.length <= 132) return false
-//   const arr = new Uint8Array(arrayBuffer.slice(128, 132))
-//   // bytes from 128 to 132 must be "DICM"
-//   return Array.from('DICM').every((char, i) => char.charCodeAt(0) === arr[i])
-// }
+export const isDicomfile = (arrayBuffer: ArrayBuffer): boolean => {
+  if (arrayBuffer.byteLength <= 132) return false
+  const arr = new Uint8Array(arrayBuffer.slice(128, 132))
+  // bytes from 128 to 132 must be "DICM"
+  return Array.from('DICM').every((char, i) => char.charCodeAt(0) === arr[i])
+}
 
 /**
  *
@@ -27,34 +27,6 @@ export const formatFileSize = (size: number): string => {
 export const isZippedFolder = (file: FileWithPath): boolean => {
   return file.type.includes('zip')
 }
-
-/**
- *
- * @param {number} milliseconds - converts milliseconds to minutes
- * @returns
- */
-// const msToMinutes = (milliseconds: number) => {
-//   return Math.floor(milliseconds / (1000 * 60))
-// }
-
-/**
- * CURRENTLY UNUSED - unsure if needed later
- * @param {File} files - the uploaded anonymized files
- * @param {*} dateTime - the date-time user input value
- * @returns {String} The name of the first file outside the 2 houor range
- */
-// export const checkTimeDiffs = (files: myFiles, dateTime: number) : string => {
-//   for (let i = 0; i < files.length; i++) {
-//     const timeDiff = msToMinutes(files[i].lastModified - dateTime)
-//     const absTimeDiff = Math.abs(timeDiff)
-//     if (absTimeDiff > 120) {
-//       return `${files[i].fileName} is ${absTimeDiff} minutes ${
-//         timeDiff > 0 ? 'after' : 'before'
-//       } the verification time entered`
-//     }
-//   }
-//   return ''
-// }
 
 export const checkStudyDateTimeAndUID = (
   files: myFiles,

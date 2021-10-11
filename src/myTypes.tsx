@@ -78,7 +78,7 @@ export type SessionInformationProps = {
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
   pdfFile: File;
-  onPdfUpload: (file: Array<File>) => void;
+  onPdfUpload: (file: File) => void;
   onPdfDiscard: () => void;
   isDateTimeInputRequired: boolean;
   pdfModalOpen: boolean;
@@ -101,6 +101,7 @@ export type PageFooterProps = {
   onSubmit: () => void;
   resetAllData: () => void;
   uploadProgress: uploadProgressProps;
+  readyToUpload: boolean;
 };
 
 export type PageHeaderProps = {

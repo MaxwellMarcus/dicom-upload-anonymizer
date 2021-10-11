@@ -20,6 +20,10 @@ code {
   color: var(--main-theme-blue);
 }
 
+.MuiSvgIcon-root.MuiStepIcon-root.MuiStepIcon-active.MuiStepIcon-completed {
+  color: #00b778;
+}
+
 label.MuiFormLabel-root.Mui-focused {
   color: var(--main-theme-blue);
 }

@@ -32,10 +32,18 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
     setPdfModalOpen(false)
   }
 
+  const handleFileSelection = (droppedFile: Array<File>) => {
+    const file = droppedFile[0]
+    if (file && file.type && file.type.includes('pdf')) {
+      onPdfUpload(file)
+    }
+  }
+
   const helpTooltip = (labelText: string, toolTipText: string) => {
     return (
       <>
-        {labelText + ' '}{' '}
+        {labelText + ' '}
+        {<span className={styles.required}> *</span>}
         <Tooltip
           title={toolTipText}
           placement='right'
@@ -74,7 +82,6 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
                   onProjectChange(event.target.value as string)
                 }
                 disabled={availableProjects.length === 0}
-                className={styles.projectSelect}
                 displayEmpty={true}
               >
                 <MenuItem value=''>Select Performance Site</MenuItem>
@@ -134,7 +141,10 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
 
         <Grid container>
           <Grid item xs={5}>
-            <label className={styles.dropzoneLabel}>Metadata Form</label>
+            <label className={styles.dropzoneLabel}>
+              Metadata Form
+              <span className={styles.required}> *</span>
+            </label>
 
             {pdfFile && (
               <div className={styles.pdfInfo}>
@@ -156,7 +166,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
                 <Dropzone
                   accept='.pdf'
                   maxFiles={1}
-                  onDrop={(acceptedFiles) => onPdfUpload(acceptedFiles)}
+                  onDrop={(droppedFile) => handleFileSelection(droppedFile)}
                 >
                   {({ getRootProps, getInputProps }) => (
                     <section className={styles.dropzone}>

@@ -28,14 +28,24 @@ const ImagingData: React.FC<ImagingDataProps> = ({
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={7}>
-        <label className={styles.dropzoneLabel}>Imaging Files</label>
+      <Grid item xs={7} style={{ paddingLeft: '2rem' }}>
+        <label className={styles.dropzoneLabel}>
+          Imaging Files
+          <span className={styles.required}> *</span>
+        </label>
 
         {!folderName && (
           <>
-            <Dropzone onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}>
+            <Dropzone
+              onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
+              disabled={!dateTime}
+            >
               {({ getRootProps, getInputProps }) => (
-                <section className={styles.dropzone}>
+                <section
+                  className={`${styles.dropzone} ${
+                    dateTime ? '' : styles.dropzoneDisabled
+                  }`}
+                >
                   <div {...getRootProps()}>
                     <input {...getInputProps()} />
                     <p className={styles.icon}>
@@ -69,13 +79,14 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             {!areFilesReady && (
               <span>
                 {' '}
-                De-Identifying {totalFiles} files in {folderName}
+                {totalFiles} files in {folderName} - De-Identifying dicom files
               </span>
             )}
             {areFilesReady && (
               <span>
                 {' '}
-                {totalFiles} files in {folderName} de-identified &amp; verified
+                {files.length} files in {folderName} de-identified &amp;
+                verified
               </span>
             )}
 

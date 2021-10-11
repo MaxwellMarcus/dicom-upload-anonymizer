@@ -12,6 +12,7 @@ const PageFooter: React.FC<PageFooterProps> = ({
   onSubmit,
   resetAllData,
   uploadProgress,
+  readyToUpload,
 }: PageFooterProps) => {
   const progress =
     uploadProgress.chunksSent > 0
@@ -21,18 +22,21 @@ const PageFooter: React.FC<PageFooterProps> = ({
         )
       : 0
 
+  const uploadInProgress = progress > 0 && progress < 100
+  const uploadComplete = progress === 100
+
   return (
     <Paper elevation={0} square className={styles.pageFooter}>
       <Container>
         <Grid
           container
           spacing={3}
-          justifyContent={progress > 0 ? 'flex-start' : 'flex-end'}
+          justifyContent={uploadInProgress ? 'flex-start' : 'flex-end'}
         >
-          {(sendingFiles || progress > 0) && (
-            <Grid item xs={progress === 100 ? 8 : 12}>
+          {(sendingFiles || uploadInProgress) && (
+            <Grid item xs={uploadComplete ? 8 : 12}>
               <p className={styles.progressText}>
-                {progress === 100
+                {uploadComplete
                   ? 'Upload Complete'
                   : 'Uploading Anonymized Imaging Files and Metadata Form'}
               </p>
@@ -49,7 +53,7 @@ const PageFooter: React.FC<PageFooterProps> = ({
             </Grid>
           )}
 
-          {progress === 100 && (
+          {uploadComplete && (
             <Grid item xs={4} className={styles.newUploadContainer}>
               <Button
                 onClick={() => resetAllData()}
@@ -62,12 +66,12 @@ const PageFooter: React.FC<PageFooterProps> = ({
             </Grid>
           )}
 
-          {!sendingFiles && progress !== 100 && (
+          {!sendingFiles && !uploadComplete && (
             <>
               <Grid item>
                 <Button
                   onClick={() => onSubmit()}
-                  disabled={sendingFiles}
+                  disabled={sendingFiles || !readyToUpload}
                   variant='contained'
                   style={{ textTransform: 'none' }}
                   className={styles.uploadSubjectData}
