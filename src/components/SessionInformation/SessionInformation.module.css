@@ -55,6 +55,11 @@ svg.helpIcon {
   opacity: 0.4;
 }
 
+svg.errorIcon {
+  height: 15px;
+  vertical-align: bottom;
+}
+
 .tooltip {
   width: 250px !important;
   font-size: 0.75em !important;
@@ -96,4 +101,10 @@ label.projectInputLabel {
 
 span.required {
   color: red;
+}
+
+p.error {
+  font-size: 0.75rem;
+  color: red;
+  margin-top: 5px;
 }

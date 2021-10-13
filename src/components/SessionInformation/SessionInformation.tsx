@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import { SessionInformationProps } from '../../myTypes'
 import styles from './SessionInformation.module.css'
 import PdfModal from '../PdfModal/PdfModal'
@@ -9,6 +10,7 @@ import Select from '@material-ui/core/Select'
 import Grid from '@material-ui/core/Grid'
 import Dropzone from 'react-dropzone'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
+import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined'
 import HelpIcon from '@material-ui/icons/Help'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
@@ -28,6 +30,25 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   pdfModalOpen,
   setPdfModalOpen,
 }: SessionInformationProps) => {
+  const [subjectLeftEmpty, setSubjectLeftEmpty] = useState(false)
+  const [dateTimeLeftEmpty, setDateTimeLeftEmpty] = useState(false)
+
+  const onSubjectBlur = (value: string) => {
+    if (value === '') {
+      setSubjectLeftEmpty(true)
+    } else {
+      setSubjectLeftEmpty(false)
+    }
+  }
+
+  const onDatetimeBlur = (value: string) => {
+    if (value === '') {
+      setDateTimeLeftEmpty(true)
+    } else {
+      setDateTimeLeftEmpty(false)
+    }
+  }
+
   const handlePdfClose = () => {
     setPdfModalOpen(false)
   }
@@ -53,6 +74,15 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           <HelpIcon className={styles.helpIcon} />
         </Tooltip>
       </>
+    )
+  }
+
+  const errorText = (text: string) => {
+    return (
+      <p className={styles.error}>
+        <ErrorOutlineOutlinedIcon className={styles.errorIcon} />
+        {text}
+      </p>
     )
   }
   return (
@@ -99,8 +129,10 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           <Grid item xs={5}>
             <TextField
               onChange={(event) => setSubjectId(event.target.value)}
+              onBlur={(event) => onSubjectBlur(event.target.value)}
               id='subject'
               value={subjectId}
+              error={subjectLeftEmpty}
               label={helpTooltip(
                 'Subject ID',
                 'Enter the Subject ID as noted on the metadata form',
@@ -113,6 +145,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
                 style: { pointerEvents: 'auto' },
               }}
             />
+            {subjectLeftEmpty && errorText('Subject ID is required')}
           </Grid>
         </Grid>
 
@@ -134,8 +167,12 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
                 style: { pointerEvents: 'auto' },
               }}
               onChange={(event) => setDateTime(event.target.value)}
+              onBlur={(event) => onDatetimeBlur(event.target.value)}
+              error={dateTimeLeftEmpty}
               disabled={!isDateTimeInputRequired}
             />
+            {dateTimeLeftEmpty &&
+              errorText('Imaging Session Date and Time is required')}
           </Grid>
         </Grid>
 

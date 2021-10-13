@@ -70,7 +70,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             </p>
           </>
         )}
-        {folderName && totalFiles && (
+        {folderName && !!totalFiles && (
           <div className={styles.anonInfo}>
             <FolderOutlinedIcon
               style={{ fontSize: 20 }}
