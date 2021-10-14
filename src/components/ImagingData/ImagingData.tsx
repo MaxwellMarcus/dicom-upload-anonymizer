@@ -28,7 +28,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={7} style={{ paddingLeft: '2rem' }}>
+      <Grid item xs={8} style={{ paddingLeft: '2rem' }}>
         <label className={styles.dropzoneLabel}>
           Imaging Files
           <span className={styles.required}> *</span>
@@ -70,13 +70,16 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             </p>
           </>
         )}
-        {folderName && !!totalFiles && (
+        {folderName && (
           <div className={styles.anonInfo}>
             <FolderOutlinedIcon
               style={{ fontSize: 20 }}
               className={styles.icon}
             />
-            {!areFilesReady && (
+            {!areFilesReady && !totalFiles && (
+              <span> {folderName} being loaded...</span>
+            )}
+            {!areFilesReady && !!totalFiles && (
               <span>
                 {' '}
                 {totalFiles} files in {folderName} - De-Identifying dicom files

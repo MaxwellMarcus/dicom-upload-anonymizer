@@ -22,7 +22,7 @@ const PageFooter: React.FC<PageFooterProps> = ({
         )
       : 0
 
-  const uploadInProgress = progress > 0 && progress < 100
+  const uploadHasStarted = progress > 0
   const uploadComplete = progress === 100
 
   return (
@@ -31,9 +31,9 @@ const PageFooter: React.FC<PageFooterProps> = ({
         <Grid
           container
           spacing={3}
-          justifyContent={uploadInProgress ? 'flex-start' : 'flex-end'}
+          justifyContent={uploadHasStarted ? 'flex-start' : 'flex-end'}
         >
-          {(sendingFiles || uploadInProgress) && (
+          {(sendingFiles || uploadHasStarted) && (
             <Grid item xs={uploadComplete ? 8 : 12}>
               <p className={styles.progressText}>
                 {uploadComplete

@@ -1,27 +1,9 @@
 import { useState } from 'react'
-import {
-  myFiles,
-  myFile,
-  dicomTags,
-  UploadProps,
-  uploadProgressProps,
-} from '../../myTypes'
-import {
-  isZippedFolder,
-  getFolderName,
-  numberOfChunks,
-  isDicomfile,
-} from '../../utils'
-import {
-  LIBRARY_PARSER,
-  STUDY_DATE,
-  STUDY_TIME,
-  STUDY_INSTANCE_UID,
-  TWENTY_FIVE_MEGA_BYTES,
-  uploadSteps,
-} from '../../constants'
+import { myFiles, UploadProps, uploadProgressProps } from '../../myTypes'
+import { getFolderName, numberOfChunks } from '../../utils'
+import { TWENTY_FIVE_MEGA_BYTES, uploadSteps } from '../../constants'
+import myWorker from '../dedicated.worker'
 import JSZip from 'jszip'
-import Anonymizer from 'dicomedit'
 import { FileWithPath } from 'react-dropzone'
 import styles from './Upload.module.css'
 import PageFooter from '../PageFooter/PageFooter'
@@ -31,6 +13,10 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import SessionInformation from '../SessionInformation/SessionInformation'
 import ImagingData from '../ImagingData/ImagingData'
+
+/* eslint-disable */
+// @ts-ignore: possibly undefined
+const worker = new myWorker()
 
 const Upload: React.FC<UploadProps> = ({
   anonScript,
@@ -55,81 +41,18 @@ const Upload: React.FC<UploadProps> = ({
     chunksSent: 0,
   })
 
-  const jsZip = new JSZip()
-  let progressCounter = 0
   let initialIsDateTimeInputRequired = true
+
+  worker.onmessage = (message: any) => {
+    const { filesArray, totalFiles } = message.data
+    setFiles((current: myFiles) => [...current, ...filesArray])
+    setTotalFiles(totalFiles)
+    setNumOfAnonomyzedFiles((current) => current + filesArray.length)
+  }
 
   const onFileUpload = (uploaded: Array<FileWithPath>) => {
     setFolderName(getFolderName(uploaded[0].path))
-
-    if (isZippedFolder(uploaded[0])) {
-      let totalCounter = 0
-      jsZip.loadAsync(uploaded[0]).then((zip) => {
-        zip.forEach((relativePath, file) => {
-          totalCounter++
-          const fileName = file.name
-          jsZip
-            .file(file.name)
-            .async('arraybuffer')
-            .then(async (file) => {
-              handleAnonymizing(file, fileName)
-            })
-        })
-        setTotalFiles(totalCounter)
-      })
-    } else {
-      setTotalFiles(uploaded.length)
-      for (let i = 0; i < uploaded.length; i++) {
-        const reader = new FileReader()
-        const file = uploaded[i]
-        const fileName = file.name
-
-        reader.onload = function () {
-          handleAnonymizing(reader.result as ArrayBuffer, fileName)
-        }
-
-        try {
-          reader.readAsArrayBuffer(file)
-        } catch (error) {
-          console.log(error)
-        }
-      }
-    }
-  }
-
-  /**
-   * @returns anonymizes a single file
-   */
-  const handleAnonymizing = async (file: ArrayBuffer, name: string) => {
-    if (isDicomfile(file)) {
-      const anonymizer = new Anonymizer(anonScript, {
-        identifiers: undefined,
-        lookupMap: undefined,
-        inputBuffer: undefined,
-        namespaceforHashUID: '',
-        parserLibrary: LIBRARY_PARSER.ANTLR4,
-        trace: false,
-      })
-      const fileName = name
-      anonymizer.loadDcm(file)
-      await anonymizer.applyRules()
-      const outputBuffer = anonymizer.write()
-      const anonymizedFile = new Blob([outputBuffer], {
-        type: 'application/octet',
-      })
-      const size = anonymizedFile.size
-      const dicomTags: dicomTags = {
-        date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
-        time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
-        UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
-      }
-      progressCounter++
-      setFiles((files: myFiles) => [
-        ...files,
-        new myFile(fileName, size, dicomTags, anonymizedFile),
-      ])
-      setNumOfAnonomyzedFiles(progressCounter)
-    }
+    worker.postMessage({ uploaded, anonScript })
   }
 
   const onProjectChange = async (value: string) => {
@@ -211,7 +134,6 @@ const Upload: React.FC<UploadProps> = ({
 
   const discardDicomFiles = () => {
     setFiles([])
-    setNumOfAnonomyzedFiles(0)
     setTotalFiles(0)
     setFolderName('')
     setNumOfAnonomyzedFiles(0)
