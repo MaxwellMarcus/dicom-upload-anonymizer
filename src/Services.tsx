@@ -4,6 +4,9 @@ import {
   dateTimeSiteValidationAPI,
   csrfAPI,
   availableProjectsAPI,
+  visitTemplateProjectKeyAPI,
+  visitTemplateSiteKeyAPI,
+  actualVisitsAndModalitiesAPI,
 } from './constants'
 import { fetchParams } from './myTypes'
 let csrf = ''
@@ -28,10 +31,11 @@ export const uploadFiles = (
   projectId: string,
   subjectId: string,
   files: Blob,
+  visitCode: string,
 ): Promise<Response> => {
   const call: fetchParams = requestParams('POST', files)
   return fetch(
-    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&${csrf}`,
+    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&VISIT=${visitCode}&${csrf}`,
     call.params,
   )
 }
@@ -39,6 +43,29 @@ export const uploadFiles = (
 export const getAvailableProjects = (): Promise<Response> => {
   const call: fetchParams = requestParams('GET')
   return fetch(`${call.domain}${availableProjectsAPI}`, call.params)
+}
+
+export const getVisitTemplateProjectKey = (
+  projectId: string,
+): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(
+    `${call.domain}${visitTemplateProjectKeyAPI(projectId)}`,
+    call.params,
+  )
+}
+
+export const getVisitTemplateSiteKey = (): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(`${call.domain}${visitTemplateSiteKeyAPI}`, call.params)
+}
+
+export const getVisitsAndModalities = (visitKey: string): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(
+    `${call.domain}${actualVisitsAndModalitiesAPI(visitKey)}`,
+    call.params,
+  )
 }
 
 export const getIsDateTimeProjectValidationRequired = (

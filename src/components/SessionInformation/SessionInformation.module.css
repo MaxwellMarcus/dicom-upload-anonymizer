@@ -31,8 +31,8 @@
 }
 
 .dropzoneLabel {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 .pdfOnly {
@@ -64,10 +64,6 @@ svg.errorIcon {
   width: 250px !important;
   font-size: 0.75em !important;
   background-color: black !important;
-}
-
-.gridContainer {
-  margin-top: 20px;
 }
 
 .pdfInfo {
@@ -107,4 +103,12 @@ p.error {
   font-size: 0.75rem;
   color: red;
   margin-top: 5px;
+}
+
+.boldInputLabel > label {
+  font-weight: bold;
+}
+
+div.boldDatetimeLabel > label {
+  font-weight: bold;
 }

@@ -9,6 +9,9 @@ import {
   getIsDateTimeProjectValidationRequired,
   getIsDateTimeSiteValidationRequired,
   getSiteWideAnonScript,
+  getVisitsAndModalities,
+  getVisitTemplateProjectKey,
+  getVisitTemplateSiteKey,
   uploadFiles,
   uploadPdf,
 } from './Services'
@@ -16,6 +19,7 @@ import {
   availableProjectsResponse,
   siteWideAnonResponse,
   user,
+  visitProps,
 } from './myTypes'
 import { fullStopErrors } from './constants'
 import PageHeader from './components/PageHeader/PageHeader'
@@ -63,6 +67,39 @@ const App: React.FC = () => {
     })
   }, [])
 
+  const retrieveVisitsAndModalities = async (
+    projectId: string,
+  ): Promise<Response> => {
+    let responseValue = null
+    let key = ''
+    const projResponse = await getVisitTemplateProjectKey(projectId)
+    if (projResponse.status === 200) {
+      responseValue = await projResponse.json()
+      if (responseValue.key === 'DEFAULT' && responseValue.name === 'DEFAULT') {
+        key = await _getVisitTemplateSiteKey()
+      } else if (responseValue.key !== '' && responseValue.name !== 'NONE') {
+        return projResponse
+      } else {
+        key = responseValue.key
+      }
+    } else {
+      key = await _getVisitTemplateSiteKey()
+    }
+    const visitsAndModalitiesResponse = await getVisitsAndModalities(key)
+    if (visitsAndModalitiesResponse.status !== 200) {
+      setFullStopError(fullStopErrors.VISITS_AND_MODALITIES_IRRETRIEVABLE)
+    }
+    return visitsAndModalitiesResponse
+  }
+
+  const _getVisitTemplateSiteKey = async (): Promise<string> => {
+    const siteResponse = await getVisitTemplateSiteKey()
+    if (siteResponse.status === 200) {
+      const responseValue = await siteResponse.json()
+      return responseValue.key
+    }
+  }
+
   const checkIfDateTimeRequired = async (value: string): Promise<boolean> => {
     let responseValue
     const projResponse = await getIsDateTimeProjectValidationRequired(value)
@@ -92,11 +129,13 @@ const App: React.FC = () => {
     projectId: string,
     subjectId: string,
     zippedFolder: Blob,
+    visit: visitProps,
   ): Promise<Response> => {
     const uploadFilesResponse = await uploadFiles(
       projectId,
       subjectId,
       zippedFolder,
+      visit.code,
     )
     if (uploadFilesResponse.status !== 200) {
       setFullStopError(fullStopErrors.DICOM_UPLOAD_FAILED)
@@ -132,6 +171,7 @@ const App: React.FC = () => {
               availableProjects={availableProjects}
               handleUploadFiles={handleUploadFiles}
               handleUploadPdf={handleUploadPdf}
+              retrieveVisitsAndModalities={retrieveVisitsAndModalities}
             />
           )}
           {fullStopError.error && (

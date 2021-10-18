@@ -1,6 +1,6 @@
 import { FileWithPath } from 'react-dropzone'
 import { TWENTY_FIVE_MEGA_BYTES } from './constants'
-import { myFiles, dateTimeErrors } from './myTypes'
+import { myFiles, errorsWithUploadedFiles, modalityProps } from './myTypes'
 
 export const formatFileSize = (size: number): string => {
   if (size === 0) return '0 B'
@@ -28,38 +28,70 @@ export const isZippedFolder = (file: FileWithPath): boolean => {
   return file.type.includes('zip')
 }
 
-export const checkStudyDateTimeAndUID = (
+/**
+ * Check for matching UID's, modality, and possibly dateTime
+ */
+export const verifyUploadedFiles = (
   files: myFiles,
+  isDateTimeInputRequired: boolean,
   dateTime: string,
-): dateTimeErrors => {
-  const errors: dateTimeErrors = {
+  isModalityRequired: boolean,
+  selectedModality: modalityProps,
+): errorsWithUploadedFiles => {
+  const errors: errorsWithUploadedFiles = {
     dateTimeError: false,
     dateTimeErrorFiles: [],
     studyInstanceUidError: false,
+    expectedModality: '',
+    expectedModalityNotFound: false,
   }
-  const formattedDateTime = dateTime.replace(/-|T|:/g, '')
-  const dateTimeInput = {
-    date: formattedDateTime.substring(0, 8),
-    hour: formattedDateTime.substring(8, 10),
-  }
+  errors.expectedModality = selectedModality.type
 
-  const initialUID = files[0].dicomTags.UID
-
-  for (let i = 0; i < files.length; i++) {
-    const hourDiff = Math.abs(
-      Number(files[i].dicomTags.time.substring(0, 2)) -
-        Number(dateTimeInput.hour),
-    )
-
-    if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
-      errors.dateTimeError = true
-      errors.dateTimeErrorFiles.push({ filename: files[i].fileName })
+  // Scenario where MR or PET is expected dicom type, and all uploaded files
+  // were PET if MR was expected, or vice versa
+  if (files.length === 0) {
+    errors.expectedModalityNotFound = true
+  } else {
+    const formattedDateTime = dateTime.replace(/-|T|:/g, '')
+    const dateTimeInput = {
+      date: formattedDateTime.substring(0, 8),
+      hour: formattedDateTime.substring(8, 10),
     }
 
-    if (files[0].dicomTags.UID !== initialUID) {
-      errors.studyInstanceUidError = true
+    const initialUID = files[0].dicomTags.UID
+    const foundModalities: Array<string> = []
+
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].dicomTags.UID !== initialUID) {
+        errors.studyInstanceUidError = true
+      }
+
+      if (isDateTimeInputRequired) {
+        const hourDiff = Math.abs(
+          Number(files[i].dicomTags.time.substring(0, 2)) -
+            Number(dateTimeInput.hour),
+        )
+
+        if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
+          errors.dateTimeError = true
+          errors.dateTimeErrorFiles.push({ filename: files[i].fileName })
+        }
+      }
+
+      if (isModalityRequired) {
+        if (!foundModalities.includes(files[i].dicomTags.modality)) {
+          foundModalities.push(files[i].dicomTags.modality)
+        }
+      }
+    }
+
+    if (isModalityRequired) {
+      if (!foundModalities.includes(errors.expectedModality)) {
+        errors.expectedModalityNotFound = true
+      }
     }
   }
+
   return errors
 }
 

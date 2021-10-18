@@ -1,5 +1,14 @@
 import { useState } from 'react'
-import { myFiles, UploadProps, uploadProgressProps } from '../../myTypes'
+import {
+  myFiles,
+  UploadProps,
+  uploadProgressProps,
+  visitsAndModaltiesProps,
+  visitProps,
+  emptyVisit,
+  modalityProps,
+  emptyModality,
+} from '../../myTypes'
 import { getFolderName, numberOfChunks } from '../../utils'
 import { TWENTY_FIVE_MEGA_BYTES, uploadSteps } from '../../constants'
 import myWorker from '../dedicated.worker'
@@ -24,13 +33,19 @@ const Upload: React.FC<UploadProps> = ({
   availableProjects,
   handleUploadFiles,
   handleUploadPdf,
+  retrieveVisitsAndModalities,
 }: UploadProps) => {
   const [files, setFiles] = useState<myFiles>([])
-  const [numOfAnonomyzedFiles, setNumOfAnonomyzedFiles] = useState(0)
+  const [numOfFilesParsed, setNumOfFilesParsed] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
   const [projectId, setProjectId] = useState('')
   const [subjectId, setSubjectId] = useState('')
   const [dateTime, setDateTime] = useState('')
+  const [availableVisitsAndModalities, setAvailableisitsAndModalities] =
+    useState<visitsAndModaltiesProps>([])
+  const [selectedVisit, setVisit] = useState<visitProps>(emptyVisit)
+  const [selectedModality, setModality] = useState<modalityProps>(emptyModality)
+  const [showVisitsAndModalities, setShowVisitsAndModalities] = useState(true)
   const [sendingFiles, setSendingFiles] = useState(false)
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(true)
   const [pdfFile, setPdfFile] = useState<File>(null)
@@ -44,15 +59,15 @@ const Upload: React.FC<UploadProps> = ({
   let initialIsDateTimeInputRequired = true
 
   worker.onmessage = (message: any) => {
-    const { filesArray, totalFiles } = message.data
+    const { filesArray, totalFiles, filesParsed } = message.data
     setFiles((current: myFiles) => [...current, ...filesArray])
     setTotalFiles(totalFiles)
-    setNumOfAnonomyzedFiles((current) => current + filesArray.length)
+    setNumOfFilesParsed(filesParsed)
   }
 
   const onFileUpload = (uploaded: Array<FileWithPath>) => {
     setFolderName(getFolderName(uploaded[0].path))
-    worker.postMessage({ uploaded, anonScript })
+    worker.postMessage({ uploaded, anonScript, selectedModality })
   }
 
   const onProjectChange = async (value: string) => {
@@ -61,6 +76,18 @@ const Upload: React.FC<UploadProps> = ({
       setIsDateTimeInputRequired(dateTimeValidation)
       initialIsDateTimeInputRequired = dateTimeValidation
       setProjectId(value)
+      const visitsAndModalitiesResponse = await retrieveVisitsAndModalities(
+        value,
+      )
+      if (visitsAndModalitiesResponse.status === 200) {
+        const responseJson = await visitsAndModalitiesResponse.json()
+        if (responseJson.key === '' && responseJson.name === 'NONE') {
+          setShowVisitsAndModalities(false)
+        } else {
+          const visitsAndModalities: visitsAndModaltiesProps = responseJson
+          setAvailableisitsAndModalities(visitsAndModalities)
+        }
+      }
     }
   }
 
@@ -93,6 +120,7 @@ const Upload: React.FC<UploadProps> = ({
           projectId,
           subjectId,
           zippedFolder,
+          selectedVisit,
         )
         if (uploadFilesResponse.status === 200) {
           setUploadProgress((current) => ({
@@ -126,9 +154,13 @@ const Upload: React.FC<UploadProps> = ({
     setSubjectId('')
     setDateTime('')
     setIsDateTimeInputRequired(initialIsDateTimeInputRequired)
+    setVisit(emptyVisit)
+    setModality(emptyModality)
+    setAvailableisitsAndModalities([])
+    setShowVisitsAndModalities(true)
     setPdfFile(null)
     setFolderName('')
-    setNumOfAnonomyzedFiles(0)
+    setNumOfFilesParsed(0)
     setUploadProgress({ totalNumberOfChunks: 0, chunksSent: 0 })
   }
 
@@ -136,17 +168,23 @@ const Upload: React.FC<UploadProps> = ({
     setFiles([])
     setTotalFiles(0)
     setFolderName('')
-    setNumOfAnonomyzedFiles(0)
+    setNumOfFilesParsed(0)
   }
 
   const readyToUpload =
-    projectId &&
-    subjectId &&
-    dateTime &&
-    pdfFile &&
-    files &&
-    numOfAnonomyzedFiles > 0 &&
-    totalFiles === numOfAnonomyzedFiles
+    (projectId &&
+      subjectId &&
+      dateTime &&
+      !!(
+        showVisitsAndModalities &&
+        selectedVisit.key &&
+        selectedModality.key
+      )) ||
+    (!showVisitsAndModalities &&
+      pdfFile &&
+      files &&
+      numOfFilesParsed > 0 &&
+      totalFiles === numOfFilesParsed)
 
   const stepsContent = [
     <SessionInformation
@@ -158,6 +196,12 @@ const Upload: React.FC<UploadProps> = ({
       onProjectChange={onProjectChange}
       setSubjectId={setSubjectId}
       setDateTime={setDateTime}
+      showVisitsAndModalities={showVisitsAndModalities}
+      availableVisitsAndModalities={availableVisitsAndModalities}
+      setVisit={setVisit}
+      selectedVisit={selectedVisit}
+      setModality={setModality}
+      selectedModality={selectedModality}
       pdfFile={pdfFile}
       onPdfUpload={onPdfUpload}
       onPdfDiscard={onPdfDiscard}
@@ -171,21 +215,32 @@ const Upload: React.FC<UploadProps> = ({
       dateTime={dateTime}
       onFileUpload={onFileUpload}
       totalFiles={totalFiles}
-      numOfAnonomyzedFiles={numOfAnonomyzedFiles}
+      numOfFilesParsed={numOfFilesParsed}
       folderName={folderName}
       discardDicomFiles={discardDicomFiles}
       isDateTimeInputRequired={isDateTimeInputRequired}
+      showVisitsAndModalities={showVisitsAndModalities}
+      selectedVisit={selectedVisit}
+      selectedModality={selectedModality}
     />,
   ]
 
   const isCompleted = (index: number): boolean => {
     return (
-      !!(index === 0 && projectId && subjectId && dateTime && pdfFile) ||
       !!(
-        index === 1 &&
-        numOfAnonomyzedFiles > 0 &&
-        numOfAnonomyzedFiles === totalFiles
-      )
+        index === 0 &&
+        projectId &&
+        subjectId &&
+        dateTime &&
+        pdfFile &&
+        (!!(
+          showVisitsAndModalities &&
+          selectedVisit.key &&
+          selectedModality.key
+        ) ||
+          !showVisitsAndModalities)
+      ) ||
+      !!(index === 1 && numOfFilesParsed > 0 && numOfFilesParsed === totalFiles)
     )
   }
 

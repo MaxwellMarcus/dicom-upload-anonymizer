@@ -5,17 +5,24 @@ import {
   STUDY_DATE,
   STUDY_TIME,
   STUDY_INSTANCE_UID,
+  MODALITY,
 } from '../constants'
 import { isZippedFolder, isDicomfile } from '../utils'
 
+let script = ''
 let filesArray = []
-let filesHandled = 0
+let totalFiles = 0
+let filesParsed = 0
+let expectedModality = ''
 
 self.onmessage = async (message) => {
-  const { uploaded, anonScript } = message.data
+  const { uploaded, anonScript, selectedModality } = message.data
+  script = anonScript
+  expectedModality = selectedModality.type
+  totalFiles = 0
+  filesParsed = 0
+
   const jsZip = new JSZip()
-  let totalFiles = 0
-  filesHandled = 0
   if (isZippedFolder(uploaded[0])) {
     jsZip.loadAsync(uploaded[0]).then((zip) => {
       zip.forEach((relativePath, file) => {
@@ -26,7 +33,7 @@ self.onmessage = async (message) => {
           .async('arraybuffer')
           .then(async (file) => {
             if (isDicomfile(file)) {
-              handleAnonymizing(file, fileName, anonScript, totalFiles)
+              handleAnonymizing(file, fileName)
             }
           })
       })
@@ -40,7 +47,7 @@ self.onmessage = async (message) => {
 
       reader.onload = function () {
         if (isDicomfile(reader.result)) {
-          handleAnonymizing(reader.result, fileName, anonScript, totalFiles)
+          handleAnonymizing(reader.result, fileName)
         }
       }
 
@@ -53,10 +60,10 @@ self.onmessage = async (message) => {
   }
 }
 
-const handleAnonymizing = async (file, fileName, anonScript, totalFiles) => {
-  filesHandled++
+const handleAnonymizing = async (file, fileName) => {
+  filesParsed++
   if (isDicomfile(file)) {
-    const anonymizer = new Anonymizer(anonScript, {
+    const anonymizer = new Anonymizer(script, {
       identifiers: undefined,
       lookupMap: undefined,
       inputBuffer: undefined,
@@ -75,15 +82,21 @@ const handleAnonymizing = async (file, fileName, anonScript, totalFiles) => {
       date: anonymizer.inputDict.dict[STUDY_DATE].Value[0],
       time: anonymizer.inputDict.dict[STUDY_TIME].Value[0],
       UID: anonymizer.inputDict.dict[STUDY_INSTANCE_UID].Value[0],
+      modality: anonymizer.inputDict.dict[MODALITY].Value[0],
     }
 
     const size = anonymizedFile.size
 
-    filesArray.push({ anonymizedFile, fileName, dicomTags, size })
+    if (
+      !(expectedModality === 'PET' && dicomTags.modality === 'MR') &&
+      !(expectedModality === 'MR' && dicomTags.modality === 'PT')
+    ) {
+      filesArray.push({ anonymizedFile, fileName, dicomTags, size })
+    }
   }
 
-  if (filesArray.length % 100 === 0 || filesHandled === totalFiles) {
-    postMessage({ filesArray, totalFiles })
+  if (filesParsed % 100 === 0 || filesParsed === totalFiles) {
+    postMessage({ filesArray, totalFiles, filesParsed })
     filesArray = []
   }
 }

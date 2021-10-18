@@ -13,18 +13,22 @@ const ImagingData: React.FC<ImagingDataProps> = ({
   dateTime,
   onFileUpload,
   totalFiles,
-  numOfAnonomyzedFiles,
+  numOfFilesParsed,
   folderName,
   discardDicomFiles,
   isDateTimeInputRequired,
+  showVisitsAndModalities,
+  selectedVisit,
+  selectedModality,
 }: ImagingDataProps) => {
   const anonProgress =
-    numOfAnonomyzedFiles > 0
-      ? Math.ceil((numOfAnonomyzedFiles / totalFiles) * 100)
-      : 0
+    numOfFilesParsed > 0 ? Math.ceil((numOfFilesParsed / totalFiles) * 100) : 0
 
-  const areFilesReady =
-    numOfAnonomyzedFiles > 0 && numOfAnonomyzedFiles === totalFiles
+  const areFilesReady = numOfFilesParsed > 0 && numOfFilesParsed === totalFiles
+
+  const DisableDropzone =
+    (isDateTimeInputRequired && !dateTime) ||
+    !(showVisitsAndModalities && selectedVisit.key && selectedModality.key)
 
   return (
     <Grid container spacing={3}>
@@ -38,12 +42,12 @@ const ImagingData: React.FC<ImagingDataProps> = ({
           <>
             <Dropzone
               onDrop={(acceptedFiles) => onFileUpload(acceptedFiles)}
-              disabled={!dateTime}
+              disabled={DisableDropzone}
             >
               {({ getRootProps, getInputProps }) => (
                 <section
                   className={`${styles.dropzone} ${
-                    dateTime ? '' : styles.dropzoneDisabled
+                    DisableDropzone ? styles.dropzoneDisabled : ''
                   }`}
                 >
                   <div {...getRootProps()}>
@@ -88,7 +92,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             {areFilesReady && (
               <span>
                 {' '}
-                {files.length} files in {folderName} de-identified &amp;
+                {numOfFilesParsed} files in {folderName} de-identified &amp;
                 verified
               </span>
             )}
@@ -124,6 +128,8 @@ const ImagingData: React.FC<ImagingDataProps> = ({
         areFilesReady={areFilesReady}
         discardDicomFiles={discardDicomFiles}
         isDateTimeInputRequired={isDateTimeInputRequired}
+        isModalityRequired={showVisitsAndModalities}
+        selectedModality={selectedModality}
       />
     </Grid>
   )

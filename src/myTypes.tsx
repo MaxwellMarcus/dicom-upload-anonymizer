@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 
+import { ReactElement } from 'react';
+
 export type user = {
   userString: string;
   email: string;
@@ -8,11 +10,13 @@ export type user = {
 export type UploadProps = {
   anonScript: string;
   checkIfDateTimeRequired: (value: string) => Promise<boolean>;
+  retrieveVisitsAndModalities: (value: string) => Promise<Response>;
   availableProjects: Array<string>;
   handleUploadFiles: (
     projectId: string,
     subjectId: string,
     zippedFolder: Blob,
+    visit: visitProps,
   ) => Promise<Response>;
   handleUploadPdf: (
     pdfFile: File,
@@ -55,18 +59,21 @@ export type fetchParams = {
 
 export type myFiles = Array<myFile>;
 
-export type dateTimeErrors = {
+export type errorsWithUploadedFiles = {
   dateTimeError: boolean;
   dateTimeErrorFiles: Array<{
     filename: string;
   }>;
   studyInstanceUidError: boolean;
+  expectedModality: string;
+  expectedModalityNotFound: boolean;
 };
 
 export type dicomTags = {
   date: string;
   time: string;
   UID: string;
+  modality: string;
 };
 
 export type SessionInformationProps = {
@@ -77,6 +84,12 @@ export type SessionInformationProps = {
   onProjectChange: (value: string) => void;
   setSubjectId: (value: string) => void;
   setDateTime: (value: string) => void;
+  showVisitsAndModalities: boolean;
+  availableVisitsAndModalities: visitsAndModaltiesProps;
+  setVisit: (value: visitProps) => void;
+  selectedVisit: visitProps;
+  setModality: (value: modalityProps) => void;
+  selectedModality: modalityProps;
   pdfFile: File;
   onPdfUpload: (file: File) => void;
   onPdfDiscard: () => void;
@@ -90,10 +103,13 @@ export type ImagingDataProps = {
   dateTime: string;
   onFileUpload: (value: Array<File>) => void;
   totalFiles: number;
-  numOfAnonomyzedFiles: number;
+  numOfFilesParsed: number;
   folderName: string;
   discardDicomFiles: () => void;
   isDateTimeInputRequired: boolean;
+  showVisitsAndModalities: boolean;
+  selectedVisit: visitProps;
+  selectedModality: modalityProps;
 };
 
 export type PageFooterProps = {
@@ -156,9 +172,50 @@ export type DicomValidationErrorModalProps = {
   areFilesReady: boolean;
   discardDicomFiles: () => void;
   isDateTimeInputRequired: boolean;
+  isModalityRequired: boolean;
+  selectedModality: modalityProps;
 };
 
 export type uploadProgressProps = {
   totalNumberOfChunks: number;
   chunksSent: number;
+};
+
+export type visitsAndModaltiesProps = Array<visitProps>;
+
+export type visitProps = {
+  code: string;
+  key: string;
+  modalities: Array<modalityProps>;
+  name: string;
+};
+
+export type modalityProps = {
+  display: string;
+  key: string;
+  label: string;
+  type: string;
+};
+
+export const emptyModality: modalityProps = {
+  display: '',
+  key: '',
+  label: '',
+  type: '',
+};
+
+export const emptyVisit: visitProps = {
+  code: '',
+  key: '',
+  modalities: [],
+  name: '',
+};
+
+export type MenuSelectionProps = {
+  label: ReactElement;
+  field: string;
+  value: string;
+  menuOptions: Array<string>;
+  emptyOptionText: string;
+  handleOnChange: (value: string) => void;
 };

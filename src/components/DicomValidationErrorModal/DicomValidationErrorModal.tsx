@@ -1,5 +1,8 @@
-import { dateTimeErrors, DicomValidationErrorModalProps } from '../../myTypes'
-import { checkStudyDateTimeAndUID } from '../../utils'
+import {
+  errorsWithUploadedFiles,
+  DicomValidationErrorModalProps,
+} from '../../myTypes'
+import { verifyUploadedFiles } from '../../utils'
 import styles from './DicomValidationErrorModal.module.css'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -16,15 +19,25 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
   areFilesReady,
   discardDicomFiles,
   isDateTimeInputRequired,
+  isModalityRequired,
+  selectedModality,
 }: DicomValidationErrorModalProps) => {
-  let fileCheck: dateTimeErrors = {
+  let fileCheck: errorsWithUploadedFiles = {
     dateTimeError: false,
     dateTimeErrorFiles: [],
     studyInstanceUidError: false,
+    expectedModality: '',
+    expectedModalityNotFound: false,
   }
 
-  if (areFilesReady && isDateTimeInputRequired) {
-    fileCheck = checkStudyDateTimeAndUID(files, dateTime)
+  if (areFilesReady) {
+    fileCheck = verifyUploadedFiles(
+      files,
+      isDateTimeInputRequired,
+      dateTime,
+      isModalityRequired,
+      selectedModality,
+    )
   }
 
   const onClose = () => {
@@ -34,11 +47,19 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
   const showDateTimeErrorInfo = fileCheck.dateTimeError
   const showUidErrorInfo =
     !fileCheck.dateTimeError && fileCheck.studyInstanceUidError
+  const showModalityErrorInfo =
+    !fileCheck.dateTimeError &&
+    !fileCheck.studyInstanceUidError &&
+    fileCheck.expectedModalityNotFound
 
   return (
     <div>
       <Dialog
-        open={fileCheck.dateTimeError || fileCheck.studyInstanceUidError}
+        open={
+          fileCheck.dateTimeError ||
+          fileCheck.studyInstanceUidError ||
+          showModalityErrorInfo
+        }
         onClose={onClose}
         scroll={'paper'}
         aria-labelledby='scroll-dialog-title'
@@ -50,6 +71,7 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
           <DialogTitle id='scroll-dialog-title'>
             {showDateTimeErrorInfo && 'Time Stamp Verification Failed'}
             {showUidErrorInfo && 'Multiple Instance UIDs Found'}
+            {showModalityErrorInfo && 'Expected Modality Not Found'}
           </DialogTitle>
           <IconButton
             aria-label='close'
@@ -103,6 +125,22 @@ const DicomValidationErrorModal: React.FC<DicomValidationErrorModalProps> = ({
                   <p>
                     All files were removed. Please reupload your scan with the
                     correct session containing the same study instance UIDs.
+                  </p>
+                </div>
+              </>
+            )}
+            {showModalityErrorInfo && (
+              <>
+                <div className={styles.errorText}>
+                  <p>
+                    {`You selected ${selectedModality.display} as the expected modality, but no
+                    instances of it were found in the uploaded files.`}
+                  </p>
+                </div>
+                <div className={styles.infoText}>
+                  <p>
+                    All files were removed. Please reupload your scan with the
+                    correct session containing the expected dicom file type.
                   </p>
                 </div>
               </>

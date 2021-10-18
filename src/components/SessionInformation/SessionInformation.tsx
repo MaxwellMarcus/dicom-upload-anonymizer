@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { SessionInformationProps } from '../../myTypes'
+import {
+  emptyModality,
+  emptyVisit,
+  SessionInformationProps,
+} from '../../myTypes'
 import styles from './SessionInformation.module.css'
 import PdfModal from '../PdfModal/PdfModal'
 import TextField from '@material-ui/core/TextField'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import Select from '@material-ui/core/Select'
 import Grid from '@material-ui/core/Grid'
 import Dropzone from 'react-dropzone'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
@@ -14,6 +14,7 @@ import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined'
 import HelpIcon from '@material-ui/icons/Help'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
+import MenuSelection from '../MenuSelection/MenuSelection'
 
 const SessionInformation: React.FC<SessionInformationProps> = ({
   projectId,
@@ -23,6 +24,12 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   onProjectChange,
   setSubjectId,
   setDateTime,
+  showVisitsAndModalities,
+  availableVisitsAndModalities,
+  setVisit,
+  selectedVisit,
+  setModality,
+  selectedModality,
   pdfFile,
   onPdfUpload,
   onPdfDiscard,
@@ -33,11 +40,38 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   const [subjectLeftEmpty, setSubjectLeftEmpty] = useState(false)
   const [dateTimeLeftEmpty, setDateTimeLeftEmpty] = useState(false)
 
+  const handleProjectChange = (value: string) => {
+    if (value !== '') {
+      setModality(emptyModality)
+      setVisit(emptyVisit)
+      onProjectChange(value)
+    }
+  }
+
   const onSubjectBlur = (value: string) => {
     if (value === '') {
       setSubjectLeftEmpty(true)
     } else {
       setSubjectLeftEmpty(false)
+    }
+  }
+
+  const handleVisitChange = (value: string) => {
+    if (value !== '') {
+      setModality(emptyModality)
+      const selectedVisit = availableVisitsAndModalities.find(
+        (visit) => visit.name === value,
+      )
+      setVisit(selectedVisit)
+    }
+  }
+
+  const handleModalityChange = (value: string) => {
+    if (value !== '') {
+      const selectedModality = selectedVisit.modalities.find(
+        (modality) => modality.display === value,
+      )
+      setModality(selectedModality)
     }
   }
 
@@ -92,38 +126,17 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
         noValidate
         autoComplete='off'
       >
-        <Grid container className={styles.gridContainer}>
-          <Grid item xs={5}>
-            <FormControl variant='outlined' fullWidth={true} size='small'>
-              <InputLabel
-                id='project-label'
-                shrink
-                className={styles.projectInputLabel}
-              >
-                {helpTooltip(
-                  'Performance Site ID',
-                  'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
-                )}
-              </InputLabel>
-              <Select
-                labelId='project-label'
-                value={projectId}
-                onChange={(event) =>
-                  onProjectChange(event.target.value as string)
-                }
-                disabled={availableProjects.length === 0}
-                displayEmpty={true}
-              >
-                <MenuItem value=''>Select Performance Site</MenuItem>
-                {availableProjects.map((project, index) => (
-                  <MenuItem value={project} key={index}>
-                    {project}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <MenuSelection
+          label={helpTooltip(
+            'Performance Site ID',
+            'Enter the Performance Site ID as shown on the metadata form e.g. DIANTU_###_##',
+          )}
+          field='project'
+          value={projectId}
+          menuOptions={availableProjects}
+          emptyOptionText='Select Performance Site'
+          handleOnChange={handleProjectChange}
+        />
 
         <Grid container>
           <Grid item xs={5}>
@@ -140,6 +153,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
               variant='outlined'
               size='small'
               fullWidth={true}
+              className={styles.boldInputLabel}
               InputLabelProps={{
                 shrink: true,
                 style: { pointerEvents: 'auto' },
@@ -162,6 +176,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
               variant='outlined'
               size='small'
               fullWidth={true}
+              className={styles.boldDatetimeLabel}
               InputLabelProps={{
                 shrink: true,
                 style: { pointerEvents: 'auto' },
@@ -175,6 +190,41 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
               errorText('Imaging Session Date and Time is required')}
           </Grid>
         </Grid>
+
+        {showVisitsAndModalities && (
+          <>
+            <MenuSelection
+              label={
+                <>
+                  {`Imaging Session Visit `}{' '}
+                  <span className={styles.required}> *</span>
+                </>
+              }
+              field='visit'
+              value={selectedVisit.name}
+              menuOptions={availableVisitsAndModalities.map(
+                (visit) => visit.name,
+              )}
+              emptyOptionText='Select Visit'
+              handleOnChange={handleVisitChange}
+            />
+
+            <MenuSelection
+              label={
+                <>
+                  {`Modality `} <span className={styles.required}> *</span>
+                </>
+              }
+              field='modality'
+              value={selectedModality.display}
+              menuOptions={selectedVisit.modalities.map(
+                (modality) => modality.display,
+              )}
+              emptyOptionText='Select Modality'
+              handleOnChange={handleModalityChange}
+            />
+          </>
+        )}
 
         <Grid container>
           <Grid item xs={5}>

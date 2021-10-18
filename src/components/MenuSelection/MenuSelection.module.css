@@ -1,0 +1,15 @@
+.gridContainer {
+  margin-top: 20px;
+}
+
+label.projectInputLabel {
+  pointer-events: auto;
+  background-color: white;
+  left: -5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+label.boldMenuLabel {
+  font-weight: bold;
+}
