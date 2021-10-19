@@ -14,6 +14,13 @@ export const dateTimeSiteValidationAPI =
 export const dateTimeProjectValidationAPI = (projectId: string): string => {
   return `/data/projects/${projectId}/config/applet/require-date?contents=true&accept-not-found=true`
 }
+export const projectSessionNamingConventionAPI = (
+  projectId: string,
+): string => {
+  return `/data/projects/${projectId}/config/cr_naming/template?contents=true&accept-not-found=true`
+}
+export const siteSessionNamingConventionAPI =
+  '/data/config/cr_naming/template?contents=true&accept-not-found=true'
 export const myProfileLink =
   '/app/template/XDATScreen_UpdateUser.vm#tab=user-profile-tab'
 export const logoutUserLink = '/app/action/LogoutUser'

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {
+  dateTimeProps,
   emptyModality,
   emptyVisit,
   SessionInformationProps,
@@ -15,6 +16,7 @@ import HelpIcon from '@material-ui/icons/Help'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
 import MenuSelection from '../MenuSelection/MenuSelection'
+import { formatDateTime } from '../../utils'
 
 const SessionInformation: React.FC<SessionInformationProps> = ({
   projectId,
@@ -38,7 +40,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
   setPdfModalOpen,
 }: SessionInformationProps) => {
   const [subjectLeftEmpty, setSubjectLeftEmpty] = useState(false)
-  const [dateTimeLeftEmpty, setDateTimeLeftEmpty] = useState(false)
+  const [dateTimeInvalid, setDateTimeInvalid] = useState(false)
 
   const handleProjectChange = (value: string) => {
     if (value !== '') {
@@ -53,6 +55,13 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
       setSubjectLeftEmpty(true)
     } else {
       setSubjectLeftEmpty(false)
+    }
+  }
+
+  const handleDateTimeChange = (value: string) => {
+    if (value !== '') {
+      const dateTime: dateTimeProps = formatDateTime(value)
+      setDateTime(dateTime)
     }
   }
 
@@ -77,9 +86,9 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
 
   const onDatetimeBlur = (value: string) => {
     if (value === '') {
-      setDateTimeLeftEmpty(true)
+      setDateTimeInvalid(true)
     } else {
-      setDateTimeLeftEmpty(false)
+      setDateTimeInvalid(false)
     }
   }
 
@@ -167,7 +176,7 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           <Grid item xs={5}>
             <TextField
               id='datetime-local'
-              value={dateTime}
+              value={dateTime.rawinputValue}
               label={helpTooltip(
                 'Imaging Session Date and Time',
                 'Enter the date and time as noted in the DICOM for study verification',
@@ -181,12 +190,12 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
                 shrink: true,
                 style: { pointerEvents: 'auto' },
               }}
-              onChange={(event) => setDateTime(event.target.value)}
+              onChange={(event) => handleDateTimeChange(event.target.value)}
               onBlur={(event) => onDatetimeBlur(event.target.value)}
-              error={dateTimeLeftEmpty}
+              error={dateTimeInvalid}
               disabled={!isDateTimeInputRequired}
             />
-            {dateTimeLeftEmpty &&
+            {dateTimeInvalid &&
               errorText('Imaging Session Date and Time is required')}
           </Grid>
         </Grid>

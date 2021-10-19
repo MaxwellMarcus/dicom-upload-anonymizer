@@ -8,6 +8,8 @@ import {
   emptyVisit,
   modalityProps,
   emptyModality,
+  dateTimeProps,
+  emptyDateTime,
 } from '../../myTypes'
 import { getFolderName, numberOfChunks } from '../../utils'
 import { TWENTY_FIVE_MEGA_BYTES, uploadSteps } from '../../constants'
@@ -40,7 +42,7 @@ const Upload: React.FC<UploadProps> = ({
   const [totalFiles, setTotalFiles] = useState(0)
   const [projectId, setProjectId] = useState('')
   const [subjectId, setSubjectId] = useState('')
-  const [dateTime, setDateTime] = useState('')
+  const [dateTime, setDateTime] = useState<dateTimeProps>(emptyDateTime)
   const [availableVisitsAndModalities, setAvailableisitsAndModalities] =
     useState<visitsAndModaltiesProps>([])
   const [selectedVisit, setVisit] = useState<visitProps>(emptyVisit)
@@ -119,8 +121,10 @@ const Upload: React.FC<UploadProps> = ({
         const uploadFilesResponse = await handleUploadFiles(
           projectId,
           subjectId,
+          dateTime,
           zippedFolder,
           selectedVisit,
+          selectedModality,
         )
         if (uploadFilesResponse.status === 200) {
           setUploadProgress((current) => ({
@@ -152,7 +156,7 @@ const Upload: React.FC<UploadProps> = ({
     setTotalFiles(0)
     setProjectId('')
     setSubjectId('')
-    setDateTime('')
+    setDateTime(emptyDateTime)
     setIsDateTimeInputRequired(initialIsDateTimeInputRequired)
     setVisit(emptyVisit)
     setModality(emptyModality)
@@ -172,19 +176,15 @@ const Upload: React.FC<UploadProps> = ({
   }
 
   const readyToUpload =
-    (projectId &&
-      subjectId &&
-      dateTime &&
-      !!(
-        showVisitsAndModalities &&
-        selectedVisit.key &&
-        selectedModality.key
-      )) ||
-    (!showVisitsAndModalities &&
-      pdfFile &&
-      files &&
-      numOfFilesParsed > 0 &&
-      totalFiles === numOfFilesParsed)
+    projectId &&
+    subjectId &&
+    dateTime &&
+    (!!(showVisitsAndModalities && selectedVisit.key && selectedModality.key) ||
+      !showVisitsAndModalities) &&
+    pdfFile &&
+    files &&
+    numOfFilesParsed > 0 &&
+    totalFiles === numOfFilesParsed
 
   const stepsContent = [
     <SessionInformation

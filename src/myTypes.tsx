@@ -15,8 +15,10 @@ export type UploadProps = {
   handleUploadFiles: (
     projectId: string,
     subjectId: string,
+    dateTime: dateTimeProps,
     zippedFolder: Blob,
     visit: visitProps,
+    modality: modalityProps,
   ) => Promise<Response>;
   handleUploadPdf: (
     pdfFile: File,
@@ -79,11 +81,11 @@ export type dicomTags = {
 export type SessionInformationProps = {
   projectId: string;
   subjectId: string;
-  dateTime: string;
+  dateTime: dateTimeProps;
   availableProjects: Array<string>;
   onProjectChange: (value: string) => void;
   setSubjectId: (value: string) => void;
-  setDateTime: (value: string) => void;
+  setDateTime: (value: dateTimeProps) => void;
   showVisitsAndModalities: boolean;
   availableVisitsAndModalities: visitsAndModaltiesProps;
   setVisit: (value: visitProps) => void;
@@ -100,7 +102,7 @@ export type SessionInformationProps = {
 
 export type ImagingDataProps = {
   files: myFiles;
-  dateTime: string;
+  dateTime: dateTimeProps;
   onFileUpload: (value: Array<File>) => void;
   totalFiles: number;
   numOfFilesParsed: number;
@@ -168,7 +170,7 @@ export type availableProjectsResponse = Array<{
 
 export type DicomValidationErrorModalProps = {
   files: myFiles;
-  dateTime: string;
+  dateTime: dateTimeProps;
   areFilesReady: boolean;
   discardDicomFiles: () => void;
   isDateTimeInputRequired: boolean;
@@ -218,4 +220,24 @@ export type MenuSelectionProps = {
   menuOptions: Array<string>;
   emptyOptionText: string;
   handleOnChange: (value: string) => void;
+};
+
+export type namingConventionProps = {
+  pattern: string;
+};
+
+export type dateTimeProps = {
+  rawinputValue: string;
+  yyMMddFormat: string;
+  date: string;
+  hour: string;
+  minute: string;
+};
+
+export const emptyDateTime: dateTimeProps = {
+  rawinputValue: '',
+  yyMMddFormat: '',
+  date: '',
+  hour: '',
+  minute: '',
 };

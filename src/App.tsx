@@ -17,6 +17,8 @@ import {
 } from './Services'
 import {
   availableProjectsResponse,
+  dateTimeProps,
+  modalityProps,
   siteWideAnonResponse,
   user,
   visitProps,
@@ -128,14 +130,18 @@ const App: React.FC = () => {
   const handleUploadFiles = async (
     projectId: string,
     subjectId: string,
+    dateTime: dateTimeProps,
     zippedFolder: Blob,
     visit: visitProps,
+    modality: modalityProps,
   ): Promise<Response> => {
     const uploadFilesResponse = await uploadFiles(
       projectId,
       subjectId,
+      dateTime,
       zippedFolder,
-      visit.code,
+      visit,
+      modality,
     )
     if (uploadFilesResponse.status !== 200) {
       setFullStopError(fullStopErrors.DICOM_UPLOAD_FAILED)

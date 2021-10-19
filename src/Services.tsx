@@ -7,8 +7,17 @@ import {
   visitTemplateProjectKeyAPI,
   visitTemplateSiteKeyAPI,
   actualVisitsAndModalitiesAPI,
+  projectSessionNamingConventionAPI,
+  siteSessionNamingConventionAPI,
 } from './constants'
-import { fetchParams } from './myTypes'
+import {
+  dateTimeProps,
+  fetchParams,
+  modalityProps,
+  namingConventionProps,
+  visitProps,
+} from './myTypes'
+import { computeSessionLabel } from './utils'
 let csrf = ''
 export const getSetCSRF = async (): Promise<void> => {
   const call: fetchParams = requestParams('GET')
@@ -27,15 +36,29 @@ export const getSiteWideAnonScript = async (): Promise<Response> => {
   return fetch(`${call.domain}${siteWideAnonAPI}`, call.params)
 }
 
-export const uploadFiles = (
+export const uploadFiles = async (
   projectId: string,
   subjectId: string,
+  dateTime: dateTimeProps,
   files: Blob,
-  visitCode: string,
+  visit: visitProps,
+  modality: modalityProps,
 ): Promise<Response> => {
+  const sessionNamingConvention = await retrieveSessionNamingConvention(
+    projectId,
+    visit.key,
+  )
+  const sessionLabel = `EXPT_LABEL=${computeSessionLabel(
+    sessionNamingConvention,
+    projectId,
+    subjectId,
+    dateTime,
+    visit,
+    modality,
+  )}`
   const call: fetchParams = requestParams('POST', files)
   return fetch(
-    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&VISIT=${visitCode}&${csrf}`,
+    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&VISIT=${visit.code}&${sessionLabel}&${csrf}`,
     call.params,
   )
 }
@@ -81,6 +104,46 @@ export const getIsDateTimeProjectValidationRequired = (
 export const getIsDateTimeSiteValidationRequired = (): Promise<Response> => {
   const call: fetchParams = requestParams('GET')
   return fetch(`${call.domain}${dateTimeSiteValidationAPI}`, call.params)
+}
+
+export const getProjectSessionNamingConvention = (
+  projectId: string,
+): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(
+    `${call.domain}${projectSessionNamingConventionAPI(projectId)}`,
+    call.params,
+  )
+}
+
+export const getSiteSessionNamingConvention = (): Promise<Response> => {
+  const call: fetchParams = requestParams('GET')
+  return fetch(`${call.domain}${siteSessionNamingConventionAPI}`, call.params)
+}
+
+const retrieveSessionNamingConvention = async (
+  projectId: string,
+  selectedVisitKey: string,
+): Promise<string> => {
+  let responseValue: namingConventionProps = { pattern: '' }
+  const projectResponse = await getProjectSessionNamingConvention(projectId)
+  if (projectResponse.status === 200) {
+    responseValue = await projectResponse.json()
+  } else {
+    const siteResponse = await getSiteSessionNamingConvention()
+    if (siteResponse.status === 200) {
+      responseValue = await siteResponse.json()
+    }
+  }
+  if (responseValue.pattern) {
+    return responseValue.pattern
+  } else {
+    if (selectedVisitKey) {
+      return '{SUBJECT_LABEL}_{VISIT}_{MOD}'
+    } else {
+      return '{SUBJECT_LABEL}_{SESSION_DATE}'
+    }
+  }
 }
 
 export const uploadPdf = async (

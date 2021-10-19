@@ -1,6 +1,12 @@
 import { FileWithPath } from 'react-dropzone'
 import { TWENTY_FIVE_MEGA_BYTES } from './constants'
-import { myFiles, errorsWithUploadedFiles, modalityProps } from './myTypes'
+import {
+  myFiles,
+  errorsWithUploadedFiles,
+  modalityProps,
+  visitProps,
+  dateTimeProps,
+} from './myTypes'
 
 export const formatFileSize = (size: number): string => {
   if (size === 0) return '0 B'
@@ -34,7 +40,7 @@ export const isZippedFolder = (file: FileWithPath): boolean => {
 export const verifyUploadedFiles = (
   files: myFiles,
   isDateTimeInputRequired: boolean,
-  dateTime: string,
+  dateTime: dateTimeProps,
   isModalityRequired: boolean,
   selectedModality: modalityProps,
 ): errorsWithUploadedFiles => {
@@ -52,12 +58,6 @@ export const verifyUploadedFiles = (
   if (files.length === 0) {
     errors.expectedModalityNotFound = true
   } else {
-    const formattedDateTime = dateTime.replace(/-|T|:/g, '')
-    const dateTimeInput = {
-      date: formattedDateTime.substring(0, 8),
-      hour: formattedDateTime.substring(8, 10),
-    }
-
     const initialUID = files[0].dicomTags.UID
     const foundModalities: Array<string> = []
 
@@ -69,10 +69,10 @@ export const verifyUploadedFiles = (
       if (isDateTimeInputRequired) {
         const hourDiff = Math.abs(
           Number(files[i].dicomTags.time.substring(0, 2)) -
-            Number(dateTimeInput.hour),
+            Number(dateTime.hour),
         )
 
-        if (files[i].dicomTags.date !== dateTimeInput.date || hourDiff > 2) {
+        if (files[i].dicomTags.date !== dateTime.date || hourDiff > 2) {
           errors.dateTimeError = true
           errors.dateTimeErrorFiles.push({ filename: files[i].fileName })
         }
@@ -118,4 +118,42 @@ export const numberOfChunks = (files: myFiles): number => {
   })
 
   return Math.ceil(totalUploadSize / TWENTY_FIVE_MEGA_BYTES)
+}
+
+export const formatDateTime = (value: string): dateTimeProps => {
+  const sanitized = value.replace(/-|T|:/g, '')
+  const yyMMddFormat = `${sanitized.substring(2, 4)}${sanitized.substring(
+    4,
+    6,
+  )}${sanitized.substring(6, 8)}`
+  const date = sanitized.substring(0, 8)
+  const hour = sanitized.substring(8, 10)
+  const minute = sanitized.substring(10, 12)
+
+  return {
+    rawinputValue: value,
+    yyMMddFormat,
+    date,
+    hour,
+    minute,
+  }
+}
+export const computeSessionLabel = (
+  sessionNamingConvention: string,
+  projectId: string,
+  subjectId: string,
+  dateTime: dateTimeProps,
+  visit: visitProps,
+  modality: modalityProps,
+): string => {
+  const withRealValues = sessionNamingConvention
+    .replace('{PROJECT}', projectId)
+    .replace('{SUBJECT_LABEL}', subjectId)
+    .replace('{SUBJECTLABEL}', subjectId)
+    .replace('{SESSION_DATE}', dateTime.yyMMddFormat)
+    .replace('{HOUR}', dateTime.hour)
+    .replace('{MINUTE}', dateTime.minute)
+    .replace('{VISIT}', visit.code)
+    .replace('{MOD}', modality.label)
+  return withRealValues
 }
