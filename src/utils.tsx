@@ -138,7 +138,7 @@ export const formatDateTime = (value: string): dateTimeProps => {
     minute,
   }
 }
-export const computeSessionLabel = (
+export const computeSession = (
   sessionNamingConvention: string,
   projectId: string,
   subjectId: string,

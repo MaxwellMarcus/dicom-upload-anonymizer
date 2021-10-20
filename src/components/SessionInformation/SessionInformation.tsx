@@ -143,7 +143,11 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           field='project'
           value={projectId}
           menuOptions={availableProjects}
-          emptyOptionText='Select Performance Site'
+          emptyOptionText={
+            availableProjects.length > 0
+              ? 'Select Performance Site'
+              : 'Loading Projects...'
+          }
           handleOnChange={handleProjectChange}
         />
 

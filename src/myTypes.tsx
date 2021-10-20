@@ -15,10 +15,9 @@ export type UploadProps = {
   handleUploadFiles: (
     projectId: string,
     subjectId: string,
-    dateTime: dateTimeProps,
     zippedFolder: Blob,
     visit: visitProps,
-    modality: modalityProps,
+    session: string,
   ) => Promise<Response>;
   handleUploadPdf: (
     pdfFile: File,

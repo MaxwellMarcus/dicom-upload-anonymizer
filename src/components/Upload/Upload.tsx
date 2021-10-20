@@ -11,7 +11,7 @@ import {
   dateTimeProps,
   emptyDateTime,
 } from '../../myTypes'
-import { getFolderName, numberOfChunks } from '../../utils'
+import { computeSession, getFolderName, numberOfChunks } from '../../utils'
 import { TWENTY_FIVE_MEGA_BYTES, uploadSteps } from '../../constants'
 import myWorker from '../dedicated.worker'
 import JSZip from 'jszip'
@@ -24,6 +24,7 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import SessionInformation from '../SessionInformation/SessionInformation'
 import ImagingData from '../ImagingData/ImagingData'
+import { retrieveSessionNamingConvention } from '../../Services'
 
 /* eslint-disable */
 // @ts-ignore: possibly undefined
@@ -57,6 +58,7 @@ const Upload: React.FC<UploadProps> = ({
     totalNumberOfChunks: 0,
     chunksSent: 0,
   })
+  const [session, setSession] = useState('')
 
   let initialIsDateTimeInputRequired = true
 
@@ -67,9 +69,29 @@ const Upload: React.FC<UploadProps> = ({
     setNumOfFilesParsed(filesParsed)
   }
 
-  const onFileUpload = (uploaded: Array<FileWithPath>) => {
+  const onFileUpload = async (uploaded: Array<FileWithPath>) => {
     setFolderName(getFolderName(uploaded[0].path))
-    worker.postMessage({ uploaded, anonScript, selectedModality })
+    const namingConvention = await retrieveSessionNamingConvention(
+      projectId,
+      selectedVisit.key,
+    )
+    const session = computeSession(
+      namingConvention,
+      projectId,
+      subjectId,
+      dateTime,
+      selectedVisit,
+      selectedModality,
+    )
+    setSession(session)
+    worker.postMessage({
+      projectId,
+      subjectId,
+      session,
+      uploaded,
+      anonScript,
+      selectedModality,
+    })
   }
 
   const onProjectChange = async (value: string) => {
@@ -121,10 +143,9 @@ const Upload: React.FC<UploadProps> = ({
         const uploadFilesResponse = await handleUploadFiles(
           projectId,
           subjectId,
-          dateTime,
           zippedFolder,
           selectedVisit,
-          selectedModality,
+          session,
         )
         if (uploadFilesResponse.status === 200) {
           setUploadProgress((current) => ({

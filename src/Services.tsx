@@ -10,14 +10,7 @@ import {
   projectSessionNamingConventionAPI,
   siteSessionNamingConventionAPI,
 } from './constants'
-import {
-  dateTimeProps,
-  fetchParams,
-  modalityProps,
-  namingConventionProps,
-  visitProps,
-} from './myTypes'
-import { computeSessionLabel } from './utils'
+import { fetchParams, namingConventionProps, visitProps } from './myTypes'
 let csrf = ''
 export const getSetCSRF = async (): Promise<void> => {
   const call: fetchParams = requestParams('GET')
@@ -39,26 +32,13 @@ export const getSiteWideAnonScript = async (): Promise<Response> => {
 export const uploadFiles = async (
   projectId: string,
   subjectId: string,
-  dateTime: dateTimeProps,
   files: Blob,
   visit: visitProps,
-  modality: modalityProps,
+  session: string,
 ): Promise<Response> => {
-  const sessionNamingConvention = await retrieveSessionNamingConvention(
-    projectId,
-    visit.key,
-  )
-  const sessionLabel = `EXPT_LABEL=${computeSessionLabel(
-    sessionNamingConvention,
-    projectId,
-    subjectId,
-    dateTime,
-    visit,
-    modality,
-  )}`
   const call: fetchParams = requestParams('POST', files)
   return fetch(
-    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&VISIT=${visit.code}&${sessionLabel}&${csrf}`,
+    `${call.domain}/data/services/import?inbody=true&prevent_anon=true&import-handler=DICOM-zip&PROJECT_ID=${projectId}&SUBJECT_ID=${subjectId}&VISIT=${visit.code}&EXPT_LABEL=${session}&${csrf}`,
     call.params,
   )
 }
@@ -121,7 +101,7 @@ export const getSiteSessionNamingConvention = (): Promise<Response> => {
   return fetch(`${call.domain}${siteSessionNamingConventionAPI}`, call.params)
 }
 
-const retrieveSessionNamingConvention = async (
+export const retrieveSessionNamingConvention = async (
   projectId: string,
   selectedVisitKey: string,
 ): Promise<string> => {

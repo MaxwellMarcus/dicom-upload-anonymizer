@@ -9,6 +9,9 @@ import {
 } from '../constants'
 import { isZippedFolder, isDicomfile } from '../utils'
 
+let project = ''
+let subject = ''
+let sessionLabel = ''
 let script = ''
 let filesArray = []
 let totalFiles = 0
@@ -16,7 +19,17 @@ let filesParsed = 0
 let expectedModality = ''
 
 self.onmessage = async (message) => {
-  const { uploaded, anonScript, selectedModality } = message.data
+  const {
+    projectId,
+    subjectId,
+    session,
+    uploaded,
+    anonScript,
+    selectedModality,
+  } = message.data
+  project = projectId
+  subject = subjectId
+  sessionLabel = session
   script = anonScript
   expectedModality = selectedModality.type
   totalFiles = 0
@@ -64,7 +77,11 @@ const handleAnonymizing = async (file, fileName) => {
   filesParsed++
   if (isDicomfile(file)) {
     const anonymizer = new Anonymizer(script, {
-      identifiers: undefined,
+      identifiers: {
+        project: project,
+        subject: subject,
+        session: sessionLabel,
+      },
       lookupMap: undefined,
       inputBuffer: undefined,
       namespaceforHashUID: '',
