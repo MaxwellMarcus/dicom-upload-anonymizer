@@ -9,6 +9,8 @@ import styles from './ImagingData.module.css'
 import DicomValidationErrorModal from '../DicomValidationErrorModal/DicomValidationErrorModal'
 
 const ImagingData: React.FC<ImagingDataProps> = ({
+  projectId,
+  subjectId,
   files,
   dateTime,
   onFileUpload,
@@ -27,8 +29,10 @@ const ImagingData: React.FC<ImagingDataProps> = ({
   const areFilesReady = numOfFilesParsed > 0 && numOfFilesParsed === totalFiles
 
   const DisableDropzone =
-    (isDateTimeInputRequired && !dateTime) ||
-    !(showVisitsAndModalities && selectedVisit.key && selectedModality.key)
+    !projectId ||
+    !subjectId ||
+    (isDateTimeInputRequired && !dateTime.rawinputValue) ||
+    (showVisitsAndModalities && (!selectedVisit.key || !selectedModality.key))
 
   return (
     <Grid container spacing={3}>

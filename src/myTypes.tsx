@@ -100,6 +100,8 @@ export type SessionInformationProps = {
 };
 
 export type ImagingDataProps = {
+  projectId: string;
+  subjectId: string;
   files: myFiles;
   dateTime: dateTimeProps;
   onFileUpload: (value: Array<File>) => void;

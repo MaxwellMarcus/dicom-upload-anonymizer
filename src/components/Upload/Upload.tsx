@@ -236,6 +236,8 @@ const Upload: React.FC<UploadProps> = ({
     />,
     <ImagingData
       key={1}
+      projectId={projectId}
+      subjectId={subjectId}
       files={files}
       dateTime={dateTime}
       onFileUpload={onFileUpload}
