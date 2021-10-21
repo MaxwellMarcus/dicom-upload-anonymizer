@@ -9,6 +9,7 @@ import {
   actualVisitsAndModalitiesAPI,
   projectSessionNamingConventionAPI,
   siteSessionNamingConventionAPI,
+  domain,
 } from './constants'
 import { fetchParams, namingConventionProps, visitProps } from './myTypes'
 let csrf = ''
@@ -129,13 +130,13 @@ export const retrieveSessionNamingConvention = async (
 export const uploadPdf = async (
   pdf: File,
   subjectId: string,
-  pdfUrl: string,
+  urlFromUploadResponse: string,
 ): Promise<Response> => {
   const call: fetchParams = requestParams('PUT', pdf)
-  await commitDicomFilesUpload(pdfUrl)
+  await commitDicomFilesUpload(urlFromUploadResponse)
   const fileType = pdf.name.substr(pdf.name.indexOf('.'))
   return fetch(
-    `${call.domain}${pdfUrl}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
+    `${call.domain}${urlFromUploadResponse}/resources/${subjectId}/files/${subjectId}${fileType}?inbody=true`,
     call.params,
   )
 }
@@ -143,9 +144,26 @@ export const uploadPdf = async (
 /**
  * intermediary call to say the dicom file upload process is done
  */
-const commitDicomFilesUpload = (pdfUrl: string): Promise<Response> => {
+const commitDicomFilesUpload = (
+  urlFromUploadResponse: string,
+): Promise<Response> => {
   const call: fetchParams = requestParams('POST')
-  return fetch(`${call.domain}${pdfUrl}?action=commit`, call.params)
+  return fetch(
+    `${call.domain}${urlFromUploadResponse}?action=commit`,
+    call.params,
+  )
+}
+
+export const sendEmailNotification = (
+  projectId: string,
+  urlFromUploadResponse: string,
+): void => {
+  const fullUrl = `${domain}${urlFromUploadResponse}`
+  const call: fetchParams = requestParams('POST', fullUrl)
+  fetch(
+    `${call.domain}/xapi/dcauploader/datavailable/notify/${projectId}`,
+    call.params,
+  )
 }
 
 /**
@@ -154,7 +172,7 @@ const commitDicomFilesUpload = (pdfUrl: string): Promise<Response> => {
  * @param body - optional to pass something to the body of the request
  * @returns a fetchParams object
  */
-const requestParams = (method: string, body?: Blob): fetchParams => {
+const requestParams = (method: string, body?: Blob | string): fetchParams => {
   if (process.env.NODE_ENV === 'development') {
     const username = process.env.REACT_APP_XNAT_USERNAME
     const password = process.env.REACT_APP_XNAT_PASSWORD

@@ -1,3 +1,7 @@
+export const domain =
+  process.env.NODE_ENV === 'development'
+    ? process.env.REACT_APP_XNAT_DOMAIN
+    : location.hostname
 export const csrfAPI = '/data/JSESSION?CSRF=True'
 export const siteWideAnonAPI = '/data/config/anon/script?format=json'
 export const availableProjectsAPI = '/xapi/dcauploader/projects'

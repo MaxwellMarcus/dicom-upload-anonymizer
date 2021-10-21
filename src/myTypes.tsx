@@ -54,7 +54,7 @@ export type fetchParams = {
     headers?: {
       Authorization: string;
     };
-    body?: Blob;
+    body?: Blob | string;
   };
 };
 

@@ -24,7 +24,10 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import SessionInformation from '../SessionInformation/SessionInformation'
 import ImagingData from '../ImagingData/ImagingData'
-import { retrieveSessionNamingConvention } from '../../Services'
+import {
+  retrieveSessionNamingConvention,
+  sendEmailNotification,
+} from '../../Services'
 
 /* eslint-disable */
 // @ts-ignore: possibly undefined
@@ -163,6 +166,7 @@ const Upload: React.FC<UploadProps> = ({
               subjectId,
               urlFromUploadFilesResponse,
             )
+            sendEmailNotification(projectId, urlFromUploadFilesResponse)
           }
         }
         setSendingFiles(false)
