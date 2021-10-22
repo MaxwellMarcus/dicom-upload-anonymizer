@@ -176,33 +176,34 @@ const SessionInformation: React.FC<SessionInformationProps> = ({
           </Grid>
         </Grid>
 
-        <Grid container>
-          <Grid item xs={5}>
-            <TextField
-              id='datetime-local'
-              value={dateTime.rawinputValue}
-              label={helpTooltip(
-                'Imaging Session Date and Time',
-                'Enter the date and time as noted in the DICOM for study verification',
-              )}
-              type='datetime-local'
-              variant='outlined'
-              size='small'
-              fullWidth={true}
-              className={styles.boldDatetimeLabel}
-              InputLabelProps={{
-                shrink: true,
-                style: { pointerEvents: 'auto' },
-              }}
-              onChange={(event) => handleDateTimeChange(event.target.value)}
-              onBlur={(event) => onDatetimeBlur(event.target.value)}
-              error={dateTimeInvalid}
-              disabled={!isDateTimeInputRequired}
-            />
-            {dateTimeInvalid &&
-              errorText('Imaging Session Date and Time is required')}
+        {isDateTimeInputRequired && (
+          <Grid container>
+            <Grid item xs={5}>
+              <TextField
+                id='datetime-local'
+                value={dateTime.rawinputValue}
+                label={helpTooltip(
+                  'Imaging Session Date and Time',
+                  'Enter the date and time as noted in the DICOM for study verification',
+                )}
+                type='datetime-local'
+                variant='outlined'
+                size='small'
+                fullWidth={true}
+                className={styles.boldDatetimeLabel}
+                InputLabelProps={{
+                  shrink: true,
+                  style: { pointerEvents: 'auto' },
+                }}
+                onChange={(event) => handleDateTimeChange(event.target.value)}
+                onBlur={(event) => onDatetimeBlur(event.target.value)}
+                error={dateTimeInvalid}
+              />
+              {dateTimeInvalid &&
+                errorText('Imaging Session Date and Time is required')}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
 
         {showVisitsAndModalities && (
           <>
