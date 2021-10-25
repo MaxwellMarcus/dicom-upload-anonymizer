@@ -62,17 +62,24 @@ const Upload: React.FC<UploadProps> = ({
     chunksSent: 0,
   })
   const [session, setSession] = useState('')
+  const [zipSizeError, setZipSizeError] = useState('')
 
   let initialIsDateTimeInputRequired = true
 
   worker.onmessage = (message: any) => {
-    const { filesArray, totalFiles, filesParsed } = message.data
-    setFiles((current: myFiles) => [...current, ...filesArray])
-    setTotalFiles(totalFiles)
-    setNumOfFilesParsed(filesParsed)
+    const { filesArray, totalFiles, filesParsed, sizeError } = message.data
+    if (sizeError) {
+      discardDicomFiles()
+      setZipSizeError(sizeError)
+    } else {
+      setFiles((current: myFiles) => [...current, ...filesArray])
+      setTotalFiles(totalFiles)
+      setNumOfFilesParsed(filesParsed)
+    }
   }
 
   const onFileUpload = async (uploaded: Array<FileWithPath>) => {
+    setZipSizeError('')
     setFolderName(getFolderName(uploaded[0].path))
     const namingConvention = await retrieveSessionNamingConvention(
       projectId,
@@ -249,6 +256,7 @@ const Upload: React.FC<UploadProps> = ({
       showVisitsAndModalities={showVisitsAndModalities}
       selectedVisit={selectedVisit}
       selectedModality={selectedModality}
+      zipSizeError={zipSizeError}
     />,
   ]
 

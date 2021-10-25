@@ -71,3 +71,7 @@ span.required {
   cursor: not-allowed;
   opacity: 0.75;
 }
+
+section.zipSizeError {
+  border: 5px solid red;
+}

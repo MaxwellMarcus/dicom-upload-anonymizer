@@ -8,6 +8,12 @@ import {
   dateTimeProps,
 } from './myTypes'
 
+export const fileSizeBytesToGigs = (size: number): string => {
+  if (size > 0) {
+    return (size / (1000 * 1000 * 1000)).toFixed(2)
+  }
+}
+
 export const formatFileSize = (size: number): string => {
   if (size === 0) return '0 B'
   const n = Math.floor(Math.log(size) / Math.log(1024))

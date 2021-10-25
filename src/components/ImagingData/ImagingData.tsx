@@ -22,6 +22,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
   showVisitsAndModalities,
   selectedVisit,
   selectedModality,
+  zipSizeError,
 }: ImagingDataProps) => {
   const anonProgress =
     numOfFilesParsed > 0 ? Math.ceil((numOfFilesParsed / totalFiles) * 100) : 0
@@ -52,7 +53,7 @@ const ImagingData: React.FC<ImagingDataProps> = ({
                 <section
                   className={`${styles.dropzone} ${
                     DisableDropzone ? styles.dropzoneDisabled : ''
-                  }`}
+                  } ${zipSizeError ? styles.zipSizeError : ''}`}
                 >
                   <div {...getRootProps()}>
                     <input {...getInputProps()} />
@@ -62,12 +63,24 @@ const ImagingData: React.FC<ImagingDataProps> = ({
                         className={`${styles.icon} ${styles.themeBlue}`}
                       />
                     </p>
-                    <p className={styles.dropzoneTopText}>
-                      Add a folder or zip archive.
-                    </p>
-                    <p className={styles.dropzoneBottomText}>
-                      De-Identification process begins immediately.
-                    </p>
+                    {zipSizeError && (
+                      <>
+                        <p className={styles.dropzoneTopText}>{zipSizeError}</p>
+                        <p className={styles.dropzoneTopText}>
+                          Please Drag and Drop its folder instead
+                        </p>
+                      </>
+                    )}
+                    {!zipSizeError && (
+                      <>
+                        <p className={styles.dropzoneTopText}>
+                          Add a folder or zip archive.
+                        </p>
+                        <p className={styles.dropzoneBottomText}>
+                          De-Identification process begins immediately.
+                        </p>
+                      </>
+                    )}
                   </div>
                 </section>
               )}

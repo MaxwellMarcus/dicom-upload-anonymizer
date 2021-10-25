@@ -113,6 +113,7 @@ export type ImagingDataProps = {
   showVisitsAndModalities: boolean;
   selectedVisit: visitProps;
   selectedModality: modalityProps;
+  zipSizeError: string;
 };
 
 export type PageFooterProps = {

@@ -7,7 +7,7 @@ import {
   STUDY_INSTANCE_UID,
   MODALITY,
 } from '../constants'
-import { isZippedFolder, isDicomfile } from '../utils'
+import { isZippedFolder, isDicomfile, fileSizeBytesToGigs } from '../utils'
 
 let project = ''
 let subject = ''
@@ -37,20 +37,27 @@ self.onmessage = async (message) => {
 
   const jsZip = new JSZip()
   if (isZippedFolder(uploaded[0])) {
-    jsZip.loadAsync(uploaded[0]).then((zip) => {
-      zip.forEach((relativePath, file) => {
-        const fileName = file.name
-        totalFiles++
-        jsZip
-          .file(file.name)
-          .async('arraybuffer')
-          .then(async (file) => {
-            if (isDicomfile(file)) {
-              handleAnonymizing(file, fileName)
-            }
-          })
+    const zipSize = fileSizeBytesToGigs(uploaded[0].size)
+    if (zipSize < 1.5) {
+      jsZip.loadAsync(uploaded[0]).then((zip) => {
+        zip.forEach((relativePath, file) => {
+          const fileName = file.name
+          totalFiles++
+          jsZip
+            .file(file.name)
+            .async('arraybuffer')
+            .then(async (file) => {
+              if (isDicomfile(file)) {
+                handleAnonymizing(file, fileName)
+              }
+            })
+        })
       })
-    })
+    } else {
+      postMessage({
+        sizeError: `The max Zip size is 1.50GB - the zip you uploaded was ${zipSize}GB`,
+      })
+    }
   } else {
     totalFiles = uploaded.length
     for (let i = 0; i < totalFiles; i++) {
