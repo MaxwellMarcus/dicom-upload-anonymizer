@@ -35,32 +35,15 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Learn More
+# `Dev Notes`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Stack - React (with hooks) & TypeScript
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Main library dependecies:
 
-### Code Splitting
+- react-dropzone - https://react-dropzone.js.org/
+- react-pdf - https://react-pdf.org/
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Upload.tsx - utilizes a Dedicated worker (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers), the worker code is contained in dedicated.worker.js. The _worker_ keyword is explicitly referenced in config-overrides.js. React-pdf also uses ( or pretends to use) a dedicated worker.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Husky pre-commit hook: .husky folder > pre-commiit file - runs cli commands before git commit initializes. Currently runs all tests and ensures they are passing, and then will run lint-staged (which lists its own commands to run - currently enforces formatting consistency via prettier) referenced in package.json.
