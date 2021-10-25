@@ -20,6 +20,7 @@ it('renders disabled, no projectId, no subjectId, dateTime not required, visits/
   const showVisitsAndModalities = false
   const selectedVisit = emptyVisit
   const selectedModality = emptyModality
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -38,6 +39,7 @@ it('renders disabled, no projectId, no subjectId, dateTime not required, visits/
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -65,257 +67,7 @@ it('renders disabled, no projectId, no subjectId, dateTime not required, visits/
           </span>
         </label>
         <section
-          className="dropzone dropzoneDisabled"
-        >
-          <div
-            onBlur={null}
-            onClick={null}
-            onDragEnter={null}
-            onDragLeave={null}
-            onDragOver={null}
-            onDrop={null}
-            onFocus={null}
-            onKeyDown={null}
-          >
-            <input
-              autoComplete="off"
-              multiple={true}
-              onChange={null}
-              onClick={null}
-              style={
-                Object {
-                  "display": "none",
-                }
-              }
-              tabIndex={-1}
-              type="file"
-            />
-            <p
-              className="icon"
-            >
-              <svg
-                aria-hidden={true}
-                className="MuiSvgIcon-root icon themeBlue"
-                focusable="false"
-                style={
-                  Object {
-                    "fontSize": 50,
-                  }
-                }
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
-                />
-              </svg>
-            </p>
-            <p
-              className="dropzoneTopText"
-            >
-              Add a folder or zip archive.
-            </p>
-            <p
-              className="dropzoneBottomText"
-            >
-              De-Identification process begins immediately.
-            </p>
-          </div>
-        </section>
-        <p
-          className="infoText"
-        >
-          Imaging session date and time must match the DICOM for verification.
-        </p>
-        
-      </div>
-      <div />
-    </div>
-  `)
-})
-
-it('renders disabled, no subjectId, dateTime not required, visits/modalities not required, anon not begun', () => {
-  const projectId = 'Dakota_project'
-  const subjectId = ''
-  const files: myFiles = []
-  const dateTime = emptyDateTime
-  const totalFiles = 0
-  const numOfFilesParsed = 0
-  const folderName = ''
-  const isDateTimeInputRequired = false
-  const showVisitsAndModalities = false
-  const selectedVisit = emptyVisit
-  const selectedModality = emptyModality
-
-  const tree = renderer
-    .create(
-      <ImagingData
-        projectId={projectId}
-        subjectId={subjectId}
-        key={1}
-        files={files}
-        dateTime={dateTime}
-        onFileUpload={jest.fn()}
-        totalFiles={totalFiles}
-        numOfFilesParsed={numOfFilesParsed}
-        folderName={folderName}
-        discardDicomFiles={jest.fn()}
-        isDateTimeInputRequired={isDateTimeInputRequired}
-        showVisitsAndModalities={showVisitsAndModalities}
-        selectedVisit={selectedVisit}
-        selectedModality={selectedModality}
-      />,
-    )
-    .toJSON()
-
-  expect(tree).toMatchInlineSnapshot(`
-    <div
-      className="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3"
-    >
-      <div
-        className="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8"
-        style={
-          Object {
-            "paddingLeft": "2rem",
-          }
-        }
-      >
-        <label
-          className="dropzoneLabel"
-        >
-          Imaging Files
-          <span
-            className="required"
-          >
-             *
-          </span>
-        </label>
-        <section
-          className="dropzone dropzoneDisabled"
-        >
-          <div
-            onBlur={null}
-            onClick={null}
-            onDragEnter={null}
-            onDragLeave={null}
-            onDragOver={null}
-            onDrop={null}
-            onFocus={null}
-            onKeyDown={null}
-          >
-            <input
-              autoComplete="off"
-              multiple={true}
-              onChange={null}
-              onClick={null}
-              style={
-                Object {
-                  "display": "none",
-                }
-              }
-              tabIndex={-1}
-              type="file"
-            />
-            <p
-              className="icon"
-            >
-              <svg
-                aria-hidden={true}
-                className="MuiSvgIcon-root icon themeBlue"
-                focusable="false"
-                style={
-                  Object {
-                    "fontSize": 50,
-                  }
-                }
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
-                />
-              </svg>
-            </p>
-            <p
-              className="dropzoneTopText"
-            >
-              Add a folder or zip archive.
-            </p>
-            <p
-              className="dropzoneBottomText"
-            >
-              De-Identification process begins immediately.
-            </p>
-          </div>
-        </section>
-        <p
-          className="infoText"
-        >
-          Imaging session date and time must match the DICOM for verification.
-        </p>
-        
-      </div>
-      <div />
-    </div>
-  `)
-})
-
-it('renders disabled, dateTime not required, visits/modalities not required, anon not begun', () => {
-  const projectId = 'Dakota_project'
-  const subjectId = 'Dakota'
-  const files: myFiles = []
-  const dateTime = emptyDateTime
-  const totalFiles = 0
-  const numOfFilesParsed = 0
-  const folderName = ''
-  const isDateTimeInputRequired = false
-  const showVisitsAndModalities = false
-  const selectedVisit = emptyVisit
-  const selectedModality = emptyModality
-
-  const tree = renderer
-    .create(
-      <ImagingData
-        projectId={projectId}
-        subjectId={subjectId}
-        key={1}
-        files={files}
-        dateTime={dateTime}
-        onFileUpload={jest.fn()}
-        totalFiles={totalFiles}
-        numOfFilesParsed={numOfFilesParsed}
-        folderName={folderName}
-        discardDicomFiles={jest.fn()}
-        isDateTimeInputRequired={isDateTimeInputRequired}
-        showVisitsAndModalities={showVisitsAndModalities}
-        selectedVisit={selectedVisit}
-        selectedModality={selectedModality}
-      />,
-    )
-    .toJSON()
-
-  expect(tree).toMatchInlineSnapshot(`
-    <div
-      className="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3"
-    >
-      <div
-        className="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8"
-        style={
-          Object {
-            "paddingLeft": "2rem",
-          }
-        }
-      >
-        <label
-          className="dropzoneLabel"
-        >
-          Imaging Files
-          <span
-            className="required"
-          >
-             *
-          </span>
-        </label>
-        <section
-          className="dropzone "
+          className="dropzone dropzoneDisabled "
         >
           <div
             onBlur={[Function]}
@@ -324,6 +76,7 @@ it('renders disabled, dateTime not required, visits/modalities not required, ano
             onDragLeave={[Function]}
             onDragOver={[Function]}
             onDrop={[Function]}
+            onDropCapture={[Function]}
             onFocus={[Function]}
             onKeyDown={[Function]}
             tabIndex={0}
@@ -360,6 +113,267 @@ it('renders disabled, dateTime not required, visits/modalities not required, ano
                 />
               </svg>
             </p>
+            
+            <p
+              className="dropzoneTopText"
+            >
+              Add a folder or zip archive.
+            </p>
+            <p
+              className="dropzoneBottomText"
+            >
+              De-Identification process begins immediately.
+            </p>
+          </div>
+        </section>
+        <p
+          className="infoText"
+        >
+          Imaging session date and time must match the DICOM for verification.
+        </p>
+        
+      </div>
+      <div />
+    </div>
+  `)
+})
+
+it('renders disabled, no subjectId, dateTime not required, visits/modalities not required, anon not begun', () => {
+  const projectId = 'Dakota_project'
+  const subjectId = ''
+  const files: myFiles = []
+  const dateTime = emptyDateTime
+  const totalFiles = 0
+  const numOfFilesParsed = 0
+  const folderName = ''
+  const isDateTimeInputRequired = false
+  const showVisitsAndModalities = false
+  const selectedVisit = emptyVisit
+  const selectedModality = emptyModality
+  const zipSizeError = ''
+
+  const tree = renderer
+    .create(
+      <ImagingData
+        projectId={projectId}
+        subjectId={subjectId}
+        key={1}
+        files={files}
+        dateTime={dateTime}
+        onFileUpload={jest.fn()}
+        totalFiles={totalFiles}
+        numOfFilesParsed={numOfFilesParsed}
+        folderName={folderName}
+        discardDicomFiles={jest.fn()}
+        isDateTimeInputRequired={isDateTimeInputRequired}
+        showVisitsAndModalities={showVisitsAndModalities}
+        selectedVisit={selectedVisit}
+        selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
+      />,
+    )
+    .toJSON()
+
+  expect(tree).toMatchInlineSnapshot(`
+    <div
+      className="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3"
+    >
+      <div
+        className="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8"
+        style={
+          Object {
+            "paddingLeft": "2rem",
+          }
+        }
+      >
+        <label
+          className="dropzoneLabel"
+        >
+          Imaging Files
+          <span
+            className="required"
+          >
+             *
+          </span>
+        </label>
+        <section
+          className="dropzone dropzoneDisabled "
+        >
+          <div
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
+          >
+            <input
+              autoComplete="off"
+              multiple={true}
+              onChange={[Function]}
+              onClick={[Function]}
+              style={
+                Object {
+                  "display": "none",
+                }
+              }
+              tabIndex={-1}
+              type="file"
+            />
+            <p
+              className="icon"
+            >
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root icon themeBlue"
+                focusable="false"
+                style={
+                  Object {
+                    "fontSize": 50,
+                  }
+                }
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                />
+              </svg>
+            </p>
+            
+            <p
+              className="dropzoneTopText"
+            >
+              Add a folder or zip archive.
+            </p>
+            <p
+              className="dropzoneBottomText"
+            >
+              De-Identification process begins immediately.
+            </p>
+          </div>
+        </section>
+        <p
+          className="infoText"
+        >
+          Imaging session date and time must match the DICOM for verification.
+        </p>
+        
+      </div>
+      <div />
+    </div>
+  `)
+})
+
+it('renders disabled, dateTime not required, visits/modalities not required, anon not begun', () => {
+  const projectId = 'Dakota_project'
+  const subjectId = 'Dakota'
+  const files: myFiles = []
+  const dateTime = emptyDateTime
+  const totalFiles = 0
+  const numOfFilesParsed = 0
+  const folderName = ''
+  const isDateTimeInputRequired = false
+  const showVisitsAndModalities = false
+  const selectedVisit = emptyVisit
+  const selectedModality = emptyModality
+  const zipSizeError = ''
+
+  const tree = renderer
+    .create(
+      <ImagingData
+        projectId={projectId}
+        subjectId={subjectId}
+        key={1}
+        files={files}
+        dateTime={dateTime}
+        onFileUpload={jest.fn()}
+        totalFiles={totalFiles}
+        numOfFilesParsed={numOfFilesParsed}
+        folderName={folderName}
+        discardDicomFiles={jest.fn()}
+        isDateTimeInputRequired={isDateTimeInputRequired}
+        showVisitsAndModalities={showVisitsAndModalities}
+        selectedVisit={selectedVisit}
+        selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
+      />,
+    )
+    .toJSON()
+
+  expect(tree).toMatchInlineSnapshot(`
+    <div
+      className="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3"
+    >
+      <div
+        className="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8"
+        style={
+          Object {
+            "paddingLeft": "2rem",
+          }
+        }
+      >
+        <label
+          className="dropzoneLabel"
+        >
+          Imaging Files
+          <span
+            className="required"
+          >
+             *
+          </span>
+        </label>
+        <section
+          className="dropzone  "
+        >
+          <div
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
+          >
+            <input
+              autoComplete="off"
+              multiple={true}
+              onChange={[Function]}
+              onClick={[Function]}
+              style={
+                Object {
+                  "display": "none",
+                }
+              }
+              tabIndex={-1}
+              type="file"
+            />
+            <p
+              className="icon"
+            >
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root icon themeBlue"
+                focusable="false"
+                style={
+                  Object {
+                    "fontSize": 50,
+                  }
+                }
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                />
+              </svg>
+            </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -396,6 +410,7 @@ it('renders disabled, dateTime required and not set, visits/modalities not requi
   const showVisitsAndModalities = false
   const selectedVisit = emptyVisit
   const selectedModality = emptyModality
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -414,6 +429,7 @@ it('renders disabled, dateTime required and not set, visits/modalities not requi
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -441,23 +457,25 @@ it('renders disabled, dateTime required and not set, visits/modalities not requi
           </span>
         </label>
         <section
-          className="dropzone dropzoneDisabled"
+          className="dropzone dropzoneDisabled "
         >
           <div
-            onBlur={null}
-            onClick={null}
-            onDragEnter={null}
-            onDragLeave={null}
-            onDragOver={null}
-            onDrop={null}
-            onFocus={null}
-            onKeyDown={null}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
           >
             <input
               autoComplete="off"
               multiple={true}
-              onChange={null}
-              onClick={null}
+              onChange={[Function]}
+              onClick={[Function]}
               style={
                 Object {
                   "display": "none",
@@ -485,6 +503,7 @@ it('renders disabled, dateTime required and not set, visits/modalities not requi
                 />
               </svg>
             </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -524,6 +543,7 @@ it('renders disabled, visits/modalities required, anon not begun', () => {
   const showVisitsAndModalities = true
   const selectedVisit = emptyVisit
   const selectedModality = emptyModality
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -542,6 +562,7 @@ it('renders disabled, visits/modalities required, anon not begun', () => {
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -569,23 +590,25 @@ it('renders disabled, visits/modalities required, anon not begun', () => {
           </span>
         </label>
         <section
-          className="dropzone dropzoneDisabled"
+          className="dropzone dropzoneDisabled "
         >
           <div
-            onBlur={null}
-            onClick={null}
-            onDragEnter={null}
-            onDragLeave={null}
-            onDragOver={null}
-            onDrop={null}
-            onFocus={null}
-            onKeyDown={null}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
           >
             <input
               autoComplete="off"
               multiple={true}
-              onChange={null}
-              onClick={null}
+              onChange={[Function]}
+              onClick={[Function]}
               style={
                 Object {
                   "display": "none",
@@ -613,6 +636,7 @@ it('renders disabled, visits/modalities required, anon not begun', () => {
                 />
               </svg>
             </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -652,6 +676,7 @@ it('renders enabled, dateTime required, visits/modalities not required, anon not
   const showVisitsAndModalities = false
   const selectedVisit = emptyVisit
   const selectedModality = emptyModality
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -670,6 +695,7 @@ it('renders enabled, dateTime required, visits/modalities not required, anon not
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -697,7 +723,7 @@ it('renders enabled, dateTime required, visits/modalities not required, anon not
           </span>
         </label>
         <section
-          className="dropzone "
+          className="dropzone  "
         >
           <div
             onBlur={[Function]}
@@ -706,6 +732,7 @@ it('renders enabled, dateTime required, visits/modalities not required, anon not
             onDragLeave={[Function]}
             onDragOver={[Function]}
             onDrop={[Function]}
+            onDropCapture={[Function]}
             onFocus={[Function]}
             onKeyDown={[Function]}
             tabIndex={0}
@@ -742,6 +769,7 @@ it('renders enabled, dateTime required, visits/modalities not required, anon not
                 />
               </svg>
             </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -781,6 +809,7 @@ it('renders disabled, dateTime required, vists/modalities required, modality not
   const showVisitsAndModalities = true
   const selectedVisit = { ...emptyVisit, key: '123' }
   const selectedModality = emptyModality
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -799,6 +828,7 @@ it('renders disabled, dateTime required, vists/modalities required, modality not
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -826,23 +856,25 @@ it('renders disabled, dateTime required, vists/modalities required, modality not
           </span>
         </label>
         <section
-          className="dropzone dropzoneDisabled"
+          className="dropzone dropzoneDisabled "
         >
           <div
-            onBlur={null}
-            onClick={null}
-            onDragEnter={null}
-            onDragLeave={null}
-            onDragOver={null}
-            onDrop={null}
-            onFocus={null}
-            onKeyDown={null}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
           >
             <input
               autoComplete="off"
               multiple={true}
-              onChange={null}
-              onClick={null}
+              onChange={[Function]}
+              onClick={[Function]}
               style={
                 Object {
                   "display": "none",
@@ -870,6 +902,7 @@ it('renders disabled, dateTime required, vists/modalities required, modality not
                 />
               </svg>
             </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -909,6 +942,7 @@ it('renders enabled, dateTime required, vists/modalities required, anon not begu
   const showVisitsAndModalities = true
   const selectedVisit = { ...emptyVisit, key: '123' }
   const selectedModality = { ...emptyModality, key: '123' }
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -927,6 +961,7 @@ it('renders enabled, dateTime required, vists/modalities required, anon not begu
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -954,7 +989,7 @@ it('renders enabled, dateTime required, vists/modalities required, anon not begu
           </span>
         </label>
         <section
-          className="dropzone "
+          className="dropzone  "
         >
           <div
             onBlur={[Function]}
@@ -963,6 +998,7 @@ it('renders enabled, dateTime required, vists/modalities required, anon not begu
             onDragLeave={[Function]}
             onDragOver={[Function]}
             onDrop={[Function]}
+            onDropCapture={[Function]}
             onFocus={[Function]}
             onKeyDown={[Function]}
             tabIndex={0}
@@ -999,6 +1035,7 @@ it('renders enabled, dateTime required, vists/modalities required, anon not begu
                 />
               </svg>
             </p>
+            
             <p
               className="dropzoneTopText"
             >
@@ -1038,6 +1075,7 @@ it('renders files being parsed, no info yet', () => {
   const showVisitsAndModalities = true
   const selectedVisit = { ...emptyVisit, key: '123' }
   const selectedModality = { ...emptyModality, key: '123' }
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -1056,6 +1094,7 @@ it('renders files being parsed, no info yet', () => {
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -1157,6 +1196,7 @@ it('renders files being parsed, only totalFiles known', () => {
   const showVisitsAndModalities = true
   const selectedVisit = { ...emptyVisit, key: '123' }
   const selectedModality = { ...emptyModality, key: '123' }
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -1175,6 +1215,7 @@ it('renders files being parsed, only totalFiles known', () => {
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -1278,6 +1319,7 @@ it('renders files being parsed, file parsing in progress', () => {
   const showVisitsAndModalities = true
   const selectedVisit = { ...emptyVisit, key: '123' }
   const selectedModality = { ...emptyModality, key: '123' }
+  const zipSizeError = ''
 
   const tree = renderer
     .create(
@@ -1296,6 +1338,7 @@ it('renders files being parsed, file parsing in progress', () => {
         showVisitsAndModalities={showVisitsAndModalities}
         selectedVisit={selectedVisit}
         selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
       />,
     )
     .toJSON()
@@ -1378,6 +1421,138 @@ it('renders files being parsed, file parsing in progress', () => {
             </div>
           </div>
         </div>
+      </div>
+      <div />
+    </div>
+  `)
+})
+
+it('renders error text when zip file is too big', () => {
+  const projectId = 'Dakota_project'
+  const subjectId = 'Dakota'
+  const files: myFiles = []
+  const dateTime: dateTimeProps = {
+    ...emptyDateTime,
+    rawinputValue: '2021-07-22T12:58',
+  }
+  const totalFiles = 0
+  const numOfFilesParsed = 0
+  const folderName = ''
+  const isDateTimeInputRequired = true
+  const showVisitsAndModalities = true
+  const selectedVisit = { ...emptyVisit, key: '123' }
+  const selectedModality = { ...emptyModality, key: '123' }
+  const zipSizeError = 'zip was too big'
+
+  const tree = renderer
+    .create(
+      <ImagingData
+        projectId={projectId}
+        subjectId={subjectId}
+        key={1}
+        files={files}
+        dateTime={dateTime}
+        onFileUpload={jest.fn()}
+        totalFiles={totalFiles}
+        numOfFilesParsed={numOfFilesParsed}
+        folderName={folderName}
+        discardDicomFiles={jest.fn()}
+        isDateTimeInputRequired={isDateTimeInputRequired}
+        showVisitsAndModalities={showVisitsAndModalities}
+        selectedVisit={selectedVisit}
+        selectedModality={selectedModality}
+        zipSizeError={zipSizeError}
+      />,
+    )
+    .toJSON()
+
+  expect(tree).toMatchInlineSnapshot(`
+    <div
+      className="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3"
+    >
+      <div
+        className="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8"
+        style={
+          Object {
+            "paddingLeft": "2rem",
+          }
+        }
+      >
+        <label
+          className="dropzoneLabel"
+        >
+          Imaging Files
+          <span
+            className="required"
+          >
+             *
+          </span>
+        </label>
+        <section
+          className="dropzone  zipSizeError"
+        >
+          <div
+            onBlur={[Function]}
+            onClick={[Function]}
+            onDragEnter={[Function]}
+            onDragLeave={[Function]}
+            onDragOver={[Function]}
+            onDrop={[Function]}
+            onDropCapture={[Function]}
+            onFocus={[Function]}
+            onKeyDown={[Function]}
+            tabIndex={0}
+          >
+            <input
+              autoComplete="off"
+              multiple={true}
+              onChange={[Function]}
+              onClick={[Function]}
+              style={
+                Object {
+                  "display": "none",
+                }
+              }
+              tabIndex={-1}
+              type="file"
+            />
+            <p
+              className="icon"
+            >
+              <svg
+                aria-hidden={true}
+                className="MuiSvgIcon-root icon themeBlue"
+                focusable="false"
+                style={
+                  Object {
+                    "fontSize": 50,
+                  }
+                }
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                />
+              </svg>
+            </p>
+            <p
+              className="dropzoneTopText"
+            >
+              zip was too big
+            </p>
+            <p
+              className="dropzoneTopText"
+            >
+              Please Drag and Drop its folder instead
+            </p>
+          </div>
+        </section>
+        <p
+          className="infoText"
+        >
+          Imaging session date and time must match the DICOM for verification.
+        </p>
+        
       </div>
       <div />
     </div>

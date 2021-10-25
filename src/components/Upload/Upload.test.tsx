@@ -752,23 +752,25 @@ describe('Upload.tsx ', () => {
                           </span>
                         </label>
                         <section
-                          className="dropzone dropzoneDisabled"
+                          className="dropzone dropzoneDisabled "
                         >
                           <div
-                            onBlur={null}
-                            onClick={null}
-                            onDragEnter={null}
-                            onDragLeave={null}
-                            onDragOver={null}
-                            onDrop={null}
-                            onFocus={null}
-                            onKeyDown={null}
+                            onBlur={[Function]}
+                            onClick={[Function]}
+                            onDragEnter={[Function]}
+                            onDragLeave={[Function]}
+                            onDragOver={[Function]}
+                            onDrop={[Function]}
+                            onDropCapture={[Function]}
+                            onFocus={[Function]}
+                            onKeyDown={[Function]}
+                            tabIndex={0}
                           >
                             <input
                               autoComplete="off"
                               multiple={true}
-                              onChange={null}
-                              onClick={null}
+                              onChange={[Function]}
+                              onClick={[Function]}
                               style={
                                 Object {
                                   "display": "none",
@@ -796,6 +798,7 @@ describe('Upload.tsx ', () => {
                                 />
                               </svg>
                             </p>
+                            
                             <p
                               className="dropzoneTopText"
                             >
@@ -1687,23 +1690,25 @@ it('renders after anon script and project list has been retrieved', () => {
                         </span>
                       </label>
                       <section
-                        className="dropzone dropzoneDisabled"
+                        className="dropzone dropzoneDisabled "
                       >
                         <div
-                          onBlur={null}
-                          onClick={null}
-                          onDragEnter={null}
-                          onDragLeave={null}
-                          onDragOver={null}
-                          onDrop={null}
-                          onFocus={null}
-                          onKeyDown={null}
+                          onBlur={[Function]}
+                          onClick={[Function]}
+                          onDragEnter={[Function]}
+                          onDragLeave={[Function]}
+                          onDragOver={[Function]}
+                          onDrop={[Function]}
+                          onDropCapture={[Function]}
+                          onFocus={[Function]}
+                          onKeyDown={[Function]}
+                          tabIndex={0}
                         >
                           <input
                             autoComplete="off"
                             multiple={true}
-                            onChange={null}
-                            onClick={null}
+                            onChange={[Function]}
+                            onClick={[Function]}
                             style={
                               Object {
                                 "display": "none",
@@ -1731,6 +1736,7 @@ it('renders after anon script and project list has been retrieved', () => {
                               />
                             </svg>
                           </p>
+                          
                           <p
                             className="dropzoneTopText"
                           >
