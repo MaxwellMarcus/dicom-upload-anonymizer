@@ -30,41 +30,44 @@ const App: React.FC = () => {
     errorTextLine1: '',
     errorTextLine2: '',
   })
-  const [anonScript, setAnonScript] = useState('')
+  const [anonScript, setAnonScript] = useState(`
+    version "6.3"
+  `)
   const [availableProjects, setAvailableProjects] = useState<Array<string>>([])
   const [userInfo, setUserInfo] = useState<user>({ userString: '', email: '' })
 
   useEffect(() => {
-    getSiteWideAnonScript().then((response: Response) => {
-      if (response.status === 200) {
-        response.json().then((response: siteWideAnonResponse) => {
-          if (response.ResultSet.Result[0].status === 'enabled') {
-            setAnonScript(response.ResultSet.Result[0].contents)
-          }
-        })
-      } else {
-        setFullStopError(fullStopErrors.ANON_SCRIPT_IRRETRIEVABLE)
-      }
-    })
-    getAvailableProjects().then((response: Response) => {
-      if (response.status === 200) {
-        response.json().then((response: availableProjectsResponse) => {
-          if (response.length === 0) {
-            setFullStopError(fullStopErrors.NO_PROJECTS_AVAILABLE)
-          } else {
-            setUserInfo({
-              userString: response[0].userString,
-              email: response[0].email,
-            })
-            response.forEach((project) => {
-              setAvailableProjects((current) => [...current, project.projectId])
-            })
-          }
-        })
-      } else {
-        setFullStopError(fullStopErrors.PROJECTS_IRRETRIEVABLE)
-      }
-    })
+    // getSiteWideAnonScript().then((response: Response) => {
+    //   if (response.status === 200) {
+    //     response.json().then((response: siteWideAnonResponse) => {
+    //       if (response.ResultSet.Result[0].status === 'enabled') {
+    //         setAnonScript(response.ResultSet.Result[0].contents)
+    //       }
+    //     })
+    //   } else {
+    //     setFullStopError(fullStopErrors.ANON_SCRIPT_IRRETRIEVABLE)
+    //   }
+    // })
+    setAvailableProjects(["Test 1", "Test 2", "Test 3"]);
+    // getAvailableProjects().then((response: Response) => {
+    //   if (response.status === 200) {
+    //     response.json().then((response: availableProjectsResponse) => {
+    //       if (response.length === 0) {
+    //         setFullStopError(fullStopErrors.NO_PROJECTS_AVAILABLE)
+    //       } else {
+    //         setUserInfo({
+    //           userString: response[0].userString,
+    //           email: response[0].email,
+    //         })
+    //         response.forEach((project) => {
+    //           setAvailableProjects((current) => [...current, project.projectId])
+    //         })
+    //       }
+    //     })
+    //   } else {
+    //     setFullStopError(fullStopErrors.PROJECTS_IRRETRIEVABLE)
+    //   }
+    // })
   }, [])
 
   const retrieveVisitsAndModalities = async (
@@ -166,7 +169,6 @@ const App: React.FC = () => {
       </Paper>
       <Box className={styles.greyBackground} py={2}>
         <Container maxWidth='md'>
-          {!fullStopError.error && (
             <Upload
               anonScript={anonScript}
               checkIfDateTimeRequired={checkIfDateTimeRequired}
@@ -175,26 +177,27 @@ const App: React.FC = () => {
               handleUploadPdf={handleUploadPdf}
               retrieveVisitsAndModalities={retrieveVisitsAndModalities}
             />
-          )}
-          {fullStopError.error && (
-            <div className={styles.errorContainer}>
-              <div className={styles.error}>
-                <h1 className={styles.errorTitle}>
-                  {fullStopError.errorTitle}
-                </h1>
-                <p className={styles.errorText}>
-                  {fullStopError.errorTextLine1}
-                </p>
-                <p className={styles.errorText}>
-                  {fullStopError.errorTextLine2}
-                </p>
-              </div>
-            </div>
-          )}
         </Container>
       </Box>
     </div>
   )
 }
+// {!fullStopError.error && (
+  // )}
+  // {fullStopError.error && (
+    //   <div className={styles.errorContainer}>
+    //     <div className={styles.error}>
+    //       <h1 className={styles.errorTitle}>
+    //         {fullStopError.errorTitle}
+    //       </h1>
+    //       <p className={styles.errorText}>
+    //         {fullStopError.errorTextLine1}
+    //       </p>
+    //       <p className={styles.errorText}>
+    //         {fullStopError.errorTextLine2}
+    //       </p>
+    //     </div>
+    //   </div>
+    // )}
 
 export default App

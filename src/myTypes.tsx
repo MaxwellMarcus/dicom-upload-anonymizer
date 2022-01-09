@@ -7,6 +7,16 @@ export type user = {
   email: string;
 };
 
+export type AnonymizationProps = {
+  files: Array<myFile>;
+  anonScript: string;
+  anonWorker: Worker;
+  projectId: string;
+  subjectId: string;
+  session: string;
+  selectedModality: modalityProps;
+};
+
 export type UploadProps = {
   anonScript: string;
   checkIfDateTimeRequired: (value: string) => Promise<boolean>;

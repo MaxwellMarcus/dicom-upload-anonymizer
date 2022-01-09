@@ -6,12 +6,18 @@
   "dependencies": {
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.11.2",
+    "@tensorflow/tfjs": "^3.12.0",
+    "@tensorflow/tfjs-node": "^3.12.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "aws-sdk": "^2.1046.0",
     "buffer": "^6.0.3",
+    "dicom-parser": "^1.8.11",
     "dicomedit": "0.0.33",
     "jszip": "^3.7.0",
+    "mock-aws-s3": "^4.0.2",
+    "nock": "^13.2.1",
     "pdfjs-dist": "^2.9.359",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -21,7 +27,7 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "start": "react-app-rewired --openssl-legacy-provider start",
     "build": "react-app-rewired build",
     "serve": "npx serve build -l tcp://127.0.0.1:3000",
     "test": "react-scripts test --watchAll=false",
