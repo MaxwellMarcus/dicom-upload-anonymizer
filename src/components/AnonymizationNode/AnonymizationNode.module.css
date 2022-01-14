@@ -1,0 +1,9 @@
+.PopUp {
+  background-color: "white";
+  display: "none";
+  position: "fixed";
+  z-index: 1;
+  top: 25%;
+  left: 10%;
+  width: 50%;
+}

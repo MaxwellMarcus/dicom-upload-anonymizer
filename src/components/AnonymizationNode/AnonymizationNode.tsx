@@ -4,16 +4,18 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import * as tf from "@tensorflow/tfjs"
 import * as tfn from "@tensorflow/tfjs-node"
-import {useState, useEffect} from "react"
-import { AnonymizationProps } from "../../myTypes"
+import {useState, useEffect, SetStateAction, Dispatch} from "react"
 import dicomParser from "dicom-parser"
 
-const Anonymization: React.FC<AnonymizationProps> = ({
-  files, anonScript, anonWorker, projectId, subjectId, session, selectedModality
-}: AnonymizationProps) => {
+type DCM = ReturnType<typeof dicomParser.parseDicom>;
+type AnonymizationNodeProps = {dcms: Array<DCM>, size: number, series: string, net: tf.GraphModel, checked: {[key: string]: number}, setChecked: Dispatch<SetStateAction<{[key: string]: number}>>};
 
-  const [net, setNet] = useState<tf.GraphModel>();//tf.model({inputs: tf.input({shape: [0]}), outputs: tf.layers.dense()}));
+const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
+  dcms, size, series, net, setChecked, checked
+}: AnonymizationNodeProps) => {
+
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const [run, setRun] = useState(false);
 
   const text = [] as Array<number>;
 
@@ -22,59 +24,27 @@ const Anonymization: React.FC<AnonymizationProps> = ({
   let width = 0;
   let height = 0;
 
-  let run = false;
-
-  type DCM = ReturnType<typeof dicomParser.parseDicom>;
-
   const dcmData = [] as Array<Int16Array>;
-  // const dcms = [] as Array<DCM>
-  let dcms = {};
 
-  const anon = [anonScript]
 
   const getTag = (dcm: DCM, tag: string) => {
     return new Int16Array(dcm.byteArray.buffer.slice(dcm.elements[tag].dataOffset, dcm.elements[tag].dataOffset + dcm.elements[tag].length))
   }
 
-  const loadNet = () => {
-    tf.ready().then(() => {
-      tf.loadGraphModel("http://127.0.0.1:8080/model/model.json").then(setNet)
-    })
-  }
-
   useEffect(() => {
-    if (!net) {
-      loadNet()
-    }
-
     if (!ctx) {
-      setCtx((document.getElementById("dcmCanvas") as HTMLCanvasElement).getContext("2d"))
+      setCtx((document.getElementById(series + "Thumbnail") as HTMLCanvasElement).getContext("2d"))
+    }
+    if (ctx && !run) {
+      runNet()
     }
   })
 
   async function runNet() {
-    if (run) {console.log("Alredy Run"); return}
-
-    run = true;
-
-    let size = 0
-    dcms = {}
-    for (const file of files) {
-      const buffer = await file.anonymizedFile.arrayBuffer();
-      const dcm = dicomParser.parseDicom(new Uint8Array(buffer));
-      // if (!dcms[])
-      // dcms.push(dcm)
-      size += dcm.elements.x7fe00010.length / 2;
-    }
-
-    console.log(dcms)
+    setRun(true);
 
     width = new Int16Array(dcms[0].byteArray.buffer.slice(dcms[0].elements.x00280010.dataOffset, dcms[0].elements.x00280010.dataOffset + dcms[0].elements.x00280010.length))[0];
     height = new Int16Array(dcms[0].byteArray.buffer.slice(dcms[0].elements.x00280011.dataOffset, dcms[0].elements.x00280011.dataOffset + dcms[0].elements.x00280011.length))[0];
-    const canvas = document.getElementById("dcmCanvas") as HTMLCanvasElement;
-    canvas.width = width;
-    canvas.height = height;
-
 
     let min = Infinity;
     let max = -Infinity;
@@ -98,22 +68,18 @@ const Anonymization: React.FC<AnonymizationProps> = ({
       }
     }
 
-    let t = tf.tensor4d(new Int32Array(data), [files.length, width, height, data.length / (files.length * width * height)]);
+    let t = tf.tensor4d(new Int32Array(data), [dcms.length, width, height, data.length / (dcms.length * width * height)]);
     t = tf.div(tf.sub(t, tf.scalar(min)), tf.scalar(max / 255)) as tf.Tensor4D;
 
     const pred = []
     for (let x = 0; x < width; x += 32) {
       for (let y = 0; y < height; y += 16) {
-        let input = tf.slice(t, [0, y, x], [files.length, 16, 32])
+        let input = tf.slice(t, [0, y, x], [dcms.length, 16, 32])
 
         input = tf.image.resizeBilinear(input, [32, 64])
 
         const out = net.execute(input) as tf.Tensor
-        pred.push(tf.mean(tf.slice(out, [0, 0], [files.length, 1])).dataSync()[0])
-        if (pred[pred.length - 1] > 0.5) {
-          console.log(x, y)
-          anon.push(`alterPixels[ "rectangle", "l=${x}, t=${y}, r=${x + 32}, b=${y + 16}", "solid", "v=100"]`)
-        }
+        pred.push(tf.mean(tf.slice(out, [0, 0], [dcms.length, 1])).dataSync()[0])
       }
     }
 
@@ -125,10 +91,8 @@ const Anonymization: React.FC<AnonymizationProps> = ({
       rgbaPixelData.set([((p - min) / max) * 255, ((p - min) / max) * 255, ((p - min) / max) * 255, 255], point);
       point += 4;
     }
-    console.log(rgbaPixelData)
 
     imageData = new ImageData(new Uint8ClampedArray(rgbaPixelData), width, height)
-    ctx.putImageData(imageData, 0, 0);
 
     for (let i = 0; i < pred.length; i++) {
       if (pred[i] > 0.5) {
@@ -136,108 +100,96 @@ const Anonymization: React.FC<AnonymizationProps> = ({
       }
     }
 
+    setChecked({...checked, [series]: (!text.length) ? 1 : 0})
+
     renderDcm();
 
-    document.getElementById("dcmCanvas").onclick = (e) => {
-      const x = Math.floor(e.offsetX / 32);
-      const y = Math.floor(e.offsetY / 16);
-
-      const n = (y * Math.floor(width / 32)) + x
-
-      const i = text.indexOf(n)
-      console.log(text)
-      console.log(i)
-      if (i == -1) {
-        text.push(n)
-      } else {
-        text.splice(i, 1)
+    document.getElementById(series + "Thumbnail").onclick = (e) => {
+      const pop = document.getElementById(series + "popup");
+      for (const other of document.getElementsByClassName("PopUp") as HTMLCollectionOf<HTMLElement>) {
+        if (pop === other) {
+          pop.style.display = "inline";
+          setChecked(Object.assign(checked, {[series]: 2}))
+        } else {
+          other.style.display = "none";
+        }
       }
 
-      renderDcm();
+      console.log(pop)
+      console.log(pop.style)
+
     }
 
-    // document.getElementById("subButton").disabled = false;
-    document.getElementById("subButton").onclick = (e) => {
-      anonWorker.postMessage({
-        projectId,
-        subjectId,
-        session,
-        uploaded: files,
-        anonScript: anon.join("\n"),
-        selectedModality,
-        anonymize: true,
-      })
+    document.getElementById(series + "Canvas").onclick = (e) => {
+      console.log(e)
+
+      const i = Math.floor((width / 32) * (e.offsetX  / (e.srcElement as HTMLCanvasElement).width)) * Math.floor(height / 16) + Math.floor((height / 16) * (e.offsetY / (e.srcElement as HTMLCanvasElement).height));
+      const index = text.indexOf(i);
+
+      if (index >= 0) {
+          text.splice(index, 1);
+      } else {
+        text.push(i)
+      }
+      console.log(text)
+      renderDcm();
     }
   }
   //dcm.byteArray.buffer.slice(dcm.elements[element].dataOffset, dcm.elements[element].dataOffset + dcm.elements[element].length)
 
-  const renderDcm = () => {
-    ctx.clearRect(0, 0, 512, 512);
-    ctx.putImageData(imageData, 0, 0);
-
-    ctx.strokeStyle = "#ff0000";
-    ctx.lineWidth = 1;
-    for (const pos of text) {
-      const y = pos % Math.floor(height / 16);
-      const x = Math.floor(pos / Math.floor(height / 16));
-      ctx.strokeRect(x * 32 + 2, y * 16 + 2, 28, 14)
+  const closeAll = () => {
+    for (const pop of document.getElementsByClassName("PopUp") as HTMLCollectionOf<HTMLElement>) {
+      pop.style.display = "none";
     }
   }
 
-  // const submit = () => {
-  //   console.log(text)
-  //   for (const pos of text) {
-  //     const x = pos % Math.floor(width / 32);
-  //     const y = Math.floor(pos / Math.floor(width / 32));
-  //     dcmData = dcmData.map((im) => {
-  //       for (let i = y; i < y + 16; i++) {
-  //         for (let l = x; l < x + 32; l++) {
-  //           im[(y * Math.floor(width / 32)) + x] = 0
-  //         }
-  //       }
-  //       return im;
-  //     })
-  //   }
-  //   for (let i = 0; i < dcms.length; i++) {
-  //     dcms[i].byteArray.set(dcmData[i], dcms[i].elements.x7fe00010.dataOffset)
-  //   }
-  //
-  //   const pixelData = new Uint8Array(dcms[10].byteArray.buffer, dcms[10].elements.x7fe00010.dataOffset, dcms[10].elements.x7fe00010.length / 2)
-  //   const testCtx = (document.getElementById("testCanvas") as HTMLCanvasElement).getContext('2d')
-  //
-  //   const rgbaPixelData = new Int16Array(pixelData.length * 4);
-  //   let point = 0;
-  //   for (const p of pixelData) {
-  //     rgbaPixelData.set([p, p, p, 255], point);
-  //     point += 4;
-  //   }
-  //
-  //   const newImDat = new ImageData(new Uint8ClampedArray(rgbaPixelData), width, height)
-  //   testCtx.putImageData(newImDat, 0, 0)
-  // }
+  const renderDcm = () => {
+    const thumbnail = document.getElementById(series + "Thumbnail") as HTMLCanvasElement;
+    ctx.clearRect(0, 0, thumbnail.width, thumbnail.height);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const hiddenCanvas = document.getElementById(series + "HiddenCanvas") as HTMLCanvasElement;
+    hiddenCanvas.width = width;
+    hiddenCanvas.height = height;
+    const hiddenCtx = hiddenCanvas.getContext("2d")
+    hiddenCtx.putImageData(imageData, 0, 0);
+
+    hiddenCtx.strokeStyle = "#ff0000";
+    hiddenCtx.lineWidth = 1;
+    for (const pos of text) {
+      const y = pos % Math.floor(height / 16);
+      const x = Math.floor(pos / Math.floor(height / 16));
+      hiddenCtx.strokeRect(x * 32 + 2, y * 16 + 2, 28, 14)
+    }
+
+    const canvas = document.getElementById(series + "Canvas") as HTMLCanvasElement;
+    const canvasCtx = canvas.getContext("2d");
+
+    canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
+    canvasCtx.scale(canvas.width / width, canvas.height / height);
+    canvasCtx.drawImage(hiddenCanvas, 0, 0);
+
+    ctx.scale(thumbnail.width / width, thumbnail.height / height)
+    ctx.drawImage(hiddenCanvas, 0, 0);
+
+  }
 
   return (
-    <Paper elevation={0} square style={{backgroundColor: "black"}}>
-      <Container>
-        <Grid container spacing={3} justifyContent='flex-start'>
-          {!net && (<p>
-              Loading Net...
-            </p>)
-          }
-
-          {net && (
-            <p>
-              Ready
-            </p>
-          )}
-          <canvas width={512} height={512} id="dcmCanvas"></canvas>
-          <button disabled={!files || !ctx || run} onClick={runNet}>Go!</button>
-          <button disabled={false} id="subButton">Sub</button>
-          <canvas width={256} height={256} id="testCanvas"></canvas>
-        </Grid>
-      </Container>
-    </Paper>
+    <div>
+      <canvas style={{display: "none"}} id={series + "HiddenCanvas"}></canvas>
+      <Paper elevation={0} square style={{backgroundColor: "purple"}}>
+        <Container>
+          <Grid container spacing={3} justifyContent='flex-start'>
+            <canvas width={128} height={128} id={series + "Thumbnail"} style={{backgroundColor: "yellow", padding: "10px"}}></canvas>
+          </Grid>
+        </Container>
+      </Paper>
+      <div id={series+"popup"} className="PopUp" style={{display: "none"}}>
+        <p onClick={closeAll} style={{color: "red", fontSize: "20px", justifyContent: "end", padding: "5px", userSelect: "none", cursor: "pointer"}}>&times;</p>
+        <canvas width="512" height="512" id={series + "Canvas"}></canvas>
+      </div>
+    </div>
   )
 };
 
-export default Anonymization;
+export default AnonymizationNode;
