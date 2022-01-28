@@ -4756,10 +4756,10 @@
   "resolved" "https://registry.npmjs.org/dicomedit-uuid/-/dicomedit-uuid-8.3.2.tgz"
   "version" "8.3.2"
 
-"dicomedit@0.0.33":
-  "integrity" "sha512-GQFZvfDqPfGTkFCJktJfMoM8BAiBt0GtdMIZxv2Rtzn49dYLw6kkcNvfWyezNOdDucBv7AAOJkph53e6MFtjKw=="
-  "resolved" "https://registry.npmjs.org/dicomedit/-/dicomedit-0.0.33.tgz"
-  "version" "0.0.33"
+"dicomedit@^0.0.35":
+  "integrity" "sha512-08p6y8uFuzab3YbWxcMgyNrCjP71vsOhw3aqQYdEdEH7rm/syahLO9cMMeiYvbxSvMLGeMnh6k/fbuk9qY4Y7Q=="
+  "resolved" "https://registry.npmjs.org/dicomedit/-/dicomedit-0.0.35.tgz"
+  "version" "0.0.35"
   dependencies:
     "antlr4" "^4.9.1"
     "big-integer" "^1.6.48"

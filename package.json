@@ -14,7 +14,7 @@
     "aws-sdk": "^2.1046.0",
     "buffer": "^6.0.3",
     "dicom-parser": "^1.8.11",
-    "dicomedit": "0.0.33",
+    "dicomedit": "^0.0.35",
     "jszip": "^3.7.0",
     "mock-aws-s3": "^4.0.2",
     "nock": "^13.2.1",

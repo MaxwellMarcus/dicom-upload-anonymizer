@@ -4,14 +4,14 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import * as tf from "@tensorflow/tfjs"
 import * as tfn from "@tensorflow/tfjs-node"
-import {useState, useEffect, SetStateAction, Dispatch} from "react"
+import {useState, useEffect, SetStateAction, Dispatch, useReducer} from "react"
 import dicomParser from "dicom-parser"
 
 type DCM = ReturnType<typeof dicomParser.parseDicom>;
-type AnonymizationNodeProps = {dcms: Array<DCM>, size: number, series: string, net: tf.GraphModel, checked: {[key: string]: number}, setChecked: Dispatch<SetStateAction<{[key: string]: number}>>};
+type AnonymizationNodeProps = {dcms: Array<DCM>, size: number, series: string, net: tf.GraphModel, checked: () => {[key: string]: number}, setChecked: (k: string, v: number) => void, setAnon: (k: string, v: string) => void};
 
 const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
-  dcms, size, series, net, setChecked, checked
+  dcms, size, series, net, setChecked, checked, setAnon
 }: AnonymizationNodeProps) => {
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
@@ -25,6 +25,10 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
   let height = 0;
 
   const dcmData = [] as Array<Int16Array>;
+
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+  let anon = "";
 
 
   const getTag = (dcm: DCM, tag: string) => {
@@ -100,7 +104,7 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
       }
     }
 
-    setChecked({...checked, [series]: (!text.length) ? 1 : 0})
+    setChecked(series, (!text.length) ? 1 : 0)
 
     renderDcm();
 
@@ -109,20 +113,15 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
       for (const other of document.getElementsByClassName("PopUp") as HTMLCollectionOf<HTMLElement>) {
         if (pop === other) {
           pop.style.display = "inline";
-          setChecked(Object.assign(checked, {[series]: 2}))
+          setChecked(series, 2);
+          forceUpdate();
         } else {
           other.style.display = "none";
         }
       }
-
-      console.log(pop)
-      console.log(pop.style)
-
     }
 
     document.getElementById(series + "Canvas").onclick = (e) => {
-      console.log(e)
-
       const i = Math.floor((width / 32) * (e.offsetX  / (e.srcElement as HTMLCanvasElement).width)) * Math.floor(height / 16) + Math.floor((height / 16) * (e.offsetY / (e.srcElement as HTMLCanvasElement).height));
       const index = text.indexOf(i);
 
@@ -131,7 +130,6 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
       } else {
         text.push(i)
       }
-      console.log(text)
       renderDcm();
     }
   }
@@ -160,7 +158,10 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
       const y = pos % Math.floor(height / 16);
       const x = Math.floor(pos / Math.floor(height / 16));
       hiddenCtx.strokeRect(x * 32 + 2, y * 16 + 2, 28, 14)
+      anon += `(0020,0011) = "${series}" ? alterPixels[ "rectangle", "l=${x * 32}, t=${y * 16}, r=${x * 32 + 32}, b=${y * 16 + 16}", "solid", "v=100"]\n`
     }
+
+    setAnon(series, anon);
 
     const canvas = document.getElementById(series + "Canvas") as HTMLCanvasElement;
     const canvasCtx = canvas.getContext("2d");
@@ -174,13 +175,15 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
 
   }
 
+  const OUTLINE_COLOR = ["red", "yellow", "green"]
+
   return (
     <div>
       <canvas style={{display: "none"}} id={series + "HiddenCanvas"}></canvas>
       <Paper elevation={0} square style={{backgroundColor: "purple"}}>
         <Container>
           <Grid container spacing={3} justifyContent='flex-start'>
-            <canvas width={128} height={128} id={series + "Thumbnail"} style={{backgroundColor: "yellow", padding: "10px"}}></canvas>
+            <canvas width={128} height={128} id={series + "Thumbnail"} style={{backgroundColor: OUTLINE_COLOR[checked()[series]], padding: "10px"}}></canvas>
           </Grid>
         </Container>
       </Paper>

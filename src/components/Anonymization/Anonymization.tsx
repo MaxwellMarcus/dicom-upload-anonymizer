@@ -37,19 +37,36 @@ const Anonymization: React.FC<AnonymizationProps> = ({
   // let dcms = [] as Array<Array<DCM>>;
   // let series = [] as Array<number>;
 
-  const anon = [anonScript]
+  const anon = {"anonScript": anonScript} as {[key: string]: string}
+  const [anonState, setAnonState] = useState<{[key: string]: string}>({});
 
   type CHECK_TYPE = {[key: string]: number}
-  const [nodeChecks, setNodeChecks] = useState<CHECK_TYPE>({})
+  const checks = {} as CHECK_TYPE;
+  const [nodeChecks, setNodeChecks] = useState<CHECK_TYPE>({});
 
   const getTag = (dcm: DCM, tag: string) => {
-    return new Int16Array(dcm.byteArray.buffer.slice(dcm.elements[tag].dataOffset, dcm.elements[tag].dataOffset + dcm.elements[tag].length))
+    const td = new TextDecoder()
+    return td.decode(dcm.byteArray.buffer.slice(dcm.elements[tag].dataOffset, dcm.elements[tag].dataOffset + dcm.elements[tag].length))
   }
 
   const loadNet = () => {
     tf.ready().then(() => {
       tf.loadGraphModel("http://127.0.0.1:8080/model/model.json").then(setNet)
     })
+  }
+
+  const setChecked = (k: string, v: number) => {
+    checks[k] = v;
+    setNodeChecks(checks);
+  }
+
+  const getChecked = () => {
+    return checks;
+  }
+
+  const setAnon = (k: string, v: string) => {
+    anon[k] = v;
+    setAnonState(anon);
   }
 
   useEffect(() => {
@@ -73,7 +90,7 @@ const Anonymization: React.FC<AnonymizationProps> = ({
     for (const file of files) {
       const buffer = await file.anonymizedFile.arrayBuffer();
       const dcm = dicomParser.parseDicom(new Uint8Array(buffer));
-      const seriesNum = getTag(dcm, "x00200011")[0];
+      const seriesNum = parseInt(getTag(dcm, "x00200011"));
       console.log(seriesNum)
 
       if (!Object.keys(dcms).includes(seriesNum.toString())) {
@@ -87,7 +104,7 @@ const Anonymization: React.FC<AnonymizationProps> = ({
     let key = 0
     for (const series of Object.values(dcms)) {
       console.log("Key: ", key);
-      nodes.push(<AnonymizationNode key={key} dcms={series.dcms} size={series.size} series={Object.keys(dcms)[key]} net={net} checked={nodeChecks} setChecked={setNodeChecks}></AnonymizationNode>)
+      nodes.push(<AnonymizationNode key={key} dcms={series.dcms} size={series.size} series={Object.keys(dcms)[key]} net={net} checked={getChecked} setChecked={setChecked} setAnon={setAnon}></AnonymizationNode>)
       key++;
       forceUpdate();
     }
@@ -95,6 +112,25 @@ const Anonymization: React.FC<AnonymizationProps> = ({
     width = 0
     height = 0
     imageData = new ImageData(1, 1);
+  }
+
+  const submit = () => {
+    for (const status of Object.values(nodeChecks)) {
+      console.log(!status)
+      if (!status) {return;}
+    }
+
+    console.log(Object.values(anonState).join("\n"))
+
+    anonWorker.postMessage({
+      projectId,
+      subjectId,
+      session,
+      uploaded: files,
+      anonScript: Object.values(anonState).join("\n"),
+      selectedModality,
+      anonymize: true,
+    })
   }
 
   return (
@@ -107,7 +143,7 @@ const Anonymization: React.FC<AnonymizationProps> = ({
         </Container>
       </Paper>
       <div>
-        <button disabled={false} id="subButton" style={{display: "block", margin: "50px"}}>Submit</button>
+        <button disabled={false} id="subButton" style={{display: "block", margin: "50px"}} onClick={submit}>Submit</button>
       </div>
     </div>
   )
