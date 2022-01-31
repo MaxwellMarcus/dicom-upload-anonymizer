@@ -51,7 +51,7 @@ const Anonymization: React.FC<AnonymizationProps> = ({
 
   const loadNet = () => {
     tf.ready().then(() => {
-      tf.loadGraphModel("http://127.0.0.1:8080/model/model.json").then(setNet)
+      tf.loadGraphModel(`${document.location.origin}/model/model.json`).then(setNet)
     })
   }
 
