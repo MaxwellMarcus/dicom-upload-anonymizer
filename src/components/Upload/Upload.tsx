@@ -32,6 +32,7 @@ import {
 
 /* eslint-disable */
 // @ts-ignore: possibly undefined
+
 const worker = new myWorker()
 
 const Upload: React.FC<UploadProps> = ({
@@ -42,17 +43,17 @@ const Upload: React.FC<UploadProps> = ({
   handleUploadPdf,
   retrieveVisitsAndModalities,
 }: UploadProps) => {
-  const [files, setFiles] = useState<myFiles>([])
+  const [files, setFiles] = useState<myFiles>();//[{fileName: "1.dcm", size: 0, dicomTags: {date: "", time: "", UID: "", modality: ""}, anonymizedFile: new Blob()}])
   const [numOfFilesParsed, setNumOfFilesParsed] = useState(0)
   const [totalFiles, setTotalFiles] = useState(0)
-  const [projectId, setProjectId] = useState('')
-  const [subjectId, setSubjectId] = useState('')
-  const [dateTime, setDateTime] = useState<dateTimeProps>(emptyDateTime)
+  const [projectId, setProjectId] = useState('Test')
+  const [subjectId, setSubjectId] = useState('Subject')
+  const [dateTime, setDateTime] = useState<dateTimeProps>({rawinputValue: "", yyMMddFormat: "211209", date: "09/12/21", hour: "4", minute: "30"})
   const [availableVisitsAndModalities, setAvailableisitsAndModalities] =
     useState<visitsAndModaltiesProps>([])
   const [selectedVisit, setVisit] = useState<visitProps>(emptyVisit)
   const [selectedModality, setModality] = useState<modalityProps>(emptyModality)
-  const [showVisitsAndModalities, setShowVisitsAndModalities] = useState(true)
+  const [showVisitsAndModalities, setShowVisitsAndModalities] = useState(false)
   const [sendingFiles, setSendingFiles] = useState(false)
   const [isDateTimeInputRequired, setIsDateTimeInputRequired] = useState(true)
   const [pdfFile, setPdfFile] = useState<File>(null)
@@ -69,11 +70,13 @@ const Upload: React.FC<UploadProps> = ({
 
   worker.onmessage = (message: any) => {
     const { filesArray, totalFiles, filesParsed, sizeError } = message.data
+    console.log(filesArray)
     if (sizeError) {
       discardDicomFiles()
       setZipSizeError(sizeError)
     } else {
-      setFiles((current: myFiles) => [...current, ...filesArray])
+      setFiles(filesArray)
+      // setFiles((current: myFiles) => [...current, ...filesArray])
       setTotalFiles(totalFiles)
       setNumOfFilesParsed(filesParsed)
     }
@@ -82,19 +85,19 @@ const Upload: React.FC<UploadProps> = ({
   const onFileUpload = async (uploaded: Array<FileWithPath>) => {
     setZipSizeError('')
     setFolderName(getFolderName(uploaded[0].path))
-    const namingConvention = await retrieveSessionNamingConvention(
-      projectId,
-      selectedVisit.key,
-    )
-    const session = computeSession(
-      namingConvention,
-      projectId,
-      subjectId,
-      dateTime,
-      selectedVisit,
-      selectedModality,
-    )
-    setSession(session)
+    const namingConvention = ""//await retrieveSessionNamingConvention(
+    //   projectId,
+    //   selectedVisit.key,
+    // )
+    // const session = computeSession(
+    //   namingConvention,
+    //   projectId,
+    //   subjectId,
+    //   dateTime,
+    //   selectedVisit,
+    //   selectedModality,
+    // )
+    // setSession(session)
     worker.postMessage({
       projectId,
       subjectId,

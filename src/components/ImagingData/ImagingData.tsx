@@ -131,14 +131,16 @@ const ImagingData: React.FC<ImagingDataProps> = ({
             )}
 
             {areFilesReady && (
-              <Button
-                className={styles.dicomDiscard}
-                variant='outlined'
-                style={{ textTransform: 'none' }}
-                onClick={() => discardDicomFiles()}
-              >
-                Discard
-              </Button>
+              <div>
+                <Button
+                  className={styles.dicomDiscard}
+                  variant='outlined'
+                  style={{ textTransform: 'none' }}
+                  onClick={() => discardDicomFiles()}
+                >
+                  Discard
+                </Button>
+              </div>
             )}
 
             <Box display='flex' alignItems='baseline'>
@@ -155,17 +157,17 @@ const ImagingData: React.FC<ImagingDataProps> = ({
         )}
       </Grid>
 
-      <DicomValidationErrorModal
-        files={files}
-        dateTime={dateTime}
-        areFilesReady={areFilesReady}
-        discardDicomFiles={discardDicomFiles}
-        isDateTimeInputRequired={isDateTimeInputRequired}
-        isModalityRequired={showVisitsAndModalities}
-        selectedModality={selectedModality}
-      />
     </Grid>
   )
 }
+// <DicomValidationErrorModal
+// files={files}
+// dateTime={dateTime}
+// areFilesReady={areFilesReady}
+// discardDicomFiles={discardDicomFiles}
+// isDateTimeInputRequired={isDateTimeInputRequired}
+// isModalityRequired={showVisitsAndModalities}
+// selectedModality={selectedModality}
+// />
 
 export default ImagingData
