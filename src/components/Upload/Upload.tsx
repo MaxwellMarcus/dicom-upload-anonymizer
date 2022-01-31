@@ -18,6 +18,7 @@ import JSZip from 'jszip'
 import { FileWithPath } from 'react-dropzone'
 import styles from './Upload.module.css'
 import PageFooter from '../PageFooter/PageFooter'
+import Anonymization from '../Anonymization/Anonymization'
 import Stepper from '@material-ui/core/Stepper'
 import Step from '@material-ui/core/Step'
 import StepLabel from '@material-ui/core/StepLabel'
@@ -101,6 +102,7 @@ const Upload: React.FC<UploadProps> = ({
       uploaded,
       anonScript,
       selectedModality,
+      anonymize: false,
     })
   }
 
@@ -258,6 +260,7 @@ const Upload: React.FC<UploadProps> = ({
       selectedModality={selectedModality}
       zipSizeError={zipSizeError}
     />,
+    <Anonymization key={2} files={files} anonScript={anonScript} anonWorker={worker} projectId={projectId} subjectId={subjectId} session={session} selectedModality={selectedModality}/>,
   ]
 
   const isCompleted = (index: number): boolean => {
@@ -289,7 +292,7 @@ const Upload: React.FC<UploadProps> = ({
             key={label}
             className={styles.stepItem}
           >
-            {label !== 'Empty Third' && <StepLabel>{label}</StepLabel>}
+            {label !== 'Empty Fourth' && <StepLabel>{label}</StepLabel>}
             <StepContent>{stepsContent[index]}</StepContent>
           </Step>
         ))}
