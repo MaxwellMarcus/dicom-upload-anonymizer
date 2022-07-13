@@ -5,9 +5,8 @@ import Paper from '@material-ui/core/Paper'
 import * as tf from "@tensorflow/tfjs"
 import * as tfn from "@tensorflow/tfjs-node"
 import {useState, useEffect, SetStateAction, Dispatch, useReducer} from "react"
-import dicomParser from "dicom-parser"
 
-type DCM = ReturnType<typeof dicomParser.parseDicom>;
+type DCM = any;
 type AnonymizationNodeProps = {dcms: Array<DCM>, size: number, series: string, net: tf.GraphModel, checked: () => {[key: string]: number}, setChecked: (k: string, v: number) => void, setAnon: (k: string, v: string) => void};
 
 const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
@@ -24,7 +23,7 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
   let width = 0;
   let height = 0;
 
-  const dcmData = [] as Array<Int16Array>;
+  const dcmData = [] as Array<Record<any, any>>;
 
   const [, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -47,33 +46,40 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
   async function runNet() {
     setRun(true);
 
-    width = new Int16Array(dcms[0].byteArray.buffer.slice(dcms[0].elements.x00280010.dataOffset, dcms[0].elements.x00280010.dataOffset + dcms[0].elements.x00280010.length))[0];
-    height = new Int16Array(dcms[0].byteArray.buffer.slice(dcms[0].elements.x00280011.dataOffset, dcms[0].elements.x00280011.dataOffset + dcms[0].elements.x00280011.length))[0];
+	console.log( dcms[ 0 ] );
 
-    let min = Infinity;
-    let max = -Infinity;
+    width = dcms[ 0 ].getCols();
+    height = dcms[ 0 ].getRows();
 
-    const data = new Int16Array(size)
+    const data = new Uint8Array( size )
     let point = 0
 
-    for (const dcm of dcms) {
-      const d = new Int16Array(dcm.byteArray.buffer, dcm.elements.x7fe00010.dataOffset, dcm.elements.x7fe00010.length / 2)
-      dcmData.push(d)
-      data.set(d, point);
-      point += dcm.elements.x7fe00010.length / 2;
+	console.log( size );
 
-      for (let i = 0; i < d.length; i++) {
-        if (d[i] > max) {
-          max = d[i];
-        }
-        if (d[i] < min) {
-          min = d[i]
-        }
+	const channels = dcms[ 0 ].getInterpretedData( true ).length / ( width * height );
+
+    for (const dcm of dcms) {
+      const d = dcm.getInterpretedData( false, true );
+		console.log( d );
+		const grayscale = new Uint8ClampedArray( d.data.length / channels );
+
+      for (let i = 0; i < d.data.length; i += channels ) {
+		let v = 0;
+		for ( let l = 0; l < channels; l++ ) {
+			v += d.data[ i + l ];
+		}
+		v /= channels;
+		v = 255 * ( v - d.min ) / ( d.max - d.min )
+		grayscale.set( [ v ], i / channels );
       }
+      dcmData.push( { obj: d, grayscale: grayscale } );
+		console.log( grayscale.length, point );
+      data.set(grayscale, point);
+      point += d.length / channels;
     }
 
-    let t = tf.tensor4d(new Int32Array(data), [dcms.length, width, height, data.length / (dcms.length * width * height)]);
-    t = tf.div(tf.sub(t, tf.scalar(min)), tf.scalar(max / 255)) as tf.Tensor4D;
+    let t = tf.tensor4d( new Int32Array(data), [dcms.length, width, height, channels ] );
+    t = tf.div(tf.sub(t, tf.scalar( dcmData[ 0 ].obj.min )), tf.scalar( ( dcmData[ 0 ].obj.max - dcmData[ 0 ].obj.min ) / 255)) as tf.Tensor4D;
 
     const pred = []
     for (let x = 0; x < width; x += 32) {
@@ -87,16 +93,13 @@ const AnonymizationNode: React.FC<AnonymizationNodeProps> = ({
       }
     }
 
+	const rgbaPixelData = new Uint8ClampedArray( width * height * 4 );
+	for ( let i = 0; i < dcmData[ 0 ].grayscale.length; i++ ) {
+		const v = dcmData[ 0 ].grayscale[ i ];
+		rgbaPixelData.set( [ v, v, v, 255 ], i * 4 );
+	}
 
-    const grayPixelData = new Int16Array(dcms[0].byteArray.buffer, dcms[0].elements.x7fe00010.dataOffset, dcms[0].elements.x7fe00010.length / 2)
-    const rgbaPixelData = new Int16Array(grayPixelData.length * 4);
-    point = 0;
-    for (const p of grayPixelData) {
-      rgbaPixelData.set([((p - min) / max) * 255, ((p - min) / max) * 255, ((p - min) / max) * 255, 255], point);
-      point += 4;
-    }
-
-    imageData = new ImageData(new Uint8ClampedArray(rgbaPixelData), width, height)
+    imageData = new ImageData( rgbaPixelData, width, height)
 
     for (let i = 0; i < pred.length; i++) {
       if (pred[i] > 0.5) {

@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^12.8.3",
     "aws-sdk": "^2.1046.0",
     "buffer": "^6.0.3",
+    "daikon": "^1.2.42",
     "dicom-parser": "^1.8.11",
     "dicomedit": "^0.0.35",
     "jszip": "^3.7.0",
@@ -27,7 +28,7 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-app-rewired --openssl-legacy-provider start",
+    "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "serve": "npx serve build -l tcp://127.0.0.1:3000",
     "test": "react-scripts test --watchAll=false",

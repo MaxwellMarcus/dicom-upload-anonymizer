@@ -6,8 +6,11 @@ import * as tf from "@tensorflow/tfjs"
 import * as tfn from "@tensorflow/tfjs-node"
 import {useState, useEffect, useReducer} from "react"
 import { AnonymizationProps } from "../../myTypes"
-import dicomParser from "dicom-parser"
 import AnonymizationNode from "../AnonymizationNode/AnonymizationNode"
+/* eslint-disable */
+// @ts-ignore
+import daikon from "daikon";
+/*eslint-enable */
 
 const Anonymization: React.FC<AnonymizationProps> = ({
   files, anonScript, anonWorker, projectId, subjectId, session, selectedModality
@@ -28,7 +31,7 @@ const Anonymization: React.FC<AnonymizationProps> = ({
 
   const [nodes, setNodes] = useState([] as Array<JSX.Element>);
 
-  type DCM = ReturnType<typeof dicomParser.parseDicom>;
+  type DCM = any;
   type SERIES = {dcms: Array<DCM>, size: number}
   type SERIES_OBJ = {[key: number]: SERIES};
 
@@ -89,16 +92,17 @@ const Anonymization: React.FC<AnonymizationProps> = ({
     dcms = {} as SERIES_OBJ;
     for (const file of files) {
       const buffer = await file.anonymizedFile.arrayBuffer();
-      const dcm = dicomParser.parseDicom(new Uint8Array(buffer));
-      const seriesNum = parseInt(getTag(dcm, "x00200011"));
+      const dcm = daikon.Series.parseImage( new DataView( buffer ) );
+		console.log( dcm );
+      const seriesNum = dcm.getSeriesNumber();
       console.log(seriesNum)
 
       if (!Object.keys(dcms).includes(seriesNum.toString())) {
         dcms[seriesNum] = {dcms: [], size: 0} as SERIES;
       }
       dcms[seriesNum].dcms.push(dcm)
-
-      dcms[seriesNum].size += dcm.elements.x7fe00010.length / 2;
+		console.log( dcm.getRawData() );
+      dcms[seriesNum].size += dcm.getInterpretedData( true ).length;
     }
 
     let key = 0
